@@ -14,7 +14,7 @@ secret_access_key_id = os.getenv("secret_access_key_id")
 
 
 def __main__():
-    print("starting script")
+    print("starting script ..\n#\n#\n#\n#\n#\n#\n#")
     stage_layer_1()
 
 
@@ -28,13 +28,12 @@ def stage_layer_1():
         # list of fight urls for that card
 
         fight_urls_list = get_fight_url_list(card_url)
-        # print(fight_urls_list)
-        for f in fight_urls_list:
-            print(f, date)
-            card_page = create_fight_page(f, date)
-        # print(card_page)
-        # pushes card page to s3 with date added somewhere
-        # push_card_page(card_page)
+
+        for f in fight_urls_list[:1]:
+            fight_page, names = create_fight_page(f, date)
+
+            # pushes card page to s3 with date added somewhere
+            push_fight_page(fight_page, date, date + names)
 
 
 # fetch the urls of all past cards with date
@@ -43,16 +42,16 @@ def get_card_urls_dic():
     endpoint = "http://ufcstats.com/statistics/events/completed?page=all"
     response = requests.get(endpoint)
 
-    parser = BeautifulSoup(response.content, "html.parser")
+    parser = BeautifulSoup(response.text, "html.parser")
 
     events = parser.find_all("i", class_="b-statistics__table-content")[0:2]
     for e in events:
         s = e.span.text.strip().replace(",", "").split()
-        date = datetime.datetime(
+        date = datetime.date(
             int(s[2]), datetime.datetime.strptime(s[0], "%B").month, int(s[1])
         )
         # get past events only
-        if date < date.now():
+        if date < datetime.date.today():
             new_urls[str(date)] = e.find("a").get("href")
 
     return new_urls
@@ -64,7 +63,7 @@ def get_fight_url_list(card_url):
     response = requests.get(card_url)
     parser = BeautifulSoup(response.text, "html.parser")
     fights = parser.find_all("tr", class_="b-fight-details__table-row")
-    for f in fights[:2]:
+    for f in fights:
         # he might move around the table structure
         if f.get("data-link"):
             fight_urls.append(f.get("data-link"))
@@ -72,9 +71,18 @@ def get_fight_url_list(card_url):
     return fight_urls
 
 
-# def create_fight_page(fight_url, date):
-#     print(fight_url, date)
-#     return date + "\n" + requests.get(fight_url).text
+def create_fight_page(fight_url, date):
+    fight_page = requests.get(fight_url)
+    parser = BeautifulSoup(fight_page.text, "html.parser")
+    x = parser.find_all(class_="b-link b-fight-details__person-link")
+
+    names = x[0].text + x[1].text
+    return [date + "\n" + fight_page.text, names.replace(" ", "")]
+
+
+def push_fight_page(fight_page, bucket, object_name):
+    # push to s3
+    pass
 
 
 __main__()
