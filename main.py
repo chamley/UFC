@@ -1,3 +1,6 @@
+# To do list:
+#   remove limiter on get_card urls dic
+
 import os
 from urllib import request, response
 from dotenv import load_dotenv
@@ -35,16 +38,19 @@ def stage_layer_1():
     # date is the key, url is the val
     for date, card_url in card_urls_dic.items():
         # list of fight urls for that card
-        time.sleep(5)  # being respectful of their servers
+        time.sleep(1)  # being respectful of their servers
         fight_urls_list = get_fight_url_list(card_url)
 
-        for f in fight_urls_list[:1]:
+        for f in fight_urls_list:
             fight_page, names = create_fight_page(f, date)
-            time.sleep(5)  # being respectful of their servers
+            time.sleep(1)  # being respectful of their servers
             # pushes card page to s3 with date added somewhere
 
             push_fight_page(
-                fight_page, "ufc_night_" + date, "fight_" + date + names + ".txt", s3
+                fight_page,
+                "ufc-night-" + date.replace("_", "-").replace(" ", ""),
+                "fight-" + date.replace("_", "-") + names.lower() + ".txt",
+                s3,
             )
 
 
@@ -57,7 +63,7 @@ def get_card_urls_dic():
 
     parser = BeautifulSoup(response.text, "html.parser")
 
-    events = parser.find_all("i", class_="b-statistics__table-content")[0:2]
+    events = parser.find_all("i", class_="b-statistics__table-content")  # remove this
     for e in events:
         s = e.span.text.strip().replace(",", "").split()
         date = datetime.date(
@@ -106,7 +112,13 @@ def push_fight_page(fight_page, bucket, object_name, s3):
         )  # we're still pretty low data so network calls dont need caching
         # check if bucket exists, if not create it
         if bucket not in current_buckets:
+            print(
+                "trying to write filename:{}, bucket:{} key:{}".format(
+                    object_name, bucket, object_name
+                )
+            )
             s3.create_bucket(Bucket=bucket)
+
             s3.upload_file(Filename=object_name, Bucket=bucket, Key=object_name)
             print("fight page uploaded successfully")
         else:
@@ -119,7 +131,8 @@ def push_fight_page(fight_page, bucket, object_name, s3):
         # if not create bucket, else push to that bucket
         # --- check if object exists
         # --- if yes throw error, else put object
-    except:
+    except Exception as e:
+        print(e)
         sys.exit(1)
 
 
