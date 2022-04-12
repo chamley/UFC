@@ -21,19 +21,24 @@ def __main__():
 # we grab the latest raw data. We transform in another stage
 def stage_layer_1():
     # dictionary of past cards with their dates
-    card_urls_dic = get_all_card_urls()
+    card_urls_dic = get_card_urls_dic()
 
     # date is the key, url is the val
-    for date, url in card_urls_dic.items():
+    for date, card_url in card_urls_dic.items():
         # list of fight urls for that card
-        fight_urls = get_fight_urls(url)
-        # for f in fight_urls:
-        #     card_page = create_card_page(f)
-        #     push_card_page(card_page)
+
+        fight_urls_list = get_fight_url_list(card_url)
+        # print(fight_urls_list)
+        for f in fight_urls_list:
+            print(f, date)
+            card_page = create_fight_page(f, date)
+        # print(card_page)
+        # pushes card page to s3 with date added somewhere
+        # push_card_page(card_page)
 
 
 # fetch the urls of all past cards with date
-def get_all_card_urls():
+def get_card_urls_dic():
     new_urls = {}
     endpoint = "http://ufcstats.com/statistics/events/completed?page=all"
     response = requests.get(endpoint)
@@ -54,19 +59,22 @@ def get_all_card_urls():
 
 
 # given a card url return all fight urls and the date of the card
-def get_fight_urls(card_url):
+def get_fight_url_list(card_url):
     fight_urls = []
     response = requests.get(card_url)
     parser = BeautifulSoup(response.text, "html.parser")
     fights = parser.find_all("tr", class_="b-fight-details__table-row")
-    for f in fights:
-        fight_urls.append(f.get("data-link"))
+    for f in fights[:2]:
+        # he might move around the table structure
+        if f.get("data-link"):
+            fight_urls.append(f.get("data-link"))
 
     return fight_urls
 
 
-def get_fight_page(fight_url):
-    return requests.get(fight_url).text
+# def create_fight_page(fight_url, date):
+#     print(fight_url, date)
+#     return date + "\n" + requests.get(fight_url).text
 
 
 __main__()
