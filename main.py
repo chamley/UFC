@@ -6,7 +6,9 @@ import requests
 import re
 import json
 import datetime
-
+import boto3
+import sys
+import time
 
 load_dotenv()
 access_key_id = os.getenv("access_key_id")
@@ -20,20 +22,30 @@ def __main__():
 
 # we grab the latest raw data. We transform in another stage
 def stage_layer_1():
+    s3 = boto3.client(
+        "s3",
+        region_name="us-east-1",
+        aws_access_key_id=access_key_id,
+        aws_secret_access_key=secret_access_key_id,
+    )
+
     # dictionary of past cards with their dates
     card_urls_dic = get_card_urls_dic()
 
     # date is the key, url is the val
     for date, card_url in card_urls_dic.items():
         # list of fight urls for that card
-
+        time.sleep(5)  # being respectful of their servers
         fight_urls_list = get_fight_url_list(card_url)
 
         for f in fight_urls_list[:1]:
             fight_page, names = create_fight_page(f, date)
-
+            time.sleep(5)  # being respectful of their servers
             # pushes card page to s3 with date added somewhere
-            push_fight_page(fight_page, date, date + names)
+
+            push_fight_page(
+                fight_page, "ufc_night_" + date, "fight_" + date + names + ".txt", s3
+            )
 
 
 # fetch the urls of all past cards with date
@@ -41,6 +53,7 @@ def get_card_urls_dic():
     new_urls = {}
     endpoint = "http://ufcstats.com/statistics/events/completed?page=all"
     response = requests.get(endpoint)
+    time.sleep(5)  # being respectful of their servers
 
     parser = BeautifulSoup(response.text, "html.parser")
 
@@ -61,6 +74,7 @@ def get_card_urls_dic():
 def get_fight_url_list(card_url):
     fight_urls = []
     response = requests.get(card_url)
+
     parser = BeautifulSoup(response.text, "html.parser")
     fights = parser.find_all("tr", class_="b-fight-details__table-row")
     for f in fights:
@@ -80,9 +94,33 @@ def create_fight_page(fight_url, date):
     return [date + "\n" + fight_page.text, names.replace(" ", "")]
 
 
-def push_fight_page(fight_page, bucket, object_name):
-    # push to s3
-    pass
+def push_fight_page(fight_page, bucket, object_name, s3):
+    print("pushing: " + object_name + " to: " + bucket)
+    try:
+        # have to open twice for some reason idk
+        with (open(object_name, "w") as f):
+            f.write(fight_page)
+
+        current_buckets = (
+            s3.list_buckets()
+        )  # we're still pretty low data so network calls dont need caching
+        # check if bucket exists, if not create it
+        if bucket not in current_buckets:
+            s3.create_bucket(Bucket=bucket)
+            s3.upload_file(Filename=object_name, Bucket=bucket, Key=object_name)
+            print("fight page uploaded successfully")
+        else:
+            current_objects = s3.list_objects(Bucket=bucket)
+            if object_name not in current_objects:
+                s3.upload_file(Filename=object_name, Bucket=bucket, Key=object_name)
+            else:
+                raise Exception("trying to overwrite objects !!!")
+            pass
+        # if not create bucket, else push to that bucket
+        # --- check if object exists
+        # --- if yes throw error, else put object
+    except:
+        sys.exit(1)
 
 
 __main__()
