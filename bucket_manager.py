@@ -25,7 +25,8 @@ def bucket_manager():
     for e in my_buckets[:4]:
         object_dic = s3.list_objects(Bucket=e["Name"])
         for key, val in object_dic.items():
-            print(key, val)
+
+            print("key: ", key, "   val: ", val)
 
 
 __main__()
