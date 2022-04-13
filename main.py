@@ -1,6 +1,8 @@
 # To do list:
 #   remove limiter on get_card urls dic
 
+# this script currently grabs the webpage of every single fight listed in ufcfights.com
+
 import os
 from urllib import request, response
 from dotenv import load_dotenv
@@ -59,7 +61,6 @@ def get_card_urls_dic():
     new_urls = {}
     endpoint = "http://ufcstats.com/statistics/events/completed?page=all"
     response = requests.get(endpoint)
-    time.sleep(5)  # being respectful of their servers
 
     parser = BeautifulSoup(response.text, "html.parser")
 
@@ -102,6 +103,7 @@ def create_fight_page(fight_url, date):
 
 def push_fight_page(fight_page, bucket, object_name, s3):
     print("pushing: " + object_name + " to: " + bucket)
+    bucket = "ufc-big-data"
     try:
         # have to open twice for some reason idk
         with (open(object_name, "w") as f):
@@ -125,6 +127,11 @@ def push_fight_page(fight_page, bucket, object_name, s3):
             current_objects = s3.list_objects(Bucket=bucket)
             if object_name not in current_objects:
                 s3.upload_file(Filename=object_name, Bucket=bucket, Key=object_name)
+                print(
+                    "trying to write filename:{}, bucket:{} key:{}".format(
+                        object_name, bucket, object_name
+                    )
+                )
             else:
                 raise Exception("trying to overwrite objects !!!")
             pass
