@@ -21,7 +21,14 @@ secret_access_key_id = os.getenv("secret_access_key_id")
 
 def __main__():
     print("starting bucket manager script ..\n#\n#\n#\n#\n#\n#\n#")
-    bucket_manager()
+    sns = boto3.client(
+        "sns",
+        region_name="eu-west-3",
+        aws_access_key_id=access_key_id,
+        aws_secret_access_key=secret_access_key_id,
+    )
+    response = sns.publish(PhoneNumber="+33667938716", Message="ohai")
+    print(response)
 
 
 # we grab the latest raw data. We transform in another stage
@@ -39,11 +46,11 @@ def bucket_manager():
         aws_secret_access_key=secret_access_key_id,
     )
 
-    for bucket in s3resource.buckets.all():
-        for o in bucket.objects.all():
-            print(o)
-            response = s3resource.Object(bucket.name, o.key).delete()
-            print(response)
+    # for bucket in s3resource.buckets.all():
+    #     for o in bucket.objects.all():
+    #         print(o)
+    #         response = s3resource.Object(bucket.name, o.key).delete()
+    #         print(response)
 
 
 __main__()

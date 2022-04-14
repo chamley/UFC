@@ -3,6 +3,7 @@
 
 # this script currently grabs the webpage of every single fight listed in ufcfights.com
 
+from calendar import month
 import os
 from urllib import request, response
 from dotenv import load_dotenv
@@ -18,6 +19,8 @@ import time
 load_dotenv()
 access_key_id = os.getenv("access_key_id")
 secret_access_key_id = os.getenv("secret_access_key_id")
+DATE = datetime.date.today()  # get all events previous to DATE
+DATE = datetime.date(year=2013, month=11, day=10)
 
 
 def __main__():
@@ -71,7 +74,7 @@ def get_card_urls_dic():
             int(s[2]), datetime.datetime.strptime(s[0], "%B").month, int(s[1])
         )
         # get past events only
-        if date < datetime.date.today():
+        if date < DATE:
             new_urls[str(date)] = e.find("a").get("href")
 
     return new_urls
@@ -102,8 +105,8 @@ def create_fight_page(fight_url, date):
 
 
 def push_fight_page(fight_page, bucket, object_name, s3):
-    print("pushing: " + object_name + " to: " + bucket)
     bucket = "ufc-big-data"
+    print("pushing: " + object_name + " to: " + bucket)
     try:
         # have to open twice for some reason idk
         with (open(object_name, "w") as f):
@@ -133,12 +136,16 @@ def push_fight_page(fight_page, bucket, object_name, s3):
                     )
                 )
             else:
+                s3.upload_file(Filename=object_name, Bucket=bucket, Key=object_name)
+                print("bucket overwritten")
                 raise Exception("trying to overwrite objects !!!")
+
             pass
         # if not create bucket, else push to that bucket
         # --- check if object exists
         # --- if yes throw error, else put object
     except Exception as e:
+        # implement sns
         print(e)
         sys.exit(1)
 
