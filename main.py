@@ -3,14 +3,11 @@
 
 # this script currently grabs the webpage of every single fight listed in ufcfights.com
 
-from calendar import month
+
 import os
-from urllib import request, response
 from dotenv import load_dotenv
 from bs4 import BeautifulSoup
 import requests
-import re
-import json
 import datetime
 import boto3
 import sys
@@ -36,7 +33,6 @@ def stage_layer_1():
         aws_access_key_id=access_key_id,
         aws_secret_access_key=secret_access_key_id,
     )
-
     # dictionary of past cards with their dates
     card_urls_dic = get_card_urls_dic()
 
