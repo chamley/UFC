@@ -47,13 +47,14 @@ def transformer():
                 fight_page = fetch_fight(k=f["Key"])
                 fight_object = parse_fight(fight_page)
                 push_fight(fight_object)
+                break  # for debugging purposes
 
         if "NextContinuationToken" in response:
             token = response["NextContinuationToken"]
             response = S3C.list_objects_v2(Bucket=BUCKET_NAME, ContinuationToken=token)
         else:
             break
-    # print(len(S3C.list_objects(Bucket=BUCKET_NAME, MaxKeys=1500)["Contents"]))
+        break  # for debugging purposes
 
 
 def fetch_fight(k):
@@ -64,6 +65,8 @@ def fetch_fight(k):
 
 # turns a fight page into a json object
 def parse_fight(fp):
+    parser = BeautifulSoup(fp, "html.parser")
+    print(parser.find_all("tr"))
     return {}
 
 
