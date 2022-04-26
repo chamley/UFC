@@ -32,7 +32,7 @@ class DBHelper:
     def getCursor(self):
         return self.cur
 
-    def close(self, params):
+    def closeDB(self, params):
         self.conn.close()
 
     pass
