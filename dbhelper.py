@@ -29,7 +29,10 @@ class DBHelper:
     def query2(self, params):
         pass
 
-    def query3(self, params):
-        pass
+    def getCursor(self):
+        return self.cur
+
+    def close(self, params):
+        self.conn.close()
 
     pass
