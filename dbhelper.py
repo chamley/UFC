@@ -29,4 +29,7 @@ class DBHelper:
     def query2(self, params):
         pass
 
+    def query3(self, params):
+        pass
+
     pass
