@@ -36,8 +36,10 @@ def __main__():
 
 def transformer():
 
-    # max keys
-    response = S3C.list_objects_v2(Bucket=BUCKET_NAME)
+    # max keys #remove prefix of volk fight
+    response = S3C.list_objects_v2(
+        Bucket=BUCKET_NAME, Prefix="fight-2022-04-09alexandervolkanovskichansungjung"
+    )
     token = ""
     # tokens.append(response["ContinuationToken"])
     while True:
@@ -65,6 +67,9 @@ def fetch_fight(k):
 
 # turns a fight page into a json object
 def parse_fight(fp):
+    fight_object_small = {}
+    fight_object_large = {}
+
     parser = BeautifulSoup(fp, "html.parser")
     print(parser.find_all("tr"))
     return {}
