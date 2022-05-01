@@ -6,6 +6,8 @@ def main():
     db = DBHelper()
     # create_Date_dim(db)
     # create_Fighter_dim(db)
+    # create_Round_dim(db)
+    db.closeDB()
 
 
 def create_Round_fact() -> None:
@@ -14,6 +16,17 @@ def create_Round_fact() -> None:
 
 def create_Fight_dim() -> None:
     pass
+
+
+def create_Round_dim(db: DBHelper) -> None:
+    query = """
+        create table Round_dim (
+            round_key int primary key
+            ,fight_key int
+            ,round_number smallint
+            );"""
+    db.getCursor().execute(query)
+    db.getConn().commit()
 
 
 def create_Fighter_dim(db: DBHelper) -> None:

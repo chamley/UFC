@@ -35,7 +35,7 @@ class DBHelper:
     def getConn(self):
         return self.conn
 
-    def closeDB(self, params):
+    def closeDB(self):
         self.conn.close()
 
     pass
