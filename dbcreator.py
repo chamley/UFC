@@ -22,8 +22,8 @@ def create_Round_dim(db: DBHelper) -> None:
     query = """
         create table Round_dim (
             round_key int primary key
-            ,fight_key int
-            ,round_number smallint
+            ,fight_key int not null
+            ,round_number smallint not null
             );"""
     db.getCursor().execute(query)
     db.getConn().commit()
