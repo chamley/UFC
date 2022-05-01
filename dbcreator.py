@@ -15,7 +15,7 @@ def create_Round_fact() -> None:
 
 
 def create_Fight_dim() -> None:
-    pass
+    query = """"""
 
 
 def create_Round_dim(db: DBHelper) -> None:
