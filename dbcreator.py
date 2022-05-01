@@ -1,8 +1,11 @@
 import psycopg2
 
 
+from dbhelper import DBHelper
+
+
 def main():
-    pass
+    db = DBHelper()
 
 
 main()
