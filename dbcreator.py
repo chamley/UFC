@@ -1,24 +1,59 @@
 from dbhelper import DBHelper
+import logging
+
+logging.basicConfig(filename="logs/db_build.log", encoding="utf-8", level=logging.DEBUG)
 
 
 def main():
     """The purpose of this script is to fully fledge out version 1.0 of our database"""
+    logging.info("Building Database ...")
     db = DBHelper()
     # create_Date_dim(db)
     # create_Fighter_dim(db)
     # create_Round_dim(db)
+    # create_Round_fact(db)
     db.closeDB()
+    logging.info("Building Database Finished ...")
 
 
-def create_Round_fact() -> None:
-    pass
+def create_Round_fact(db: DBHelper) -> None:
+    query = """
+        create table Round_fact (
+            fight_date int
+            ,figher_key int
+            ,round_key int
+            ,fight_key int
+            ,knockdowns int
+            ,ss_a int
+            ,ss_l int
+            ,ts_a int
+            ,ts_l int
+            ,td_a int
+            ,td_l int
+            ,sub_a int
+            ,rev_l int
+            ,ground_control_time time
+            ,ss_a_head int
+            ,ss_l_head int
+            ,ss_a_body int
+            ,ss_l_body int
+            ,ss_a_leg int
+            ,ss_l_leg int
+            ,ss_a_dist int
+            ,ss_l_dist int
+            ,ss_a_clinch int
+            ,ss_l_clinch int
+            ,ss_a_ground int
+            ,ss_l_ground int
+            ,primary key(fight_date, figher_key, round_key, fight_key)
+        )
+        """
+    db.getCursor().execute(query)
+    db.getConn().commit()
+    logging.info("Round_fact successfully built.")
 
 
-def populate_Date_dim() -> None:
-    pass
-
-
-def create_Fight_dim() -> None:
+def create_Fight_dim(db: DBHelper) -> None:
     query = """
             create table Fight_dim (
                 fight_key int primary key
@@ -35,6 +70,9 @@ def create_Fight_dim() -> None:
 
             )
     """
+    db.getCursor().execute(query)
+    db.getConn().commit()
+    logging.info("Fight_dim successfully built.")
 
 
 def create_Round_dim(db: DBHelper) -> None:
@@ -46,6 +84,7 @@ def create_Round_dim(db: DBHelper) -> None:
             );"""
     db.getCursor().execute(query)
     db.getConn().commit()
+    logging.info("Round_dim successfully built.")
 
 
 def create_Fighter_dim(db: DBHelper) -> None:
@@ -62,6 +101,7 @@ def create_Fighter_dim(db: DBHelper) -> None:
     """
     db.getCursor().execute(query)
     db.getConn().commit()
+    logging.info("Fighter_dim successfully built.")
 
 
 def create_Date_dim(db: DBHelper) -> None:
@@ -70,47 +110,11 @@ def create_Date_dim(db: DBHelper) -> None:
                     ,year varchar(2) not null
                     ,month varchar(2) not null
                     ,day varchar(2) not null
-                    ,date datetime not null );
+                    ,date_timestamp date not null );
             """
     db.getCursor().execute(query)
     db.getConn().commit()
-
-    query = """
-CREATE TABLE DimDate
-	(	DateKey INT primary key,
-		Date DATETIME,
-		FullDateUK CHAR(10), -- Date in dd-MM-yyyy format
-		FullDateUSA CHAR(10),-- Date in MM-dd-yyyy format
-		DayOfMonth VARCHAR(2), -- Field will hold day number of Month
-		DaySuffix VARCHAR(4), -- Apply suffix as 1st, 2nd ,3rd etc
-		DayName VARCHAR(9), -- Contains name of the day, Sunday, Monday
-		DayOfWeekUSA CHAR(1),-- First Day Sunday=1 and Saturday=7
-		DayOfWeekUK CHAR(1),-- First Day Monday=1 and Sunday=7
-		DayOfWeekInMonth VARCHAR(2), --1st Monday or 2nd Monday in Month
-		DayOfWeekInYear VARCHAR(2),
-		DayOfQuarter VARCHAR(3),
-		DayOfYear VARCHAR(3),
-		WeekOfMonth VARCHAR(1),-- Week Number of Month
-		WeekOfQuarter VARCHAR(2), --Week Number of the Quarter
-		WeekOfYear VARCHAR(2),--Week Number of the Year
-		Month VARCHAR(2), --Number of the Month 1 to 12
-		MonthName VARCHAR(9),--January, February etc
-		MonthOfQuarter VARCHAR(2),-- Month Number belongs to Quarter
-		Quarter CHAR(1),
-		QuarterName VARCHAR(9),--First,Second..
-		Year CHAR(4),-- Year value of Date stored in Row
-		YearName CHAR(7), --CY 2012,CY 2013
-		MonthYear CHAR(10), --Jan-2013,Feb-2013
-		MMYYYY CHAR(6),
-		FirstDayOfMonth DATE,
-		LastDayOfMonth DATE,
-		FirstDayOfQuarter DATE,
-		LastDayOfQuarter DATE,
-		FirstDayOfYear DATE,
-		LastDayOfYear DATE,
-		HolidayUSA VARCHAR(50),--Name of Holiday in US
-		HolidayUK VARCHAR(50) Null --Name of Holiday in UK
-	)"""
+    logging.info("Date_dim successfully built.")
 
 
 main()

@@ -12,7 +12,7 @@ def main():
         d["month"] = d["timestamp"].apply(lambda x: x.month)
         d["day"] = d["timestamp"].apply(lambda x: x.day)
         d["date_key"] = d["timestamp"].apply(lambda x: str(x).replace("-", ""))
-        print(d)
+        d.to_csv("date_table.csv")
 
 
 main()
