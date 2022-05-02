@@ -14,8 +14,27 @@ def create_Round_fact() -> None:
     pass
 
 
+def create_Date_fim() -> None:
+    pass
+
+
 def create_Fight_dim() -> None:
-    query = """"""
+    query = """
+            create table Fight_dim (
+                fight_key int primary key
+                ,fight_date_key int not null
+                ,red_fighter_key int not null
+                ,blue_fighter_key int not null
+                ,location varchar(20)
+                ,referee varchar(20)
+                ,weight_class varchar(20)
+                ,winner_key int
+                ,method varchar(20)
+                ,round int
+                ,time time
+
+            )
+    """
 
 
 def create_Round_dim(db: DBHelper) -> None:
@@ -33,7 +52,7 @@ def create_Fighter_dim(db: DBHelper) -> None:
     query = """
         create TABLE Fighter_dim (
             fighter_key int primary key
-            ,date_of_birth_key int not null
+            ,date_of_birth_key int
             ,first_name varchar(20) not null
             ,last_name varchar(20) not null
             ,height float
