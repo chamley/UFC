@@ -7,24 +7,20 @@
 #
 
 
-from ast import AsyncFunctionDef
-from errno import EALREADY
-from lib2to3.pgen2 import token
-from sys import prefix
-from urllib import response
-from xmlrpc.client import boolean
 from bs4 import BeautifulSoup
 import boto3
 from dotenv import load_dotenv
 import os
 import datetime
-from pprint import pprint
-import sys
+import logging
+
 
 load_dotenv()
-ACCESS_KEY_ID: str = os.getenv("access_key_id")
+logging.basicConfig(filename="logs/db_build.log", encoding="utf-8", level=logging.DEBUG)
+
+ACCESS_KEY_ID: str | None = os.getenv("access_key_id")
 SECRET_ACCESS_KEY_ID: str = os.getenv("secret_access_key_id")
-DATE: datetime.datetime = datetime.date.today()
+DATE: datetime.date = datetime.date.today()
 S3C = boto3.client(
     "s3",
     region_name="us-east-1",
@@ -35,8 +31,13 @@ S3C = boto3.client(
 # refactor this into an argparse + write argpaser.py to process argparsses from all python.
 BUCKET_NAME: str = "ufc-big-data"
 DEV_MODE: bool = False
-PREFIX_STRING: str = ""
+prefix_string: str = ""
 EARLY_EXIT: bool = False
+if DEV_MODE:
+    PREFIX_STRING = "fight-2022-04-09alexandervolkanovskichansungjung"
+    EARLY_EXIT = True
+else:
+    prefix_string = ""
 
 
 def main():
@@ -44,33 +45,26 @@ def main():
 
 
 def transformer() -> None:
-    count = 0  # delete
-    if DEV_MODE:
-        prefix_string = "fight-2022-04-09alexandervolkanovskichansungjung"
-        EARLY_EXIT = True
-    else:
-        prefix_string = ""
+    logging.info("Entering first transformer")
+    files_transformed: int = 0  # delete
 
-    files = set()
+    logging.info(f"parsed {files_transformed} files.")
+    logging.info("Exiting first transformer")
 
+
+def count_files() -> int:
+    count: int = 0
     response = S3C.list_objects_v2(Bucket=BUCKET_NAME, Prefix=PREFIX_STRING)
     while True:
         for page in response["Contents"]:
-            # do stuff
             count += 1
-            print(count)
-            if page["Key"] in files:
-                print("error")
-                sys.exit()
-            else:
-                files.add(page["Key"])
-                print(len(files))
         if not "NextContinuationToken" in response:
             break
         t = response["NextContinuationToken"]
         response = S3C.list_objects_v2(
             Bucket=BUCKET_NAME, Prefix=PREFIX_STRING, ContinuationToken=t
         )
+    return ""
 
 
 def fetch_fight(k):
