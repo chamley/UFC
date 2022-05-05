@@ -14,12 +14,11 @@ import os
 import datetime
 import logging
 
-
 load_dotenv()
 logging.basicConfig(filename="logs/db_build.log", encoding="utf-8", level=logging.DEBUG)
 
 ACCESS_KEY_ID: str | None = os.getenv("access_key_id")
-SECRET_ACCESS_KEY_ID: str = os.getenv("secret_access_key_id")
+SECRET_ACCESS_KEY_ID: str | None = os.getenv("secret_access_key_id")
 DATE: datetime.date = datetime.date.today()
 S3C = boto3.client(
     "s3",
@@ -32,10 +31,10 @@ S3C = boto3.client(
 BUCKET_NAME: str = "ufc-big-data"
 DEV_MODE: bool = False
 prefix_string: str = ""
-EARLY_EXIT: bool = False
+early_exit: bool = False
 if DEV_MODE:
     PREFIX_STRING = "fight-2022-04-09alexandervolkanovskichansungjung"
-    EARLY_EXIT = True
+    early_exit = True
 else:
     prefix_string = ""
 
@@ -46,7 +45,20 @@ def main():
 
 def transformer() -> None:
     logging.info("Entering first transformer")
-    files_transformed: int = 0  # delete
+    print(f"Found {count_files()} files to transform")
+    files_transformed: int = 0
+
+    response: dict = S3C.list_objects_v2(Bucket=BUCKET_NAME, Prefix=PREFIX_STRING)
+    while True:
+        for _ in response["Contents"]:
+            # do stuff
+            pass
+        if not "NextContinuationToken" in response:
+            break
+        t = response["NextContinuationToken"]
+        response = S3C.list_objects_v2(
+            Bucket=BUCKET_NAME, Prefix=PREFIX_STRING, ContinuationToken=t
+        )
 
     logging.info(f"parsed {files_transformed} files.")
     logging.info("Exiting first transformer")
@@ -54,9 +66,9 @@ def transformer() -> None:
 
 def count_files() -> int:
     count: int = 0
-    response = S3C.list_objects_v2(Bucket=BUCKET_NAME, Prefix=PREFIX_STRING)
+    response: dict = S3C.list_objects_v2(Bucket=BUCKET_NAME, Prefix=PREFIX_STRING)
     while True:
-        for page in response["Contents"]:
+        for _ in response["Contents"]:
             count += 1
         if not "NextContinuationToken" in response:
             break
@@ -64,7 +76,7 @@ def count_files() -> int:
         response = S3C.list_objects_v2(
             Bucket=BUCKET_NAME, Prefix=PREFIX_STRING, ContinuationToken=t
         )
-    return ""
+    return count
 
 
 def fetch_fight(k):

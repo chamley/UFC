@@ -70,3 +70,75 @@ DEBUG:botocore.hooks:Event needs-retry.s3.ListObjectsV2: calling handler <botoco
 DEBUG:botocore.retryhandler:No retry needed.
 DEBUG:botocore.hooks:Event needs-retry.s3.ListObjectsV2: calling handler <bound method S3RegionRedirector.redirect_from_error of <botocore.utils.S3RegionRedirector object at 0x10a016310>>
 DEBUG:botocore.hooks:Event after-call.s3.ListObjectsV2: calling handler <function decode_list_object_v2 at 0x108f30940>
+DEBUG:botocore.hooks:Changing event name from creating-client-class.iot-data to creating-client-class.iot-data-plane
+DEBUG:botocore.hooks:Changing event name from before-call.apigateway to before-call.api-gateway
+DEBUG:botocore.hooks:Changing event name from request-created.machinelearning.Predict to request-created.machine-learning.Predict
+DEBUG:botocore.hooks:Changing event name from before-parameter-build.autoscaling.CreateLaunchConfiguration to before-parameter-build.auto-scaling.CreateLaunchConfiguration
+DEBUG:botocore.hooks:Changing event name from before-parameter-build.route53 to before-parameter-build.route-53
+DEBUG:botocore.hooks:Changing event name from request-created.cloudsearchdomain.Search to request-created.cloudsearch-domain.Search
+DEBUG:botocore.hooks:Changing event name from docs.*.autoscaling.CreateLaunchConfiguration.complete-section to docs.*.auto-scaling.CreateLaunchConfiguration.complete-section
+DEBUG:botocore.hooks:Changing event name from before-parameter-build.logs.CreateExportTask to before-parameter-build.cloudwatch-logs.CreateExportTask
+DEBUG:botocore.hooks:Changing event name from docs.*.logs.CreateExportTask.complete-section to docs.*.cloudwatch-logs.CreateExportTask.complete-section
+DEBUG:botocore.hooks:Changing event name from before-parameter-build.cloudsearchdomain.Search to before-parameter-build.cloudsearch-domain.Search
+DEBUG:botocore.hooks:Changing event name from docs.*.cloudsearchdomain.Search.complete-section to docs.*.cloudsearch-domain.Search.complete-section
+DEBUG:botocore.loaders:Loading JSON file: /Users/sebastianc/Desktop/Lamictal/DE/UFC/.venv/lib/python3.10/site-packages/botocore/data/endpoints.json
+DEBUG:botocore.loaders:Loading JSON file: /Users/sebastianc/Desktop/Lamictal/DE/UFC/.venv/lib/python3.10/site-packages/botocore/data/sdk-default-configuration.json
+DEBUG:botocore.hooks:Event choose-service-name: calling handler <function handle_service_name_alias at 0x10a973eb0>
+DEBUG:botocore.loaders:Loading JSON file: /Users/sebastianc/Desktop/Lamictal/DE/UFC/.venv/lib/python3.10/site-packages/botocore/data/s3/2006-03-01/service-2.json
+DEBUG:botocore.hooks:Event creating-client-class.s3: calling handler <function add_generate_presigned_post at 0x10a89fb50>
+DEBUG:botocore.hooks:Event creating-client-class.s3: calling handler <function lazy_call.<locals>._handler at 0x10aa16170>
+DEBUG:botocore.hooks:Event creating-client-class.s3: calling handler <function add_generate_presigned_url at 0x10a89f910>
+DEBUG:botocore.endpoint:Setting s3 timeout as (60, 60)
+DEBUG:botocore.loaders:Loading JSON file: /Users/sebastianc/Desktop/Lamictal/DE/UFC/.venv/lib/python3.10/site-packages/botocore/data/_retry.json
+DEBUG:botocore.client:Registering retry handlers for service: s3
+INFO:root:Entering first transformer
+INFO:root:parsed 0 files.
+INFO:root:Exiting first transformer
+DEBUG:botocore.hooks:Changing event name from creating-client-class.iot-data to creating-client-class.iot-data-plane
+DEBUG:botocore.hooks:Changing event name from before-call.apigateway to before-call.api-gateway
+DEBUG:botocore.hooks:Changing event name from request-created.machinelearning.Predict to request-created.machine-learning.Predict
+DEBUG:botocore.hooks:Changing event name from before-parameter-build.autoscaling.CreateLaunchConfiguration to before-parameter-build.auto-scaling.CreateLaunchConfiguration
+DEBUG:botocore.hooks:Changing event name from before-parameter-build.route53 to before-parameter-build.route-53
+DEBUG:botocore.hooks:Changing event name from request-created.cloudsearchdomain.Search to request-created.cloudsearch-domain.Search
+DEBUG:botocore.hooks:Changing event name from docs.*.autoscaling.CreateLaunchConfiguration.complete-section to docs.*.auto-scaling.CreateLaunchConfiguration.complete-section
+DEBUG:botocore.hooks:Changing event name from before-parameter-build.logs.CreateExportTask to before-parameter-build.cloudwatch-logs.CreateExportTask
+DEBUG:botocore.hooks:Changing event name from docs.*.logs.CreateExportTask.complete-section to docs.*.cloudwatch-logs.CreateExportTask.complete-section
+DEBUG:botocore.hooks:Changing event name from before-parameter-build.cloudsearchdomain.Search to before-parameter-build.cloudsearch-domain.Search
+DEBUG:botocore.hooks:Changing event name from docs.*.cloudsearchdomain.Search.complete-section to docs.*.cloudsearch-domain.Search.complete-section
+DEBUG:botocore.loaders:Loading JSON file: /Users/sebastianc/Desktop/Lamictal/DE/UFC/.venv/lib/python3.10/site-packages/botocore/data/endpoints.json
+DEBUG:botocore.loaders:Loading JSON file: /Users/sebastianc/Desktop/Lamictal/DE/UFC/.venv/lib/python3.10/site-packages/botocore/data/sdk-default-configuration.json
+DEBUG:botocore.hooks:Event choose-service-name: calling handler <function handle_service_name_alias at 0x10c577eb0>
+DEBUG:botocore.loaders:Loading JSON file: /Users/sebastianc/Desktop/Lamictal/DE/UFC/.venv/lib/python3.10/site-packages/botocore/data/s3/2006-03-01/service-2.json
+DEBUG:botocore.hooks:Event creating-client-class.s3: calling handler <function add_generate_presigned_post at 0x10c49fb50>
+DEBUG:botocore.hooks:Event creating-client-class.s3: calling handler <function lazy_call.<locals>._handler at 0x10c61a170>
+DEBUG:botocore.hooks:Event creating-client-class.s3: calling handler <function add_generate_presigned_url at 0x10c49f910>
+DEBUG:botocore.endpoint:Setting s3 timeout as (60, 60)
+DEBUG:botocore.loaders:Loading JSON file: /Users/sebastianc/Desktop/Lamictal/DE/UFC/.venv/lib/python3.10/site-packages/botocore/data/_retry.json
+DEBUG:botocore.client:Registering retry handlers for service: s3
+INFO:root:Entering first transformer
+INFO:root:parsed 0 files.
+INFO:root:Exiting first transformer
+DEBUG:botocore.hooks:Changing event name from creating-client-class.iot-data to creating-client-class.iot-data-plane
+DEBUG:botocore.hooks:Changing event name from before-call.apigateway to before-call.api-gateway
+DEBUG:botocore.hooks:Changing event name from request-created.machinelearning.Predict to request-created.machine-learning.Predict
+DEBUG:botocore.hooks:Changing event name from before-parameter-build.autoscaling.CreateLaunchConfiguration to before-parameter-build.auto-scaling.CreateLaunchConfiguration
+DEBUG:botocore.hooks:Changing event name from before-parameter-build.route53 to before-parameter-build.route-53
+DEBUG:botocore.hooks:Changing event name from request-created.cloudsearchdomain.Search to request-created.cloudsearch-domain.Search
+DEBUG:botocore.hooks:Changing event name from docs.*.autoscaling.CreateLaunchConfiguration.complete-section to docs.*.auto-scaling.CreateLaunchConfiguration.complete-section
+DEBUG:botocore.hooks:Changing event name from before-parameter-build.logs.CreateExportTask to before-parameter-build.cloudwatch-logs.CreateExportTask
+DEBUG:botocore.hooks:Changing event name from docs.*.logs.CreateExportTask.complete-section to docs.*.cloudwatch-logs.CreateExportTask.complete-section
+DEBUG:botocore.hooks:Changing event name from before-parameter-build.cloudsearchdomain.Search to before-parameter-build.cloudsearch-domain.Search
+DEBUG:botocore.hooks:Changing event name from docs.*.cloudsearchdomain.Search.complete-section to docs.*.cloudsearch-domain.Search.complete-section
+DEBUG:botocore.loaders:Loading JSON file: /Users/sebastianc/Desktop/Lamictal/DE/UFC/.venv/lib/python3.10/site-packages/botocore/data/endpoints.json
+DEBUG:botocore.loaders:Loading JSON file: /Users/sebastianc/Desktop/Lamictal/DE/UFC/.venv/lib/python3.10/site-packages/botocore/data/sdk-default-configuration.json
+DEBUG:botocore.hooks:Event choose-service-name: calling handler <function handle_service_name_alias at 0x103abbeb0>
+DEBUG:botocore.loaders:Loading JSON file: /Users/sebastianc/Desktop/Lamictal/DE/UFC/.venv/lib/python3.10/site-packages/botocore/data/s3/2006-03-01/service-2.json
+DEBUG:botocore.hooks:Event creating-client-class.s3: calling handler <function add_generate_presigned_post at 0x1039f3b50>
+DEBUG:botocore.hooks:Event creating-client-class.s3: calling handler <function lazy_call.<locals>._handler at 0x103b5e170>
+DEBUG:botocore.hooks:Event creating-client-class.s3: calling handler <function add_generate_presigned_url at 0x1039f3910>
+DEBUG:botocore.endpoint:Setting s3 timeout as (60, 60)
+DEBUG:botocore.loaders:Loading JSON file: /Users/sebastianc/Desktop/Lamictal/DE/UFC/.venv/lib/python3.10/site-packages/botocore/data/_retry.json
+DEBUG:botocore.client:Registering retry handlers for service: s3
+INFO:root:Entering first transformer
+INFO:root:parsed 0 files.
+INFO:root:Exiting first transformer
