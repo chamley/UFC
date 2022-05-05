@@ -17,7 +17,6 @@ load_dotenv()
 access_key_id = os.getenv("access_key_id")
 secret_access_key_id = os.getenv("secret_access_key_id")
 DATE = datetime.date.today()  # get all events previous to DATE
-DATE = datetime.date(year=2013, month=11, day=10)
 
 
 def __main__():
@@ -63,7 +62,7 @@ def get_card_urls_dic():
 
     parser = BeautifulSoup(response.text, "html.parser")
 
-    events = parser.find_all("i", class_="b-statistics__table-content")  # remove this
+    events = parser.find_all("i", class_="b-statistics__table-content")
     for e in events:
         s = e.span.text.strip().replace(",", "").split()
         date = datetime.date(

@@ -58,6 +58,7 @@ def transformer() -> None:
         for page in response["Contents"]:
             # do stuff
             count += 1
+            print(count)
             if page["Key"] in files:
                 print("error")
                 sys.exit()
