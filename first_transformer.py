@@ -7,20 +7,38 @@
 #
 
 
+from sqlite3 import Timestamp
 from bs4 import BeautifulSoup
 import boto3
 from dotenv import load_dotenv
 import os
 import datetime
 import logging
+import sys
+from importlib import reload
 
+T = datetime.datetime.today()
 load_dotenv()
-logging.basicConfig(filename="logs/db_build.log", encoding="utf-8", level=logging.DEBUG)
 
-ACCESS_KEY_ID: str | None = os.getenv("access_key_id")
+# short on time, I dont know why im forced to do this.
+logging.shutdown()
+reload(logging)
+logging.basicConfig(
+    filename=f"logs/first_transformer-{T}.log", encoding="utf-8", level=logging.DEBUG
+)
+
+
+Key_Vector = list[dict]
+ACCESS_KEY_ID: str = os.getenv("access_key_id")
 SECRET_ACCESS_KEY_ID: str | None = os.getenv("secret_access_key_id")
 DATE: datetime.date = datetime.date.today()
 S3C = boto3.client(
+    "s3",
+    region_name="us-east-1",
+    aws_access_key_id=ACCESS_KEY_ID,
+    aws_secret_access_key=SECRET_ACCESS_KEY_ID,
+)
+S3R = boto3.resource(
     "s3",
     region_name="us-east-1",
     aws_access_key_id=ACCESS_KEY_ID,
@@ -33,7 +51,7 @@ DEV_MODE: bool = False
 prefix_string: str = ""
 early_exit: bool = False
 if DEV_MODE:
-    PREFIX_STRING = "fight-2022-04-09alexandervolkanovskichansungjung"
+    prefix_string = "fight-2022-04-09alexandervolkanovskichansungjung"
     early_exit = True
 else:
     prefix_string = ""
@@ -45,42 +63,33 @@ def main():
 
 def transformer() -> None:
     logging.info("Entering first transformer")
-    print(f"Found {count_files()} files to transform")
-    files_transformed: int = 0
+    keys: Key_Vector = get_file_keys()  # O(n)
+    print(f"Found {len(keys)} files to transform")
+    for k in keys:
+        object = S3R.Object(bucket_name=BUCKET_NAME, key=k["Key"]).get()
+        file = object["Body"].read()
+        parser = BeautifulSoup(file, "html.parser")
+        print(parser.find_all("tr"))
 
-    response: dict = S3C.list_objects_v2(Bucket=BUCKET_NAME, Prefix=PREFIX_STRING)
-    while True:
-        for _ in response["Contents"]:
-            # do stuff
-            pass
-        if not "NextContinuationToken" in response:
-            break
-        t = response["NextContinuationToken"]
-        response = S3C.list_objects_v2(
-            Bucket=BUCKET_NAME, Prefix=PREFIX_STRING, ContinuationToken=t
-        )
+        break  # debug
 
-    logging.info(f"parsed {files_transformed} files.")
     logging.info("Exiting first transformer")
 
 
-def count_files() -> int:
-    count: int = 0
-    response: dict = S3C.list_objects_v2(Bucket=BUCKET_NAME, Prefix=PREFIX_STRING)
+def get_file_keys() -> Key_Vector:
+    keys: Key_Vector = []
+    res: dict = S3C.list_objects_v2(Bucket=BUCKET_NAME, Prefix=prefix_string)
     while True:
-        for _ in response["Contents"]:
-            count += 1
-        if not "NextContinuationToken" in response:
+        items = res["Contents"]
+        for i in items:
+            keys.append(i)
+        if not "NextContinuationToken" in res:
             break
-        t = response["NextContinuationToken"]
-        response = S3C.list_objects_v2(
-            Bucket=BUCKET_NAME, Prefix=PREFIX_STRING, ContinuationToken=t
+        t = res["NextContinuationToken"]
+        res = S3C.list_objects_v2(
+            Bucket=BUCKET_NAME, Prefix=prefix_string, ContinuationToken=t
         )
-    return count
-
-
-def fetch_fight(k):
-    pass
+    return keys
 
 
 # turns a fight page into a json object
