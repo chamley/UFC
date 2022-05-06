@@ -7,6 +7,7 @@
 #
 
 
+from ast import Bytes
 from sqlite3 import Timestamp
 from bs4 import BeautifulSoup
 import boto3
@@ -68,12 +69,34 @@ def transformer() -> None:
     for k in keys:
         object = S3R.Object(bucket_name=BUCKET_NAME, key=k["Key"]).get()
         file = object["Body"].read()
-        parser = BeautifulSoup(file, "html.parser")
-        print(parser.find_all("tr"))
+        parse_fight(file)
 
         break  # debug
 
     logging.info("Exiting first transformer")
+
+
+def parse_fight(file):
+    # turns a fight page into a giant dict with the relevant data
+    d = {"red": {}, "blue": {}, "metadata": {}}
+    parser = BeautifulSoup(file, "html.parser")
+    d["red"]["name"], d["blue"]["name"] = [
+        x.text for x in parser.find_all(class_="b-link b-fight-details__person-link")
+    ]
+    d["metadata"]["weight class"] = parser.find(
+        class_="b-fight-details__fight-title"
+    ).text.strip()
+
+    d["metadata"]["method"] = (
+        parser.find(class_="b-fight-details__text-item_first")
+        .find_all("i")[1]
+        .text.strip()
+    )
+    d["red"]["result"], d["blue"]["result"] = [
+        x.text.strip() for x in parser.find_all(class_="b-fight-details__person-status")
+    ]
+
+    return d
 
 
 def get_file_keys() -> Key_Vector:
@@ -90,11 +113,6 @@ def get_file_keys() -> Key_Vector:
             Bucket=BUCKET_NAME, Prefix=prefix_string, ContinuationToken=t
         )
     return keys
-
-
-# turns a fight page into a json object
-def parse_fight(fp):
-    pass
 
 
 # pushes json object back to s3
