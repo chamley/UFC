@@ -119,8 +119,10 @@ def parse_fight(file):
         .replace("\n", "")
         .replace("  ", "")
     )
-    table_one = parser.find_all(class_="b-fight-details__table-body")[3]
-    n = table_one.find_all(class_="b-fight-details__table-text")
+    table_one = parser.find_all(class_="b-fight-details__table-body")[1]
+    table_two = parser.find_all(class_="b-fight-details__table-body")[3]
+
+    n = table_one.find_all(class_="b-fight-details__table-col")
 
     print(n)
     # print(json.dumps(d, sort_keys=True, indent=4))
