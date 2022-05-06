@@ -159,7 +159,14 @@ def parse_fight(file):
         x.text.strip()
         for x in columns[8].find_all(class_="b-fight-details__table-text")
     ]
-
+    d["red"]["r1"]["rev"], d["blue"]["r1"]["rev"] = [
+        x.text.strip()
+        for x in columns[9].find_all(class_="b-fight-details__table-text")
+    ]
+    d["red"]["r1"]["ctrl"], d["blue"]["r1"]["ctrl"] = [
+        x.text.strip()
+        for x in columns[10].find_all(class_="b-fight-details__table-text")
+    ]
     # print(n)
     print(json.dumps(d, sort_keys=True, indent=4))
 
