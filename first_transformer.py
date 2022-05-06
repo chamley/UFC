@@ -162,6 +162,7 @@ def parse_fight(file):
     table_two = parser.find_all(class_="b-fight-details__table-body")[3]
 
     columns = table_one.find_all(class_="b-fight-details__table-col")
+    columns_2 = table_two.find_all(class_="b-fight-details__table-col")
 
     num_rounds = int(
         len(
@@ -217,8 +218,14 @@ def parse_fight(file):
             for x in columns[index + 8].find_all(class_="b-fight-details__table-text")
         ]
 
-    # n = columns[13].find_all(class_="b-fight-details__table-text")
-    # print(n)
+    (
+        [d["red"]["r1"]["ss_l_h"], d["red"]["r1"]["ss_a_h"]],
+        [d["blue"]["r1"]["ss_l_h"], d["blue"]["r1"]["ss_a_h"]],
+    ) = [
+        clean(x.text)
+        for x in columns_2[4].find_all(class_="b-fight-details__table-text")
+    ]
+
     print(json.dumps(d, sort_keys=True, indent=4))
 
     return d
@@ -238,6 +245,7 @@ def get_file_keys() -> Key_Vector:
         if not "NextContinuationToken" in res:
             break
         t = res["NextContinuationToken"]
+
         res = S3C.list_objects_v2(
             Bucket=BUCKET_NAME, Prefix=prefix_string, ContinuationToken=t
         )
