@@ -68,7 +68,9 @@ def main():
 
 
 def transformer() -> None:
-    logging.info("Entering first transformer")
+    print(
+        "========================= Entering first transformer ======================="
+    )
     keys: Key_Vector = get_file_keys()  # O(n)
     print(f"Found {len(keys)} files to transform")
     for item in keys:
@@ -161,6 +163,14 @@ def parse_fight(file):
 
     columns = table_one.find_all(class_="b-fight-details__table-col")
 
+    num_rounds = len(
+            parser.find_all(
+                class_="b-fight-details__table-row b-fight-details__table-row_type_head"
+            )
+        )
+
+    for r in range(num_rounds):
+
     d["red"]["r1"]["kd"], d["blue"]["r1"]["kd"] = [
         x.text.strip()
         for x in columns[2].find_all(class_="b-fight-details__table-text")
@@ -198,6 +208,9 @@ def parse_fight(file):
         x.text.strip()
         for x in columns[10].find_all(class_="b-fight-details__table-text")
     ]
+
+
+
     n = columns[14].find_all(class_="b-fight-details__table-text")
     print(n)
     # print(json.dumps(d, sort_keys=True, indent=4))
