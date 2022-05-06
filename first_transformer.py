@@ -8,6 +8,9 @@
 
 
 from ast import Bytes
+from distutils.debug import DEBUG
+from pprint import pprint
+from re import X
 from sqlite3 import Timestamp
 from bs4 import BeautifulSoup
 import boto3
@@ -17,6 +20,7 @@ import datetime
 import logging
 import sys
 from importlib import reload
+import json
 
 T = datetime.datetime.today()
 load_dotenv()
@@ -48,7 +52,7 @@ S3R = boto3.resource(
 
 # refactor this into an argparse + write argpaser.py to process argparsses from all python.
 BUCKET_NAME: str = "ufc-big-data"
-DEV_MODE: bool = False
+DEV_MODE: bool = True
 prefix_string: str = ""
 early_exit: bool = False
 if DEV_MODE:
@@ -77,7 +81,7 @@ def transformer() -> None:
 
 
 def parse_fight(file):
-    # turns a fight page into a giant dict with the relevant data
+    # ugly script that turns a fight page into a giant dict with the relevant data
     d = {"red": {}, "blue": {}, "metadata": {}}
     parser = BeautifulSoup(file, "html.parser")
     d["red"]["name"], d["blue"]["name"] = [
@@ -96,6 +100,30 @@ def parse_fight(file):
         x.text.strip() for x in parser.find_all(class_="b-fight-details__person-status")
     ]
 
+    (
+        d["metadata"]["final_round"],
+        d["metadata"]["final_round_duration"],
+        d["metadata"]["round_format"],
+        _,
+    ) = [
+        x.find("i").next_sibling.strip()
+        for x in parser.find_all("i", class_="b-fight-details__text-item")
+    ]
+    d["metadata"]["referee"] = parser.find_all(class_="b-fight-details__text-item")[
+        3
+    ].span.text.strip()
+
+    d["metadata"]["details"] = (
+        parser.find_all(class_="b-fight-details__text")[1]
+        .text.strip()
+        .replace("\n", "")
+        .replace("  ", "")
+    )
+    table_one = parser.find_all(class_="b-fight-details__table-body")[3]
+    n = table_one.find_all(class_="b-fight-details__table-text")
+
+    print(n)
+    # print(json.dumps(d, sort_keys=True, indent=4))
     return d
 
 
