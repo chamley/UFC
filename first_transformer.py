@@ -21,6 +21,7 @@ import logging
 import sys
 from importlib import reload
 import json
+from collections import defaultdict
 
 T = datetime.datetime.today()
 load_dotenv()
@@ -82,7 +83,8 @@ def transformer() -> None:
 
 def parse_fight(file):
     # ugly script that turns a fight page into a giant dict with the relevant data
-    d = {"red": {}, "blue": {}, "metadata": {}}
+    d = defaultdict(dict)
+    d["red"], d["blue"], d["metadata"] = [defaultdict(dict)] * 3
     parser = BeautifulSoup(file, "html.parser")
     d["red"]["name"], d["blue"]["name"] = [
         x.text for x in parser.find_all(class_="b-link b-fight-details__person-link")
@@ -124,7 +126,10 @@ def parse_fight(file):
 
     n = table_one.find_all(class_="b-fight-details__table-col")
 
-    print(n)
+    d["red"]["r1"]["kd"], d["blue"]["r1"]["kd"] = [
+        x.text.strip() for x in n[2].find_all(class_="b-fight-details__table-text")
+    ]
+    print(n[2].find_all(class_="b-fight-details__table-text"))
     # print(json.dumps(d, sort_keys=True, indent=4))
     return d
 
