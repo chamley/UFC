@@ -71,9 +71,10 @@ def transformer() -> None:
     logging.info("Entering first transformer")
     keys: Key_Vector = get_file_keys()  # O(n)
     print(f"Found {len(keys)} files to transform")
-    for k in keys:
-        object = S3R.Object(bucket_name=BUCKET_NAME, key=k["Key"]).get()
+    for item in keys:
+        object = S3R.Object(bucket_name=BUCKET_NAME, key=item["Key"]).get()
         file = object["Body"].read()
+        sanity_check(item["Key"], file)
         parse_fight(file)
 
         break  # debug
@@ -81,7 +82,36 @@ def transformer() -> None:
     logging.info("Exiting first transformer")
 
 
+# checks whether our program will make correct assumptions about the structure of the page
+def sanity_check(key: str, file) -> None:
+    parser = BeautifulSoup(file, "html.parser")
+
+    num_rounds_according_to_page = (
+        len(
+            parser.find_all(
+                class_="b-fight-details__table-row b-fight-details__table-row_type_head"
+            )
+        )
+        / 2
+    )
+    num_rounds_according_to_table = int(
+        parser.find_all("i", class_="b-fight-details__text-item")[0]
+        .find("i")
+        .next_sibling.strip()
+    )
+
+    con1 = num_rounds_according_to_table == num_rounds_according_to_page
+
+    flag = con1
+
+    if not flag:
+        print(f"Sanity Check failed on {key}")
+    else:
+        print("Sanity Check passed")
+
+
 def parse_fight(file):
+
     # ugly script that turns a fight page into a giant dict with the relevant data
     d = defaultdict(dict)
     d["red"], d["blue"], d["metadata"] = [
@@ -90,6 +120,7 @@ def parse_fight(file):
         defaultdict(dict),
     ]
     parser = BeautifulSoup(file, "html.parser")
+
     d["red"]["name"], d["blue"]["name"] = [
         x.text for x in parser.find_all(class_="b-link b-fight-details__person-link")
     ]
@@ -167,8 +198,9 @@ def parse_fight(file):
         x.text.strip()
         for x in columns[10].find_all(class_="b-fight-details__table-text")
     ]
-    # print(n)
-    print(json.dumps(d, sort_keys=True, indent=4))
+    n = columns[14].find_all(class_="b-fight-details__table-text")
+    print(n)
+    # print(json.dumps(d, sort_keys=True, indent=4))
 
     return d
 
