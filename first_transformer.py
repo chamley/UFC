@@ -84,7 +84,11 @@ def transformer() -> None:
 def parse_fight(file):
     # ugly script that turns a fight page into a giant dict with the relevant data
     d = defaultdict(dict)
-    d["red"], d["blue"], d["metadata"] = [defaultdict(dict)] * 3
+    d["red"], d["blue"], d["metadata"] = [
+        defaultdict(dict),
+        defaultdict(dict),
+        defaultdict(dict),
+    ]
     parser = BeautifulSoup(file, "html.parser")
     d["red"]["name"], d["blue"]["name"] = [
         x.text for x in parser.find_all(class_="b-link b-fight-details__person-link")
@@ -124,14 +128,25 @@ def parse_fight(file):
     table_one = parser.find_all(class_="b-fight-details__table-body")[1]
     table_two = parser.find_all(class_="b-fight-details__table-body")[3]
 
-    n = table_one.find_all(class_="b-fight-details__table-col")
+    columns = table_one.find_all(class_="b-fight-details__table-col")
 
     d["red"]["r1"]["kd"], d["blue"]["r1"]["kd"] = [
-        x.text.strip() for x in n[2].find_all(class_="b-fight-details__table-text")
+        x.text.strip()
+        for x in columns[2].find_all(class_="b-fight-details__table-text")
     ]
-    print(n[2].find_all(class_="b-fight-details__table-text"))
-    # print(json.dumps(d, sort_keys=True, indent=4))
+    d["red"]["r1"]["ss_a"], d["red"]["r1"]["ss_l"] = clean(
+        columns[3].find_all(class_="b-fight-details__table-text")[0].text
+    )
+    d["blue"]["r1"]["ss_a"], d["blue"]["r1"]["ss_l"] = clean(
+        columns[3].find_all(class_="b-fight-details__table-text")[1].text
+    )
+
+    print(json.dumps(d, sort_keys=True, indent=4))
     return d
+
+
+def clean(s):
+    return [x.strip() for x in s.split("of")]
 
 
 def get_file_keys() -> Key_Vector:
