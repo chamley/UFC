@@ -163,57 +163,63 @@ def parse_fight(file):
 
     columns = table_one.find_all(class_="b-fight-details__table-col")
 
-    num_rounds = len(
+    num_rounds = int(
+        len(
             parser.find_all(
                 class_="b-fight-details__table-row b-fight-details__table-row_type_head"
             )
         )
-
-    for r in range(num_rounds):
-
-    d["red"]["r1"]["kd"], d["blue"]["r1"]["kd"] = [
-        x.text.strip()
-        for x in columns[2].find_all(class_="b-fight-details__table-text")
-    ]
-    d["red"]["r1"]["ss_a"], d["red"]["r1"]["ss_l"] = clean(
-        columns[3].find_all(class_="b-fight-details__table-text")[0].text
+        / 2
     )
-    d["blue"]["r1"]["ss_a"], d["blue"]["r1"]["ss_l"] = clean(
-        columns[3].find_all(class_="b-fight-details__table-text")[1].text
-    )
+    # lawd jeezus halp us.
+    for r in range(1, num_rounds + 1):
+        index = r + 1 + (r - 1) * 10
+        print(f"round {r}")
+        print(f"index {index}")
 
-    d["red"]["r1"]["ts_a"], d["red"]["r1"]["ts_l"] = clean(
-        columns[5].find_all(class_="b-fight-details__table-text")[0].text
-    )
-    d["blue"]["r1"]["ts_a"], d["blue"]["r1"]["ts_l"] = clean(
-        columns[5].find_all(class_="b-fight-details__table-text")[1].text
-    )
+        # index = 2, 13, 24 ... + 11
 
-    d["red"]["r1"]["td_a"], d["red"]["r1"]["td_l"] = clean(
-        columns[6].find_all(class_="b-fight-details__table-text")[0].text
-    )
-    d["blue"]["r1"]["td_a"], d["blue"]["r1"]["td_l"] = clean(
-        columns[6].find_all(class_="b-fight-details__table-text")[1].text
-    )
+        d["red"][f"r{r}"]["kd"], d["blue"][f"r{r}"]["kd"] = [
+            x.text.strip()
+            for x in columns[index].find_all(class_="b-fight-details__table-text")
+        ]
+        d["red"][f"r{r}"]["ss_a"], d["red"][f"r{r}"]["ss_l"] = clean(
+            columns[index + 1].find_all(class_="b-fight-details__table-text")[0].text
+        )
+        d["blue"][f"r{r}"]["ss_a"], d["blue"][f"r{r}"]["ss_l"] = clean(
+            columns[index + 1].find_all(class_="b-fight-details__table-text")[1].text
+        )
 
-    d["red"]["r1"]["sub_a"], d["blue"]["r1"]["sub_a"] = [
-        x.text.strip()
-        for x in columns[8].find_all(class_="b-fight-details__table-text")
-    ]
-    d["red"]["r1"]["rev"], d["blue"]["r1"]["rev"] = [
-        x.text.strip()
-        for x in columns[9].find_all(class_="b-fight-details__table-text")
-    ]
-    d["red"]["r1"]["ctrl"], d["blue"]["r1"]["ctrl"] = [
-        x.text.strip()
-        for x in columns[10].find_all(class_="b-fight-details__table-text")
-    ]
+        d["red"][f"r{r}"]["ts_a"], d["red"][f"r{r}"]["ts_l"] = clean(
+            columns[index + 3].find_all(class_="b-fight-details__table-text")[0].text
+        )
+        d["blue"][f"r{r}"]["ts_a"], d["blue"][f"r{r}"]["ts_l"] = clean(
+            columns[index + 3].find_all(class_="b-fight-details__table-text")[1].text
+        )
 
+        d["red"][f"r{r}"]["td_a"], d["red"][f"r{r}"]["td_l"] = clean(
+            columns[index + 4].find_all(class_="b-fight-details__table-text")[0].text
+        )
+        d["blue"][f"r{r}"]["td_a"], d["blue"][f"r{r}"]["td_l"] = clean(
+            columns[index + 4].find_all(class_="b-fight-details__table-text")[1].text
+        )
 
+        d["red"][f"r{r}"]["sub_a"], d["blue"][f"r{r}"]["sub_a"] = [
+            x.text.strip()
+            for x in columns[index + 6].find_all(class_="b-fight-details__table-text")
+        ]
+        d["red"][f"r{r}"]["rev"], d["blue"][f"r{r}"]["rev"] = [
+            x.text.strip()
+            for x in columns[index + 7].find_all(class_="b-fight-details__table-text")
+        ]
+        d["red"][f"r{r}"]["ctrl"], d["blue"][f"r{r}"]["ctrl"] = [
+            x.text.strip()
+            for x in columns[index + 8].find_all(class_="b-fight-details__table-text")
+        ]
 
-    n = columns[14].find_all(class_="b-fight-details__table-text")
-    print(n)
-    # print(json.dumps(d, sort_keys=True, indent=4))
+    # n = columns[13].find_all(class_="b-fight-details__table-text")
+    # print(n)
+    print(json.dumps(d, sort_keys=True, indent=4))
 
     return d
 
@@ -239,7 +245,7 @@ def get_file_keys() -> Key_Vector:
 
 
 # pushes json object back to s3
-def push_fight(fo):
+def push_fight(f):
     pass
 
 
