@@ -51,11 +51,11 @@ S3R = boto3.resource(
 STAGE_LAYER_ONE: str = "ufc-big-data"
 STAGE_LAYER_TWO: str = "ufc-big-data-2"
 
-DEV_MODE: bool = False
+DEV_MODE: bool = True
 prefix_string: str = ""
 early_exit: bool = False
 if DEV_MODE:
-    prefix_string = "fight-2022-04-09alexandervolkanovskichansungjung"
+    prefix_string = "fight-2020-11-28ashleeevans-smithnormadumont"
     early_exit = True
 else:
     prefix_string = ""
@@ -141,6 +141,9 @@ def parse_fight(file):
         x.text.strip() for x in parser.find_all(class_="b-fight-details__person-status")
     ]
 
+    n = parser.find_all("i", class_="b-fight-details__text-item")
+    print(n)
+    sys.exit()
     (
         d["metadata"]["final_round"],
         d["metadata"]["final_round_duration"],
