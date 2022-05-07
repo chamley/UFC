@@ -8,6 +8,7 @@
 #   Refactor sanity checks to testing.
 
 from pprint import pprint
+from black import parse_ast
 from bs4 import BeautifulSoup
 import boto3
 from dotenv import load_dotenv
@@ -51,7 +52,7 @@ S3R = boto3.resource(
 STAGE_LAYER_ONE: str = "ufc-big-data"
 STAGE_LAYER_TWO: str = "ufc-big-data-2"
 
-DEV_MODE: bool = True
+DEV_MODE: bool = False
 prefix_string: str = ""
 early_exit: bool = False
 if DEV_MODE:
@@ -140,27 +141,43 @@ def parse_fight(file):
     d["red"]["result"], d["blue"]["result"] = [
         x.text.strip() for x in parser.find_all(class_="b-fight-details__person-status")
     ]
+    ## debug start
 
-    (
-        d["metadata"]["final_round"],
-        d["metadata"]["final_round_duration"],
-        d["metadata"]["round_format"],
-        _,
-    ) = [
-        x.find("i").next_sibling.strip()
-        for x in parser.find_all("i", class_="b-fight-details__text-item")
-    ]
+    lookahead = parser.find_all("i", class_="b-fight-details__text-item")
+    if len(lookahead) == 7:
+        (
+            d["metadata"]["final_round"],
+            d["metadata"]["final_round_duration"],
+            d["metadata"]["round_format"],
+            d["metadata"]["referee"],
+            *details,
+        ) = [x.text.strip().replace("\n", "").replace("  ", "") for x in lookahead]
+        d["metadata"]["details"] = "#".join(details)
+        print(json.dumps(d, sort_keys=True, indent=4))
+    else:
+        (
+            d["metadata"]["final_round"],
+            d["metadata"]["final_round_duration"],
+            d["metadata"]["round_format"],
+            _,
+        ) = [
+            x.find("i").next_sibling.strip()
+            for x in parser.find_all("i", class_="b-fight-details__text-item")
+        ]
 
-    d["metadata"]["referee"] = parser.find_all(class_="b-fight-details__text-item")[
-        3
-    ].span.text.strip()
+        d["metadata"]["referee"] = parser.find_all(class_="b-fight-details__text-item")[
+            3
+        ].span.text.strip()
 
-    d["metadata"]["details"] = (
-        parser.find_all(class_="b-fight-details__text")[1]
-        .text.strip()
-        .replace("\n", "")
-        .replace("  ", "")
-    )
+        d["metadata"]["details"] = (
+            parser.find_all(class_="b-fight-details__text")[1]
+            .text.strip()
+            .replace("\n", "")
+            .replace("  ", "")
+        )
+
+    # entering loop
+
     table_one = parser.find_all(class_="b-fight-details__table-body")[1]
     table_two = parser.find_all(class_="b-fight-details__table-body")[3]
 
