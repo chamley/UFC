@@ -55,7 +55,7 @@ DEV_MODE: bool = True
 prefix_string: str = ""
 early_exit: bool = False
 if DEV_MODE:
-    prefix_string = "fight-2020-11-28ashleeevans-smithnormadumont"
+    prefix_string = "fight-2020-11-28ashleeevans-smithnormadumont"  # "fight-2020-11-28anthonysmithdevinclark"  #
     early_exit = True
 else:
     prefix_string = ""
@@ -141,9 +141,6 @@ def parse_fight(file):
         x.text.strip() for x in parser.find_all(class_="b-fight-details__person-status")
     ]
 
-    n = parser.find_all("i", class_="b-fight-details__text-item")
-    print(n)
-    sys.exit()
     (
         d["metadata"]["final_round"],
         d["metadata"]["final_round_duration"],
@@ -153,6 +150,7 @@ def parse_fight(file):
         x.find("i").next_sibling.strip()
         for x in parser.find_all("i", class_="b-fight-details__text-item")
     ]
+
     d["metadata"]["referee"] = parser.find_all(class_="b-fight-details__text-item")[
         3
     ].span.text.strip()
