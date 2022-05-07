@@ -3,15 +3,11 @@
 # pushes this new file back to S3
 
 # TO-DO list:
-#   Make the transformer run in parrallel, taking advantage of S3 pagination
-#
+#   Make the transformer run in parrallel, see .md
+#   Refactor all print to logging.
+#   Refactor sanity checks to testing.
 
-
-from ast import Bytes
-from distutils.debug import DEBUG
 from pprint import pprint
-from re import X
-from sqlite3 import Timestamp
 from bs4 import BeautifulSoup
 import boto3
 from dotenv import load_dotenv
@@ -52,8 +48,10 @@ S3R = boto3.resource(
 )
 
 # refactor this into an argparse + write argpaser.py to process argparsses from all python.
-BUCKET_NAME: str = "ufc-big-data"
-DEV_MODE: bool = True
+STAGE_LAYER_ONE: str = "ufc-big-data"
+STAGE_LAYER_TWO: str = "ufc-big-data-2"
+
+DEV_MODE: bool = False
 prefix_string: str = ""
 early_exit: bool = False
 if DEV_MODE:
@@ -64,23 +62,26 @@ else:
 
 
 def main():
-    transformer()
-
-
-def transformer() -> None:
     print(
         "========================= Entering first transformer ======================="
     )
     keys: Key_Vector = get_file_keys()  # O(n)
     print(f"Found {len(keys)} files to transform")
     for item in keys:
-        object = S3R.Object(bucket_name=BUCKET_NAME, key=item["Key"]).get()
+        object = S3R.Object(bucket_name=STAGE_LAYER_ONE, key=item["Key"]).get()
         file = object["Body"].read()
         sanity_check(item["Key"], file)
-        parse_fight(file)
-
-        break  # debug
-
+        try:
+            fight_data = parse_fight(file)
+            push_fight(fight_data, item["Key"])
+        except IndexError as e:
+            print(f"Index error on {item['Key']}, skipping for now.")
+            logging.info(f"Failed on {item['Key']}")
+            print(e)
+        except AttributeError as e:
+            print(f"Attribute error on {item['Key']}, skipping for now.")
+            logging.info(f"Failed on {item['Key']}")
+            print(e)
     logging.info("Exiting first transformer")
 
 
@@ -107,14 +108,15 @@ def sanity_check(key: str, file) -> None:
     flag = con1
 
     if not flag:
-        print(f"Sanity Check failed on {key}")
+        print(f"Table dim sanity check failed on {key}")
     else:
-        print("Sanity Check passed")
+        print("Table dim Sanity check passed")
 
 
 def parse_fight(file):
+    # 1. Returns nested dicts.
+    # 2. Ugly script that turns a fight page into a giant dict with the relevant data
 
-    # ugly script that turns a fight page into a giant dict with the relevant data
     d = defaultdict(dict)
     d["red"], d["blue"], d["metadata"] = [
         defaultdict(dict),
@@ -172,7 +174,6 @@ def parse_fight(file):
         )
         / 2
     )
-    # lawd jeezus halp us.
     for r in range(1, num_rounds + 1):
         index_1 = r + 1 + (r - 1) * 10
         index_2 = r + 3 + (r - 1) * 9
@@ -180,7 +181,7 @@ def parse_fight(file):
         print(f"index {index_1}")
 
         # index_1 = 2, 13, 24 ... + 11
-        # index_2 = 4, 12,
+        # index_2 = 4, 14, ...
         d["red"][f"r{r}"]["kd"], d["blue"][f"r{r}"]["kd"] = [
             x.text.strip()
             for x in columns[index_1].find_all(class_="b-fight-details__table-text")
@@ -287,7 +288,7 @@ def clean(s):
 
 def get_file_keys() -> Key_Vector:
     keys: Key_Vector = []
-    res: dict = S3C.list_objects_v2(Bucket=BUCKET_NAME, Prefix=prefix_string)
+    res: dict = S3C.list_objects_v2(Bucket=STAGE_LAYER_ONE, Prefix=prefix_string)
     while True:
         items = res["Contents"]
         for i in items:
@@ -297,14 +298,21 @@ def get_file_keys() -> Key_Vector:
         t = res["NextContinuationToken"]
 
         res = S3C.list_objects_v2(
-            Bucket=BUCKET_NAME, Prefix=prefix_string, ContinuationToken=t
+            Bucket=STAGE_LAYER_ONE, Prefix=prefix_string, ContinuationToken=t
         )
     return keys
 
 
 # pushes json object back to s3
-def push_fight(f):
-    pass
+def push_fight(fight_data, key):
+    file_name = f"{key}-SL-2.json"
+    print(f"Trying to write: {file_name}   to: {STAGE_LAYER_TWO}   ...")
+    S3C.put_object(Body=json.dumps(fight_data), Bucket=STAGE_LAYER_TWO, Key=file_name)
+    print(f"Written: {file_name}   to: {STAGE_LAYER_TWO} successfully!")
+    # with open(file_name, "w") as f:
+    #     x = json.dumps(fight_data, indent=4)
+    #     f.write(x)
+    #     S3C.upload_file(file_name, STAGE_LAYER_TWO, file_name)
 
 
 main()
