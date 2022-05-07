@@ -174,59 +174,109 @@ def parse_fight(file):
     )
     # lawd jeezus halp us.
     for r in range(1, num_rounds + 1):
-        index = r + 1 + (r - 1) * 10
+        index_1 = r + 1 + (r - 1) * 10
+        index_2 = r + 3 + (r - 1) * 9
         print(f"round {r}")
-        print(f"index {index}")
+        print(f"index {index_1}")
 
-        # index = 2, 13, 24 ... + 11
-
+        # index_1 = 2, 13, 24 ... + 11
+        # index_2 = 4, 12,
         d["red"][f"r{r}"]["kd"], d["blue"][f"r{r}"]["kd"] = [
             x.text.strip()
-            for x in columns[index].find_all(class_="b-fight-details__table-text")
+            for x in columns[index_1].find_all(class_="b-fight-details__table-text")
         ]
-        d["red"][f"r{r}"]["ss_a"], d["red"][f"r{r}"]["ss_l"] = clean(
-            columns[index + 1].find_all(class_="b-fight-details__table-text")[0].text
+        d["red"][f"r{r}"]["ss_l"], d["red"][f"r{r}"]["ss_a"] = clean(
+            columns[index_1 + 1].find_all(class_="b-fight-details__table-text")[0].text
         )
-        d["blue"][f"r{r}"]["ss_a"], d["blue"][f"r{r}"]["ss_l"] = clean(
-            columns[index + 1].find_all(class_="b-fight-details__table-text")[1].text
-        )
-
-        d["red"][f"r{r}"]["ts_a"], d["red"][f"r{r}"]["ts_l"] = clean(
-            columns[index + 3].find_all(class_="b-fight-details__table-text")[0].text
-        )
-        d["blue"][f"r{r}"]["ts_a"], d["blue"][f"r{r}"]["ts_l"] = clean(
-            columns[index + 3].find_all(class_="b-fight-details__table-text")[1].text
+        d["blue"][f"r{r}"]["ss_l"], d["blue"][f"r{r}"]["ss_a"] = clean(
+            columns[index_1 + 1].find_all(class_="b-fight-details__table-text")[1].text
         )
 
-        d["red"][f"r{r}"]["td_a"], d["red"][f"r{r}"]["td_l"] = clean(
-            columns[index + 4].find_all(class_="b-fight-details__table-text")[0].text
+        d["red"][f"r{r}"]["ts_l"], d["red"][f"r{r}"]["ts_a"] = clean(
+            columns[index_1 + 3].find_all(class_="b-fight-details__table-text")[0].text
         )
-        d["blue"][f"r{r}"]["td_a"], d["blue"][f"r{r}"]["td_l"] = clean(
-            columns[index + 4].find_all(class_="b-fight-details__table-text")[1].text
+        d["blue"][f"r{r}"]["ts_l"], d["blue"][f"r{r}"]["ts_a"] = clean(
+            columns[index_1 + 3].find_all(class_="b-fight-details__table-text")[1].text
+        )
+
+        d["red"][f"r{r}"]["td_l"], d["red"][f"r{r}"]["td_a"] = clean(
+            columns[index_1 + 4].find_all(class_="b-fight-details__table-text")[0].text
+        )
+        d["blue"][f"r{r}"]["td_l"], d["blue"][f"r{r}"]["td_a"] = clean(
+            columns[index_1 + 4].find_all(class_="b-fight-details__table-text")[1].text
         )
 
         d["red"][f"r{r}"]["sub_a"], d["blue"][f"r{r}"]["sub_a"] = [
             x.text.strip()
-            for x in columns[index + 6].find_all(class_="b-fight-details__table-text")
+            for x in columns[index_1 + 6].find_all(class_="b-fight-details__table-text")
         ]
         d["red"][f"r{r}"]["rev"], d["blue"][f"r{r}"]["rev"] = [
             x.text.strip()
-            for x in columns[index + 7].find_all(class_="b-fight-details__table-text")
+            for x in columns[index_1 + 7].find_all(class_="b-fight-details__table-text")
         ]
         d["red"][f"r{r}"]["ctrl"], d["blue"][f"r{r}"]["ctrl"] = [
             x.text.strip()
-            for x in columns[index + 8].find_all(class_="b-fight-details__table-text")
+            for x in columns[index_1 + 8].find_all(class_="b-fight-details__table-text")
+        ]
+        ### table 2
+        (
+            [d["red"][f"r{r}"]["ss_l_h"], d["red"][f"r{r}"]["ss_a_h"]],
+            [d["blue"][f"r{r}"]["ss_l_h"], d["blue"][f"r{r}"]["ss_a_h"]],
+        ) = [
+            clean(x.text)
+            for x in columns_2[index_2].find_all(class_="b-fight-details__table-text")
         ]
 
-    (
-        [d["red"]["r1"]["ss_l_h"], d["red"]["r1"]["ss_a_h"]],
-        [d["blue"]["r1"]["ss_l_h"], d["blue"]["r1"]["ss_a_h"]],
-    ) = [
-        clean(x.text)
-        for x in columns_2[4].find_all(class_="b-fight-details__table-text")
-    ]
+        (
+            [d["red"][f"r{r}"]["ss_l_b"], d["red"][f"r{r}"]["ss_a_b"]],
+            [d["blue"][f"r{r}"]["ss_l_b"], d["blue"][f"r{r}"]["ss_a_b"]],
+        ) = [
+            clean(x.text)
+            for x in columns_2[index_2 + 1].find_all(
+                class_="b-fight-details__table-text"
+            )
+        ]
+        (
+            [d["red"][f"r{r}"]["ss_l_l"], d["red"][f"r{r}"]["ss_a_l"]],
+            [d["blue"][f"r{r}"]["ss_l_l"], d["blue"][f"r{r}"]["ss_a_l"]],
+        ) = [
+            clean(x.text)
+            for x in columns_2[index_2 + 2].find_all(
+                class_="b-fight-details__table-text"
+            )
+        ]
+        (
+            [d["red"][f"r{r}"]["ss_l_dist"], d["red"][f"r{r}"]["ss_a_dist"]],
+            [d["blue"][f"r{r}"]["ss_l_dist"], d["blue"][f"r{r}"]["ss_a_dist"]],
+        ) = [
+            clean(x.text)
+            for x in columns_2[index_2 + 3].find_all(
+                class_="b-fight-details__table-text"
+            )
+        ]
+        (
+            [d["red"][f"r{r}"]["ss_l_cl"], d["red"][f"r{r}"]["ss_a_cl"]],
+            [d["blue"][f"r{r}"]["ss_l_cl"], d["blue"][f"r{r}"]["ss_a_cl"]],
+        ) = [
+            clean(x.text)
+            for x in columns_2[index_2 + 4].find_all(
+                class_="b-fight-details__table-text"
+            )
+        ]
+        (
+            [d["red"][f"r{r}"]["ss_l_gr"], d["red"][f"r{r}"]["ss_a_gr"]],
+            [d["blue"][f"r{r}"]["ss_l_gr"], d["blue"][f"r{r}"]["ss_a_gr"]],
+        ) = [
+            clean(x.text)
+            for x in columns_2[index_2 + 5].find_all(
+                class_="b-fight-details__table-text"
+            )
+        ]
 
-    print(json.dumps(d, sort_keys=True, indent=4))
+    # n = columns_2[12].find_all(class_="b-fight-details__table-text")
+    # print(n)
+
+    # print(json.dumps(d, sort_keys=True, indent=4))
 
     return d
 
