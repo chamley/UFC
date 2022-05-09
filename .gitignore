@@ -2,3 +2,5 @@
 .venv
 .env
 logs/
+error_list.txt
+sat upload logs.txt
