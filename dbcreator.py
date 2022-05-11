@@ -12,17 +12,71 @@ def main():
     # create_Fighter_dim(db)
     # create_Round_dim(db)
     # create_Round_fact(db)
+    create_dirty_round_table(db)
+    create_dirty_fight_table(db)
+
     db.closeDB()
     logging.info("Building Database Finished ...")
+
+
+def create_dirty_round_table(db: DBHelper) -> None:
+    query = """
+        create table dirty_round_table (
+            color int,
+            fighter_name_nat varchar(20),
+            fight_key_nat varchar(40),
+            round int,
+            result varchar(20),
+            "ctrl" time,
+            "kd" int,
+            "rev" int,
+            "ss_a" int,
+            "ss_a_b" int,
+            "ss_a_cl" int,
+            "ss_a_dist" int,
+            "ss_a_gr" int,
+            "ss_a_h" int,
+            "ss_a_l" int,
+            "ss_l" int,
+            "ss_l_b" int,
+            "ss_l_cl" int,
+            "ss_l_dist" int,
+            "ss_l_gr" int,
+            "ss_l_h" int,
+            "ss_l_l" int,
+            "sub_a" int,
+            "td_a" int,
+            "td_l" int,
+            "ts_a" int,
+            "ts_l" int       
+            )
+    """
+    db.getCursor().execute(query)
+    db.getConn().commit()
+
+
+def create_dirty_fight_table(db: DBHelper) -> None:
+    query = """
+        create table dirty_fight_table (
+        fight_key_nat text
+        ,details text
+        ,final_round int
+        ,final_round_duration time
+        ,method: text
+        ,referee text
+        ,round_format text
+        ,weight_class text
+    )
+    """
+    db.getCursor().execute(query)
+    db.getConn().commit()
 
 
 def create_Round_fact(db: DBHelper) -> None:
     query = """
         create table Round_fact (
-            fight_date int
-            ,figher_key int
+            ,fighter_key int
             ,round_key int
-            ,fight_key int
             ,knockdowns int
             ,ss_a int
             ,ss_l int
@@ -45,7 +99,7 @@ def create_Round_fact(db: DBHelper) -> None:
             ,ss_l_clinch int
             ,ss_a_ground int
             ,ss_l_ground int
-            ,primary key(fight_date, figher_key, round_key, fight_key)
+            ,primary key(fighter_key, round_key)
         )
         """
     db.getCursor().execute(query)
@@ -56,7 +110,7 @@ def create_Round_fact(db: DBHelper) -> None:
 def create_Fight_dim(db: DBHelper) -> None:
     query = """
             create table Fight_dim (
-                fight_key int primary key
+                fight_key serial primary key
                 ,fight_date_key int not null
                 ,red_fighter_key int not null
                 ,blue_fighter_key int not null
@@ -90,7 +144,7 @@ def create_Round_dim(db: DBHelper) -> None:
 def create_Fighter_dim(db: DBHelper) -> None:
     query = """
         create TABLE Fighter_dim (
-            fighter_key int primary key
+            fighter_key serial primary key
             ,date_of_birth_key int
             ,first_name varchar(20) not null
             ,last_name varchar(20) not null
@@ -117,4 +171,5 @@ def create_Date_dim(db: DBHelper) -> None:
     logging.info("Date_dim successfully built.")
 
 
-main()
+if __name__ == "__main__":
+    main()
