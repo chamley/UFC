@@ -8,7 +8,6 @@
 #   Refactor sanity checks to testing.
 
 from pprint import pprint
-from black import parse_ast
 from bs4 import BeautifulSoup
 import boto3
 from dotenv import load_dotenv
@@ -333,4 +332,5 @@ def push_fight(fight_data, key):
     #     S3C.upload_file(file_name, STAGE_LAYER_TWO, file_name)
 
 
-main()
+if "__name__" == "__main__":
+    main()

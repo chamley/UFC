@@ -1,10 +1,11 @@
 import logging
+from xml.dom.minidom import Element
 import boto3
 import os
 import datetime
 from importlib import reload
 from dotenv import load_dotenv
-
+import json
 
 T = datetime.datetime.today()
 load_dotenv()
@@ -33,7 +34,7 @@ S3R = boto3.resource(
     aws_access_key_id=ACCESS_KEY_ID,
     aws_secret_access_key=SECRET_ACCESS_KEY_ID,
 )
-
+Key_Vector = list[dict]
 DEV: bool = True
 
 if DEV:
@@ -49,13 +50,41 @@ else:
 
 
 def main():
+    # res: dict = S3C.list_objects_v2(Bucket=STAGE_LAYER_TWO, Prefix=prefix_string)
+    keys: Key_Vector = get_file_keys()
+    for k in keys:
+        object = S3R.Object(bucket_name=STAGE_LAYER_TWO, key=k["Key"]).get()
+        fight_object = json.loads(object["Body"].read())
+
+        dfs_print(fight_object)
+
+        # print(json.dumps(fight_object, sort_keys=True, indent=4))
+
+
+def dfs_print(d):
+    if isinstance(d, dict):
+        for element in d.keys():
+            dfs_print(d[element])
+    else:
+
+        print(f"{d} is a {type(d)}")
+
+
+def get_file_keys() -> Key_Vector:
+    keys: Key_Vector = []
     res: dict = S3C.list_objects_v2(Bucket=STAGE_LAYER_TWO, Prefix=prefix_string)
-    for element in res:
-        print(element)
+    while True:
+        items = res["Contents"]
+        for i in items:
+            keys.append(i)
+        if not "NextContinuationToken" in res:
+            break
+        t = res["NextContinuationToken"]
 
-
-def fetch_fight(key):
-    pass
+        res = S3C.list_objects_v2(
+            Bucket=STAGE_LAYER_TWO, Prefix=prefix_string, ContinuationToken=t
+        )
+    return keys
 
 
 main()
