@@ -1,11 +1,11 @@
 from dbhelper import DBHelper
 import logging
-from datetime import datetime
+import datetime
 import argparse
 
 
-DATE = datetime.date.today()
-LOGFILE_NAME = f"db_build {DATE}.log"
+DATE = datetime.datetime.now()
+LOGFILE_NAME = f"logs/db_build {DATE}.log"
 logging.basicConfig(filename=LOGFILE_NAME, encoding="utf-8", level=logging.DEBUG)
 
 
@@ -17,8 +17,8 @@ def main() -> None:
     # create_Fighter_dim(db)
     # create_Round_dim(db)
     # create_Round_fact(db)
-    create_dirty_round_table(db)
-    create_dirty_fight_table(db)
+    # create_dirty_round_table(db)
+    # create_dirty_fight_table(db)
 
     db.closeDB()
     logging.info("-- Building Database Finished --")
@@ -73,7 +73,7 @@ def create_dirty_fight_table(db: DBHelper) -> None:
         ,details text
         ,final_round int
         ,final_round_duration time
-        ,method: text
+        ,method text
         ,referee text
         ,round_format text
         ,weight_class text
