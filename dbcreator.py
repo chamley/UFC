@@ -1,12 +1,17 @@
 from dbhelper import DBHelper
 import logging
+from datetime import datetime
+import argparse
 
-logging.basicConfig(filename="logs/db_build.log", encoding="utf-8", level=logging.DEBUG)
+
+DATE = datetime.date.today()
+LOGFILE_NAME = f"db_build {DATE}.log"
+logging.basicConfig(filename=LOGFILE_NAME, encoding="utf-8", level=logging.DEBUG)
 
 
-def main():
+def main() -> None:
     """The purpose of this script is to fully fledge out version 1.0 of our database"""
-    logging.info("Building Database ...")
+    logging.info("-- Building Database --")
     db = DBHelper()
     # create_Date_dim(db)
     # create_Fighter_dim(db)
@@ -16,7 +21,13 @@ def main():
     create_dirty_fight_table(db)
 
     db.closeDB()
-    logging.info("Building Database Finished ...")
+    logging.info("-- Building Database Finished --")
+
+
+def set_foreign_keys(db: DBHelper) -> None:
+    logging.info("setting foreign keys ...")
+    query = """"""
+    logging.info("foreign keys set successfully.")
 
 
 def create_dirty_round_table(db: DBHelper) -> None:
@@ -73,6 +84,7 @@ def create_dirty_fight_table(db: DBHelper) -> None:
 
 
 def create_Round_fact(db: DBHelper) -> None:
+    logging.info("building Round_fact ...")
     query = """
         create table Round_fact (
             ,fighter_key int
@@ -108,6 +120,7 @@ def create_Round_fact(db: DBHelper) -> None:
 
 
 def create_Fight_dim(db: DBHelper) -> None:
+    logging.info("building Fight_dim ...")
     query = """
             create table Fight_dim (
                 fight_key serial primary key
@@ -142,6 +155,7 @@ def create_Round_dim(db: DBHelper) -> None:
 
 
 def create_Fighter_dim(db: DBHelper) -> None:
+    logging.info("building Fighter_dim ...")
     query = """
         create TABLE Fighter_dim (
             fighter_key serial primary key
@@ -159,6 +173,7 @@ def create_Fighter_dim(db: DBHelper) -> None:
 
 
 def create_Date_dim(db: DBHelper) -> None:
+    logging.info("building Date_dim ...")
     query = """CREATE TABLE Date_dim (
                     date_key int primary key
                     ,year varchar(2) not null
