@@ -74,7 +74,7 @@ def main():
 
 
 def upload_to_db(f):
-    s3c = boto3.client(
+    s3r = boto3.resource(
         "s3",
         region_name="us-east-1",
         aws_access_key_id=ACCESS_KEY_ID,
@@ -82,14 +82,19 @@ def upload_to_db(f):
     )
     db: DBHelper = DBHelper()
     try:
-        object = s3c.Object(bucket_name=STAGE_LAYER_TWO, key=f["Key"]).get()
+        object = s3r.Object(bucket_name=STAGE_LAYER_TWO, key=f["Key"]).get()
         fight_object = json.loads(object["Body"].read())
         fight_object["nat_key"] = f["Key"]
+
         dirty_insert(db, fight_object)
+
+        db.getConn().commit()
+        logging.info(f'{f["Key"]} uploaded successfully')
+        print(f'{f["Key"]} uploaded successfully')
     except Exception as e:
         print(f"error on {f}:  {e}")
         logging.info(f"error on {f}:  {e}")
-        db.getConn.commit()
+        db.getConn().commit()  # i think this is still necessary?
     finally:
         db.closeDB()
 
@@ -141,15 +146,12 @@ def dirty_insert(db: DBHelper, fight_object: dict) -> None:
                 fight_object[c][r]["fighter_name_nat"] = fight_object[c]["name"]
                 fight_object[c][r]["round"] = int(r[1])
                 fight_object[c][r]["fight_key_nat"] = fight_object["nat_key"]
-                print(f"inserting  {fight_object[c][r]}")
                 rounds.append(fight_object[c][r])
-                # db.insert_into_dirty_round(fight_object[c][r])
     fight_object["metadata"]["fight_key_nat"] = fight_object["nat_key"]
 
     print(f"inserting  {fight_object['metadata']}")
     db.batch_insert_into_dirty_round(rounds)
     db.insert_into_dirty_fight(fight_object["metadata"])
-    db.getConn().commit()
 
 
 if __name__ == "__main__":

@@ -40,7 +40,7 @@ class DBHelper:
         self.conn.close()
 
     def insert_into_dirty_round(self, round):
-        query = """ insert into dirty_round_table
+        query: str = """ insert into dirty_round_table
             values ( %(color)s,
                 %(fighter_name_nat)s,
                 %(fight_key_nat)s,
@@ -75,7 +75,7 @@ class DBHelper:
 
     def insert_into_dirty_fight(self, fight_meta):
 
-        query = """insert into dirty_fight_table values (
+        query: str = """insert into dirty_fight_table values (
             %(fight_key_nat)s
             ,%(details)s
             ,%(final_round)s
@@ -87,8 +87,9 @@ class DBHelper:
             """
         self.cur.execute(query, fight_meta)
 
-    def batch_insert_into_dirty_round(self, rounds):
-        query = """insert into dirty_fight_table values (
+    def batch_insert_into_dirty_round(self, rounds: list):
+        print("entering execute batch")
+        query: str = """insert into dirty_fight_table values (
             %(fight_key_nat)s
             ,%(details)s
             ,%(final_round)s
@@ -96,7 +97,10 @@ class DBHelper:
             ,%(method)s
             ,%(referee)s
             ,%(round_format)s
-            ,%(weight class)s)
+            ,%(weight class)s
+            )
             """
-
+        for x in rounds:
+            print(x)
         execute_batch(self.cur, query, rounds)
+        print("exiting execute batch")
