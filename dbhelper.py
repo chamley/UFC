@@ -89,18 +89,35 @@ class DBHelper:
 
     def batch_insert_into_dirty_round(self, rounds: list):
         print("entering execute batch")
-        query: str = """insert into dirty_fight_table values (
-            %(fight_key_nat)s
-            ,%(details)s
-            ,%(final_round)s
-            ,%(final_round_duration)s
-            ,%(method)s
-            ,%(referee)s
-            ,%(round_format)s
-            ,%(weight class)s
-            )
-            """
-        for x in rounds:
-            print(x)
+        query = """ insert into dirty_round_table
+            values ( %(color)s,
+                %(fighter_name_nat)s,
+                %(fight_key_nat)s,
+                %(round)s,
+                %(result)s,
+                %(kd)s,
+                %(ss_l)s,
+                %(ss_a)s,
+                %(ts_l)s,
+                %(ts_a)s,
+                %(td_l)s,
+                %(td_a)s,
+                %(sub_a)s,
+                %(rev)s,
+                %(ctrl)s,
+                %(ss_l_h)s,
+                %(ss_a_h)s,
+                %(ss_l_b)s,
+                %(ss_a_b)s,
+                %(ss_l_l)s,
+                %(ss_a_l)s,
+                %(ss_l_dist)s,
+                %(ss_a_dist)s,
+                %(ss_l_cl)s,
+                %(ss_a_cl)s,
+                %(ss_l_gr)s,
+                %(ss_a_gr)s
+        )
+        """
         execute_batch(self.cur, query, rounds)
         print("exiting execute batch")
