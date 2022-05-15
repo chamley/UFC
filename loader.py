@@ -64,7 +64,7 @@ if devmode:
 else:
     prefix_string = ""
 
-
+# Resource instances are NOT THREAD SAFE
 def main():
     files: File_Vector = get_files()
     retry_list = []
@@ -74,17 +74,20 @@ def main():
 
         with mp.Pool() as p:
             try:
-                object = S3R.Object(bucket_name=STAGE_LAYER_TWO, key=f["Key"]).get()
-                fight_object = json.loads(object["Body"].read())
-                fight_object["nat_key"] = f["Key"]
-
-                dirty_insert(fight_object)
+                upload_to_db(f)
             except Exception as e:
                 print(f"error on {f}:  {e}")
                 db.getConn().commit()  # close block and continue
                 retry_list.append(f)
 
     logging.info(retry_list)
+
+
+def upload_to_db(f):
+    object = S3R.Object(bucket_name=STAGE_LAYER_TWO, key=f["Key"]).get()
+    fight_object = json.loads(object["Body"].read())
+    fight_object["nat_key"] = f["Key"]
+    dirty_insert(fight_object)
 
 
 def dfs_print(d):
