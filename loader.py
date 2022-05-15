@@ -30,7 +30,7 @@ reload(logging)
 logging.basicConfig(
     filename=f"logs/loader-{T}.log", encoding="utf-8", level=logging.DEBUG
 )
-db = DBHelper()
+dbglobal = DBHelper()
 STAGE_LAYER_TWO: str = "ufc-big-data-2"
 
 ACCESS_KEY_ID: str = os.getenv("access_key_id")
@@ -69,25 +69,29 @@ def main():
     files: File_Vector = get_files()
     retry_list = []
 
-    for f in files:
-        print(f, files)
-
-        with mp.Pool() as p:
-            try:
-                upload_to_db(f)
-            except Exception as e:
-                print(f"error on {f}:  {e}")
-                db.getConn().commit()  # close block and continue
-                retry_list.append(f)
-
-    logging.info(retry_list)
+    with mp.Pool() as p:
+        p.map(upload_to_db, files)
 
 
 def upload_to_db(f):
-    object = S3R.Object(bucket_name=STAGE_LAYER_TWO, key=f["Key"]).get()
-    fight_object = json.loads(object["Body"].read())
-    fight_object["nat_key"] = f["Key"]
-    dirty_insert(fight_object)
+    s3c = boto3.client(
+        "s3",
+        region_name="us-east-1",
+        aws_access_key_id=ACCESS_KEY_ID,
+        aws_secret_access_key=SECRET_ACCESS_KEY_ID,
+    )
+    db = DBHelper()
+    try:
+        object = s3c.Object(bucket_name=STAGE_LAYER_TWO, key=f["Key"]).get()
+        fight_object = json.loads(object["Body"].read())
+        fight_object["nat_key"] = f["Key"]
+        dirty_insert(fight_object)
+    except Exception as e:
+        print(f"error on {f}:  {e}")
+        logging.info(f"error on {f}:  {e}")
+        db.getConn.commit()
+    finally:
+        db.closeDB()
 
 
 def dfs_print(d):
@@ -136,11 +140,11 @@ def dirty_insert(fight_object: dict) -> None:
                 fight_object[c][r]["round"] = int(r[1])
                 fight_object[c][r]["fight_key_nat"] = fight_object["nat_key"]
                 print(f"inserting  {fight_object[c][r]}")
-                db.insert_into_dirty_round(fight_object[c][r])
+                dbglobal.insert_into_dirty_round(fight_object[c][r])
     fight_object["metadata"]["fight_key_nat"] = fight_object["nat_key"]
 
     print(f"inserting  {fight_object['metadata']}")
-    db.insert_into_dirty_fight(fight_object["metadata"])
+    dbglobal.insert_into_dirty_fight(fight_object["metadata"])
 
 
 if __name__ == "__main__":
@@ -148,7 +152,7 @@ if __name__ == "__main__":
     try:
         main()
     finally:
-        db.closeDB()
+        dbglobal.closeDB()
     end = time.time()
     logging.info(f"{__file__} ran in {end-start} seconds")
     print(f"{__file__} ran in {end-start} seconds")
