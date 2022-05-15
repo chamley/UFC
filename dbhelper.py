@@ -72,6 +72,7 @@ class DBHelper:
         self.conn.commit()
 
     def insert_into_dirty_fight(self, fight_meta):
+
         query = """insert into dirty_fight_table values (
             %(fight_key_nat)s
             ,%(details)s
@@ -84,3 +85,15 @@ class DBHelper:
             """
         self.cur.execute(query, fight_meta)
         self.conn.commit()
+
+    def batch_insert_into_dirty_round(self, rounds):
+        query = """insert into dirty_fight_table values (
+            %(fight_key_nat)s
+            ,%(details)s
+            ,%(final_round)s
+            ,%(final_round_duration)s
+            ,%(method)s
+            ,%(referee)s
+            ,%(round_format)s
+            ,%(weight class)s)
+            """

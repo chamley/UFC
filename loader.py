@@ -121,10 +121,12 @@ def get_files() -> File_Vector:
 
 
 def dirty_insert(db, fight_object: dict) -> None:
+    rounds = []
 
     colors = ["red", "blue"]
     for c in colors:
         for r in fight_object[c]:
+            # object parsing/re-arranging
             if not r.isalpha():
                 fight_object[c][r]["rev"] = int(fight_object[c][r]["rev"])
                 fight_object[c][r]["kd"] = int(fight_object[c][r]["kd"])
@@ -140,10 +142,12 @@ def dirty_insert(db, fight_object: dict) -> None:
                 fight_object[c][r]["round"] = int(r[1])
                 fight_object[c][r]["fight_key_nat"] = fight_object["nat_key"]
                 print(f"inserting  {fight_object[c][r]}")
-                db.insert_into_dirty_round(fight_object[c][r])
+                rounds.append(fight_object[c][r])
+                # db.insert_into_dirty_round(fight_object[c][r])
     fight_object["metadata"]["fight_key_nat"] = fight_object["nat_key"]
 
     print(f"inserting  {fight_object['metadata']}")
+    db.batch_insert_into_dirty_round(rounds)
     db.insert_into_dirty_fight(fight_object["metadata"])
 
 
