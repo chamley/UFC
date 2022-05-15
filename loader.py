@@ -17,9 +17,8 @@ from dotenv import load_dotenv
 import json
 import datetime
 from dbhelper import DBHelper
-
 import time
-
+import multiprocessing as mp
 
 # SETUP ENVIRONMENT
 T = datetime.datetime.now()
@@ -49,7 +48,7 @@ S3R = boto3.resource(
     aws_access_key_id=ACCESS_KEY_ID,
     aws_secret_access_key=SECRET_ACCESS_KEY_ID,
 )
-Key_Vector = list[dict]
+File_Vector = list[dict]
 
 
 ## ARGUMENT PARSING
@@ -67,24 +66,23 @@ else:
 
 
 def main():
-    # res: dict = S3C.list_objects_v2(Bucket=STAGE_LAYER_TWO, Prefix=prefix_string)
-    keys: Key_Vector = get_file_keys()
+    files: File_Vector = get_files()
     retry_list = []
-    for k in keys:
-        try:
-            object = S3R.Object(bucket_name=STAGE_LAYER_TWO, key=k["Key"]).get()
-            fight_object = json.loads(object["Body"].read())
-            fight_object["nat_key"] = k["Key"]
 
-            # dfs_print(fight_object)
+    for f in files:
+        print(f, files)
 
-            # print(json.dumps(fight_object, indent=4))
+        with mp.Pool() as p:
+            try:
+                object = S3R.Object(bucket_name=STAGE_LAYER_TWO, key=f["Key"]).get()
+                fight_object = json.loads(object["Body"].read())
+                fight_object["nat_key"] = f["Key"]
 
-            dirty_insert(fight_object)
-        except Exception as e:
-            print(f"error on {k}:  {e}")
-            db.getConn().commit()  # close block and continue
-            retry_list.append(k)
+                dirty_insert(fight_object)
+            except Exception as e:
+                print(f"error on {f}:  {e}")
+                db.getConn().commit()  # close block and continue
+                retry_list.append(f)
 
     logging.info(retry_list)
 
@@ -98,8 +96,8 @@ def dfs_print(d):
         print(f"{d} is a {type(d)}")
 
 
-def get_file_keys() -> Key_Vector:
-    keys: Key_Vector = []
+def get_files() -> File_Vector:
+    keys: File_Vector = []
     res: dict = S3C.list_objects_v2(Bucket=STAGE_LAYER_TWO, Prefix=prefix_string)
     while True:
         items = res["Contents"]
@@ -114,21 +112,8 @@ def get_file_keys() -> Key_Vector:
         )
     return keys
 
-    # create a dict, put it in a df and then insert
-
 
 def dirty_insert(fight_object: dict) -> None:
-
-    query2 = """insert into dirty_fight_table values (
-        %(fight_key_nat)s
-        ,%(details)s
-        ,%(final_round)s
-        ,%(final_round_duration)s
-        ,%(method)s
-        ,%(referee)s
-        ,%(round_format)s
-        ,%(weight class)s)
-    """
 
     colors = ["red", "blue"]
     for c in colors:
@@ -157,8 +142,10 @@ def dirty_insert(fight_object: dict) -> None:
 
 if __name__ == "__main__":
     start = time.time()
-    main()
-    db.closeDB()
+    try:
+        main()
+    finally:
+        db.closeDB()
     end = time.time()
     logging.info(f"{__file__} ran in {end-start} seconds")
     print(f"{__file__} ran in {end-start} seconds")

@@ -13,14 +13,16 @@ def main() -> None:
     """The purpose of this script is to fully fledge out version 1.0 of our database"""
     logging.info("-- Building Database --")
     db = DBHelper()
-    # create_Date_dim(db)
-    # create_Fighter_dim(db)
-    # create_Round_dim(db)
-    # create_Round_fact(db)
-    # create_dirty_round_table(db)
-    # create_dirty_fight_table(db)
-
-    db.closeDB()
+    try:
+        pass
+        # create_Date_dim(db)
+        # create_Fighter_dim(db)
+        # create_Round_dim(db)
+        # create_Round_fact(db)
+        # create_dirty_round_table(db)
+        # create_dirty_fight_table(db)
+    finally:
+        db.closeDB()
     logging.info("-- Building Database Finished --")
 
 
