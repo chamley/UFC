@@ -30,7 +30,7 @@ reload(logging)
 logging.basicConfig(
     filename=f"logs/loader-{T}.log", encoding="utf-8", level=logging.DEBUG
 )
-dbglobal = DBHelper()
+dbglobal: DBHelper = DBHelper()
 STAGE_LAYER_TWO: str = "ufc-big-data-2"
 
 ACCESS_KEY_ID: str = os.getenv("access_key_id")
@@ -80,7 +80,7 @@ def upload_to_db(f):
         aws_access_key_id=ACCESS_KEY_ID,
         aws_secret_access_key=SECRET_ACCESS_KEY_ID,
     )
-    db = DBHelper()
+    db: DBHelper = DBHelper()
     try:
         object = s3c.Object(bucket_name=STAGE_LAYER_TWO, key=f["Key"]).get()
         fight_object = json.loads(object["Body"].read())
@@ -120,7 +120,7 @@ def get_files() -> File_Vector:
     return keys
 
 
-def dirty_insert(db, fight_object: dict) -> None:
+def dirty_insert(db: DBHelper, fight_object: dict) -> None:
     rounds = []
 
     colors = ["red", "blue"]
@@ -149,6 +149,7 @@ def dirty_insert(db, fight_object: dict) -> None:
     print(f"inserting  {fight_object['metadata']}")
     db.batch_insert_into_dirty_round(rounds)
     db.insert_into_dirty_fight(fight_object["metadata"])
+    db.getConn().commit()
 
 
 if __name__ == "__main__":

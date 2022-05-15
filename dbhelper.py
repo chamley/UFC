@@ -2,6 +2,8 @@ from sqlite3 import connect
 import psycopg2
 from dotenv import load_dotenv
 import os
+from psycopg2.extras import execute_batch
+
 
 load_dotenv()
 
@@ -84,7 +86,6 @@ class DBHelper:
             ,%(weight class)s)
             """
         self.cur.execute(query, fight_meta)
-        self.conn.commit()
 
     def batch_insert_into_dirty_round(self, rounds):
         query = """insert into dirty_fight_table values (
@@ -97,3 +98,5 @@ class DBHelper:
             ,%(round_format)s
             ,%(weight class)s)
             """
+
+        execute_batch(self.cur, query, rounds)
