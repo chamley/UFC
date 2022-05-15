@@ -1,1 +1,1 @@
-Send Location
+He think whiskey gona help him
