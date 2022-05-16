@@ -7,7 +7,6 @@
 #   Refactor all print to logging.
 #   Refactor sanity checks to testing.
 
-from pprint import pprint
 from bs4 import BeautifulSoup
 import boto3
 from dotenv import load_dotenv
