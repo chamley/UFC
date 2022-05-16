@@ -1,4 +1,3 @@
-from sqlite3 import connect
 import psycopg2
 from dotenv import load_dotenv
 import os
@@ -7,7 +6,12 @@ from psycopg2.extras import execute_batch
 
 load_dotenv()
 
-DB_HOST = os.getenv("db_host")
+DB_HOST = (
+    os.getenv("db_host")
+    if os.getenv("db_host")
+    else "ufc-main.c54pcx5oxf8d.us-east-1.redshift.amazonaws.com"
+)
+
 DB_USERNAME = os.getenv("db_username")
 DB_PASSWORD = os.getenv("db_password")
 
