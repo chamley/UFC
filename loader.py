@@ -65,8 +65,10 @@ if devmode:
     prefix_string = "fight-2022-04-09alexandervolkanovskichansungjung"
 else:
     prefix_string = ""
-if sys.argv[2]:
+try:
     prefix_string = str(sys.argv[2])
+except IndexError:
+    pass
 
 
 # Resource instances are NOT THREAD SAFE
@@ -87,13 +89,16 @@ def upload_to_db(f):
     )
     db: DBHelper = DBHelper()
     try:
+        s = time.time()
         object = s3r.Object(bucket_name=STAGE_LAYER_TWO, key=f["Key"]).get()
+        print(f'retrieved {f["Key"]} from S3 in {time.time()-s} seconds.')
+        s = time.time()
         fight_object = json.loads(object["Body"].read())
+        print(f'read {f["Key"]} object in {time.time()-s} seconds.')
         fight_object["nat_key"] = f["Key"]
-
+        s = time.time()
         dirty_insert(db, fight_object)
-        logging.info(f'{f["Key"]} uploaded successfully')
-        print(f'{f["Key"]} uploaded successfully')
+        print(f'inserted {f["Key"]} in RedShift in {time.time()-s} seconds.')
     except Exception as e:
         print(f"error on {f}:  {e}")
         logging.info(f"error on {f}:  {e}")
@@ -153,7 +158,6 @@ def dirty_insert(db: DBHelper, fight_object: dict) -> None:
                 rounds.append(fight_object[c][r])
     fight_object["metadata"]["fight_key_nat"] = fight_object["nat_key"]
 
-    print(f"inserting  {fight_object['metadata']}")
     db.batch_insert_into_dirty_round(rounds)
     db.insert_into_dirty_fight(fight_object["metadata"])
     db.getConn().commit()
