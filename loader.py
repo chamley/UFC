@@ -2,11 +2,14 @@
 ## ARGUMENTS: ##
 
 1. (0 or 1) defaults to 1 --> Should we run the script in test mode?
-2. (0 or 1) defaults to 1 --> Should we engage multiple cores?
+2. 
 
 
 """
 
+import traceback
+
+from ast import arg
 import sys
 import logging
 import boto3
@@ -60,9 +63,12 @@ except IndexError:
 
 ## ARGUMENT SETTING
 if devmode:
-    prefix_string = "fight-2006-12-13diegosanchezjoeriggs.txt-SL-2.json"
+    prefix_string = "fight-2022-04-09alexandervolkanovskichansungjung"
 else:
     prefix_string = ""
+if sys.argv[2]:
+    prefix_string = str(sys.argv[2])
+
 
 # Resource instances are NOT THREAD SAFE
 def main():
@@ -87,13 +93,12 @@ def upload_to_db(f):
         fight_object["nat_key"] = f["Key"]
 
         dirty_insert(db, fight_object)
-
-        db.getConn().commit()
         logging.info(f'{f["Key"]} uploaded successfully')
         print(f'{f["Key"]} uploaded successfully')
     except Exception as e:
         print(f"error on {f}:  {e}")
         logging.info(f"error on {f}:  {e}")
+        traceback.print_exc()
         db.getConn().commit()  # i think this is still necessary?
     finally:
         db.closeDB()
@@ -152,6 +157,7 @@ def dirty_insert(db: DBHelper, fight_object: dict) -> None:
     print(f"inserting  {fight_object['metadata']}")
     db.batch_insert_into_dirty_round(rounds)
     db.insert_into_dirty_fight(fight_object["metadata"])
+    db.getConn().commit()
 
 
 if __name__ == "__main__":

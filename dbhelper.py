@@ -92,7 +92,6 @@ class DBHelper:
         self.cur.execute(query, fight_meta)
 
     def batch_insert_into_dirty_round(self, rounds: list):
-        print("entering execute batch")
         query = """ insert into dirty_round_table
             values ( %(color)s,
                 %(fighter_name_nat)s,
@@ -124,4 +123,3 @@ class DBHelper:
         )
         """
         execute_batch(self.cur, query, rounds)
-        print("exiting execute batch")
