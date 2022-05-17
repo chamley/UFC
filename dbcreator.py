@@ -38,7 +38,7 @@ def create_dirty_round_table(db: DBHelper) -> None:
             color int,
             fighter_name_nat text,
             fight_key_nat text,
-            round int,
+            round text,
             result text,
             "kd" int,
             "ss_l" int,

@@ -33,7 +33,6 @@ reload(logging)
 logging.basicConfig(
     filename=f"logs/loader-{T}.log", encoding="utf-8", level=logging.DEBUG
 )
-dbglobal: DBHelper = DBHelper()
 STAGE_LAYER_TWO: str = "ufc-big-data-2"
 
 ACCESS_KEY_ID: str = os.getenv("access_key_id")
@@ -162,10 +161,9 @@ def dirty_insert(db: DBHelper, fight_object: dict) -> None:
 
 if __name__ == "__main__":
     start = time.time()
-    try:
-        main()
-    finally:
-        dbglobal.closeDB()
+
+    main()
+
     end = time.time()
     logging.info(f"{__file__} ran in {end-start} seconds")
     print(f"{__file__} ran in {end-start} seconds")
