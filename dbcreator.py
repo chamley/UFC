@@ -14,7 +14,6 @@ def main() -> None:
     logging.info("-- Building Database --")
     db = DBHelper()
     try:
-        pass
         # create_Date_dim(db)
         # create_Fighter_dim(db)
         # create_Round_dim(db)
