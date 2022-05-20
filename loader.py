@@ -9,7 +9,7 @@
 
 import traceback
 
-from ast import arg
+from ast import While, arg
 import sys
 import logging
 import boto3
@@ -74,10 +74,82 @@ except IndexError:
 # Resource instances are NOT THREAD SAFE
 def main():
     files: File_Vector = get_files()
-    retry_list = []
+
+    keys = [x["Key"] for x in files]
+    counter_object = mp.Value("i")
+    counter_object.value = 0
+
+    process_list = [
+        mp.Process(target=upload_to_db_2, args=[[keys, counter_object]])
+        for _ in os.cpu_count()
+    ]  # generate process for each core available.
+
+    [x.start() for x in process_list]
+    [x.join() for x in process_list]
 
     with mp.Pool() as p:
         p.map(upload_to_db, files)
+
+
+def upload_to_db_2(args):
+    key = ""
+    keys, counter_object = args
+    db: DBHelper = DBHelper()
+    s3r = boto3.resource(
+        "s3",
+        region_name="us-east-1",
+        aws_access_key_id=ACCESS_KEY_ID,
+        aws_secret_access_key=SECRET_ACCESS_KEY_ID,
+    )
+    maximum = len(keys)  # last index is maximum-1
+    while True:
+        s = time.time()
+        with counter_object.get_lock():
+            if counter_object.value >= maximum:
+                db.closeDB()
+                break
+            else:
+                key = keys[counter_object.value]
+                counter_object.value += 1
+        print(f"holding value takes {time.time()-s} seconds.")
+        s = time.time()
+        object = s3r.Object(bucket_name=STAGE_LAYER_TWO, key=key).get()
+        print(f"retrieved {key} from S3 in {time.time()-s} seconds.")
+        s = time.time()
+        fight_object = json.loads(object["Body"].read())
+        print(f"read {key} object in {time.time()-s} seconds.")
+        s = time.time()
+        dirty_insert_2(db, fight_object)  # needs fix
+        print(f"inserted {key} in RedShift in {time.time()-s} seconds.")
+
+
+def dirty_insert_2(db: DBHelper, fight_object: dict) -> None:
+    rounds = []
+
+    colors = ["red", "blue"]
+    for c in colors:
+        for r in fight_object[c]:
+            # object parsing/re-arranging
+            if not r.isalpha():
+                fight_object[c][r]["rev"] = int(fight_object[c][r]["rev"])
+                fight_object[c][r]["kd"] = int(fight_object[c][r]["kd"])
+                x = fight_object[c][r]["ctrl"]
+                fight_object[c][r]["ctrl"] = f"00:0{x}" if x != "--" else "11:11:11"
+
+                for metric in fight_object[c][r].keys():
+                    if "_" in metric:
+                        fight_object[c][r][metric] = int(fight_object[c][r][metric])
+                fight_object[c][r]["result"] = fight_object[c]["result"]
+                fight_object[c][r]["color"] = 1 if c == "red" else 2
+                fight_object[c][r]["fighter_name_nat"] = fight_object[c]["name"]
+                fight_object[c][r]["round"] = int(r[1])
+                fight_object[c][r]["fight_key_nat"] = fight_object["nat_key"]
+                rounds.append(fight_object[c][r])
+    fight_object["metadata"]["fight_key_nat"] = fight_object["nat_key"]
+
+    db.batch_insert_into_dirty_round(rounds)
+    db.insert_into_dirty_fight(fight_object["metadata"])
+    db.getConn().commit()
 
 
 def upload_to_db(f):

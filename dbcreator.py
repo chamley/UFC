@@ -19,8 +19,8 @@ def main() -> None:
         # create_Fighter_dim(db)
         # create_Round_dim(db)
         # create_Round_fact(db)
-        # create_dirty_round_table(db)
-        # create_dirty_fight_table(db)
+        create_dirty_round_table(db)
+        create_dirty_fight_table(db)
     finally:
         db.closeDB()
     logging.info("-- Building Database Finished --")
@@ -70,10 +70,11 @@ def create_dirty_round_table(db: DBHelper) -> None:
 
 def create_dirty_fight_table(db: DBHelper) -> None:
     query = """
+        drop table if exists dirty_fight_table;
         create table dirty_fight_table (
         fight_key_nat text
         ,details text
-        ,final_round int
+        ,final_round text
         ,final_round_duration time
         ,method text
         ,referee text
@@ -88,6 +89,7 @@ def create_dirty_fight_table(db: DBHelper) -> None:
 def create_Round_fact(db: DBHelper) -> None:
     logging.info("building Round_fact ...")
     query = """
+        drop table if exists Round_fact;
         create table Round_fact (
             ,fighter_key int
             ,round_key int
