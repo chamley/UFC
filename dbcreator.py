@@ -33,6 +33,7 @@ def set_foreign_keys(db: DBHelper) -> None:
 
 def create_dirty_round_table(db: DBHelper) -> None:
     query = """
+        drop table if exists dirty_round_table;
         create table dirty_round_table (
             color int,
             fighter_name_nat text,
