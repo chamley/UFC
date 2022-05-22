@@ -62,7 +62,8 @@ except IndexError:
 
 ## ARGUMENT SETTING
 if devmode:
-    prefix_string = "fight-2022-04-09alexandervolkanovskichansungjung"
+    # prefix_string = "fight-2022-04-09alexandervolkanovskichansungjung"
+    prefix_string = "fight-2022-04-09"
 else:
     prefix_string = ""
 try:
@@ -81,14 +82,14 @@ def main():
 
     process_list = [
         mp.Process(target=upload_to_db_2, args=[[keys, counter_object]])
-        for _ in os.cpu_count()
+        for _ in range(os.cpu_count())
     ]  # generate process for each core available.
 
     [x.start() for x in process_list]
     [x.join() for x in process_list]
 
-    with mp.Pool() as p:
-        p.map(upload_to_db, files)
+    # with mp.Pool() as p:
+    #     p.map(upload_to_db, files)
 
 
 def upload_to_db_2(args):
