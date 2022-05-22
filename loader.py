@@ -112,16 +112,21 @@ def upload_to_db_2(args):
             else:
                 key = keys[counter_object.value]
                 counter_object.value += 1
-        print(f"holding value takes {time.time()-s} seconds.")
+        print(f"locking value takes {time.time()-s} seconds.")
         s = time.time()
         object = s3r.Object(bucket_name=STAGE_LAYER_TWO, key=key).get()
         print(f"retrieved {key} from S3 in {time.time()-s} seconds.")
         s = time.time()
         fight_object = json.loads(object["Body"].read())
+        fight_object["nat_key"] = key
         print(f"read {key} object in {time.time()-s} seconds.")
         s = time.time()
-        dirty_insert_2(db, fight_object)  # needs fix
+        dirty_insert_2(db, fight_object)
         print(f"inserted {key} in RedShift in {time.time()-s} seconds.")
+    # except Exception as e:
+    #     print(f"error: {e} +++ {traceback.format_exc()} ---- at: {keys[counter_object.value]}")
+    # finally:
+    #     db.closeDB()
 
 
 def dirty_insert_2(db: DBHelper, fight_object: dict) -> None:

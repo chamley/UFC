@@ -49,7 +49,7 @@ def create_dirty_round_table(db: DBHelper) -> None:
             "td_a" int,
             "sub_a" int,
             "rev" int,
-            "ctrl" time,
+            "ctrl" text,
             "ss_l_h" int,
             "ss_a_h" int,
             "ss_l_b" int,
@@ -75,7 +75,7 @@ def create_dirty_fight_table(db: DBHelper) -> None:
         fight_key_nat text
         ,details text
         ,final_round text
-        ,final_round_duration time
+        ,final_round_duration text
         ,method text
         ,referee text
         ,round_format text
