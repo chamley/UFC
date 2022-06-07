@@ -1,8 +1,10 @@
+from psycopg2 import cursor
 from dbhelper import DBHelper
 import logging
 import datetime
 import argparse
-
+import csv
+import pandas as pd
 
 DATE = datetime.datetime.now()
 LOGFILE_NAME = f"logs/db_build {DATE}.log"
@@ -18,11 +20,28 @@ def main() -> None:
         # create_Fighter_dim(db)
         # create_Round_dim(db)
         # create_Round_fact(db)
-        create_dirty_round_table(db)
-        create_dirty_fight_table(db)
+        # create_dirty_round_table(db)
+        # create_dirty_fight_table(db)
+        date_dim_builder(db)
     finally:
         db.closeDB()
     logging.info("-- Building Database Finished --")
+
+
+def date_dim_builder(db) -> None:
+    """build the date_dim"""
+    d = pd.DataFrame()
+    d["timestamp"] = pd.date_range(start="1950-01-01", end="2030-01-01", freq="D")
+    d["timestamp"] = d["timestamp"].apply(lambda x: x.date())
+    d["year"] = d["timestamp"].apply(lambda x: x.year)
+    d["month"] = d["timestamp"].apply(lambda x: x.month)
+    d["day"] = d["timestamp"].apply(lambda x: x.day)
+    d["date_key"] = d["timestamp"].apply(lambda x: str(x).replace("-", ""))
+
+    cur = db.getCursor()
+    conn = db.getConn()
+
+    d.to_sql("date_dim", conn)
 
 
 def set_foreign_keys(db: DBHelper) -> None:
