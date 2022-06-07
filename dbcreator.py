@@ -1,4 +1,3 @@
-from psycopg2 import cursor
 from dbhelper import DBHelper
 import logging
 import datetime
