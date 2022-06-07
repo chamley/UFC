@@ -4,6 +4,7 @@ import datetime
 import argparse
 import csv
 import pandas as pd
+import os
 
 DATE = datetime.datetime.now()
 LOGFILE_NAME = f"logs/db_build {DATE}.log"
@@ -28,19 +29,23 @@ def main() -> None:
 
 
 def date_dim_builder(db) -> None:
-    """build the date_dim"""
-    d = pd.DataFrame()
-    d["timestamp"] = pd.date_range(start="1950-01-01", end="2030-01-01", freq="D")
-    d["timestamp"] = d["timestamp"].apply(lambda x: x.date())
-    d["year"] = d["timestamp"].apply(lambda x: x.year)
-    d["month"] = d["timestamp"].apply(lambda x: x.month)
-    d["day"] = d["timestamp"].apply(lambda x: x.day)
-    d["date_key"] = d["timestamp"].apply(lambda x: str(x).replace("-", ""))
 
-    cur = db.getCursor()
-    conn = db.getConn()
+    if "date_table.csv" not in os.listdir(os.getcwd()):
+        with open("date_table.csv", "w") as f:
+            d = pd.DataFrame()
+            d["timestamp"] = pd.date_range(
+                start="1950-01-01", end="2030-01-01", freq="D"
+            )
+            d["timestamp"] = d["timestamp"].apply(lambda x: x.date())
+            d["year"] = d["timestamp"].apply(lambda x: x.year)
+            d["month"] = d["timestamp"].apply(lambda x: x.month)
+            d["day"] = d["timestamp"].apply(lambda x: x.day)
+            d["date_key"] = d["timestamp"].apply(lambda x: str(x).replace("-", ""))
+            d.to_csv("date_table.csv")
 
-    d.to_sql("date_dim", conn)
+    with open("date_table.csv", "r") as f:
+        next(f)  # skip the header
+        db.getCursor().copy_from(f, "date_dim")
 
 
 def set_foreign_keys(db: DBHelper) -> None:
