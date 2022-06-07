@@ -45,7 +45,7 @@ def date_dim_builder(db) -> None:
 
     with open("date_table.csv", "r") as f:
         next(f)  # skip the header
-        db.getCursor().copy_from(f, "date_dim")
+        db.getCursor().copy_from(f, "date_dim", sep=",")
 
 
 def set_foreign_keys(db: DBHelper) -> None:
