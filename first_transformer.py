@@ -72,7 +72,7 @@ def main():
         sanity_check(item["Key"], file)
         try:
             fight_data = parse_fight(file)
-            push_fight(fight_data, item["Key"])
+            # push_fight(fight_data, item["Key"])
         except IndexError as e:
             print(f"Index error on {item['Key']}, skipping for now.")
             logging.info(f"Failed on {item['Key']}")
@@ -127,6 +127,12 @@ def parse_fight(file):
     d["red"]["name"], d["blue"]["name"] = [
         x.text for x in parser.find_all(class_="b-link b-fight-details__person-link")
     ]
+
+    d["red"]["id"], d["blue"]["id"] = [
+        x.get("href").split("/")[-1]
+        for x in parser.find_all(class_="b-link b-fight-details__person-link")
+    ]
+
     d["metadata"]["weight class"] = parser.find(
         class_="b-fight-details__fight-title"
     ).text.strip()
@@ -293,7 +299,7 @@ def parse_fight(file):
     # n = columns_2[12].find_all(class_="b-fight-details__table-text")
     # print(n)
 
-    # print(json.dumps(d, sort_keys=True, indent=4))
+    print(json.dumps(d, sort_keys=True, indent=4))
 
     return d
 
