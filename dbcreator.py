@@ -2,7 +2,7 @@ from dbhelper import DBHelper
 import logging
 import datetime
 import argparse
-
+import os
 
 DATE = datetime.datetime.now()
 LOGFILE_NAME = f"logs/db_build {DATE}.log"
@@ -18,11 +18,32 @@ def main() -> None:
         # create_Fighter_dim(db)
         # create_Round_dim(db)
         # create_Round_fact(db)
-        create_dirty_round_table(db)
-        create_dirty_fight_table(db)
+        # create_dirty_round_table(db)
+        # create_dirty_fight_table(db)
+        build_date_dim(db)
     finally:
         db.closeDB()
     logging.info("-- Building Database Finished --")
+
+
+def build_date_dim(db: DBHelper) -> None:
+    """the purpose of this function is to populate the date_dim. we tried doing this in sql but
+    redshift gave us issues with the generate_series command"""
+
+    if "date_table.csv" not in os.listdir(os.getcwd()):
+        with open("date_table.csv", "w") as f:
+            d = pd.DataFrame()
+            d["timestamp"] = pd.date_range(
+                start="1950-01-01", end="2030-01-01", freq="D"
+            )
+            d["timestamp"] = d["timestamp"].apply(lambda x: x.date())
+            d["year"] = d["timestamp"].apply(lambda x: x.year)
+            d["month"] = d["timestamp"].apply(lambda x: x.month)
+            d["day"] = d["timestamp"].apply(lambda x: x.day)
+            d["date_key"] = d["timestamp"].apply(lambda x: str(x).replace("-", ""))
+            d.to_csv("date_table.csv")
+    with open("date_table.csv", "r") as f:
+        db.getCursor().copy_from(f, "date_dim", sep=",")
 
 
 def set_foreign_keys(db: DBHelper) -> None:
