@@ -50,7 +50,7 @@ S3R = boto3.resource(
 STAGE_LAYER_ONE: str = "ufc-big-data"
 STAGE_LAYER_TWO: str = "ufc-big-data-2"
 
-DEV_MODE: bool = False
+DEV_MODE: bool = True
 prefix_string: str = ""
 early_exit: bool = False
 if DEV_MODE:
@@ -199,8 +199,6 @@ def parse_fight(file):
     for r in range(1, num_rounds + 1):
         index_1 = r + 1 + (r - 1) * 10
         index_2 = r + 3 + (r - 1) * 9
-        print(f"round {r}")
-        print(f"index {index_1}")
 
         # index_1 = 2, 13, 24 ... + 11
         # index_2 = 4, 14, ...
@@ -337,5 +335,5 @@ def push_fight(fight_data, key):
     #     S3C.upload_file(file_name, STAGE_LAYER_TWO, file_name)
 
 
-if "__name__" == "__main__":
+if __name__ == "__main__":
     main()
