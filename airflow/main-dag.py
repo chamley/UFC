@@ -1,7 +1,7 @@
 from fileinput import filename
 from airflow import DAG
 from datetime import datetime, timedelta
-
+from airflow.operators.python import PythonOperator
 
 default_args = {
     "owner": "seb",
@@ -26,4 +26,4 @@ with DAG(
     default_args=default_args,
     catchup=catchup,
 ) as dag:
-    pass
+    dummy_task = PythonOperator(task_id="dummy_task", python_callable=dummy_function)
