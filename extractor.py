@@ -76,7 +76,7 @@ def get_card_urls_dic():
     for e in events:
         s = e.span.text.strip().replace(",", "").split()
         event_date = datetime.strptime(
-            f"{s[2]}-{datetime.strptime(s[0], '%B').month}-{s[1]}", "%Y-%M-%d"
+            f"{s[2]}-{datetime.strptime(s[0], '%B').month}-{s[1]}", "%Y-%m-%d"
         ).date()
         print(event_date)
         # get past events only
