@@ -71,17 +71,15 @@ def get_card_urls_dic():
     )
     # take advantage of the fact that our object naming leverage's s3's storing of objects in alphabetical order
     x = objects["Contents"][-1:][0]["Key"][6:16]
-    DATE_START = datetime.strptime(x, "%Y-%M-%d").date()
-
+    DATE_START = datetime.strptime(x, "%Y-%m-%d").date()
     events = parser.find_all("i", class_="b-statistics__table-content")
     for e in events:
         s = e.span.text.strip().replace(",", "").split()
         event_date = datetime.strptime(
             f"{s[2]}-{datetime.strptime(s[0], '%B').month}-{s[1]}", "%Y-%M-%d"
         ).date()
-
+        print(event_date)
         # get past events only
-
         if DATE_START < event_date and event_date < DATE_END:
             new_urls[str(event_date)] = e.find("a").get("href")
 
