@@ -27,3 +27,21 @@ with DAG(
     catchup=catchup,
 ) as dag:
     dummy_task = PythonOperator(task_id="dummy_task", python_callable=dummy_function)
+
+    # lambda pulls raw data into S3
+
+    # run tests against structure of raw data
+
+    # lambda runs first transformation
+
+    # run tests great expectations
+
+    # lambda creates temp tables and gets redshift to pull data into first table
+
+    # lambda massages data into final format
+
+    # run tests against great expetations
+
+    # merge into normal data
+
+    # refresh materialized views
