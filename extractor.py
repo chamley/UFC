@@ -72,7 +72,7 @@ def get_card_urls_dic():
     # take advantage of the fact that our object naming leverage's s3's storing of objects in alphabetical order
     x = objects["Contents"][-1:][0]["Key"][6:16]
     DATE_START = datetime.strptime(x, "%Y-%m-%d").date()
-    events = parser.find_all("i", class_="b-statistics__table-content")
+    events = parser.find_all("i", class_="b-statistics__table-content")  # ohai
     for e in events:
         s = e.span.text.strip().replace(",", "").split()
         event_date = datetime.strptime(
