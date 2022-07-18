@@ -298,6 +298,10 @@ def parse_fight(file):
     # print(n)
 
     print(json.dumps(d, sort_keys=True, indent=4))
+<<<<<<< HEAD
+=======
+    sys.exit()
+>>>>>>> main
 
     return d
 
