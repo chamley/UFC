@@ -293,7 +293,8 @@ def parse_fight(file):
     # n = columns_2[12].find_all(class_="b-fight-details__table-text")
     # print(n)
 
-    # print(json.dumps(d, sort_keys=True, indent=4))
+    print(json.dumps(d, sort_keys=True, indent=4))
+    sys.exit()
 
     return d
 
@@ -331,5 +332,5 @@ def push_fight(fight_data, key):
     #     S3C.upload_file(file_name, STAGE_LAYER_TWO, file_name)
 
 
-if "__name__" == "__main__":
+if __name__ == "__main__":
     main()
