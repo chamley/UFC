@@ -81,7 +81,7 @@ def main():
             print(f"Attribute error on {item['Key']}, skipping for now.")
             logging.info(f"Failed on {item['Key']}")
             print(e)
-    logging.info("Exiting first transformer")
+    logging.info("Successfuly exiting first transformer")
 
 
 # checks whether our program will make correct assumptions about the structure of the page
@@ -107,7 +107,7 @@ def sanity_check(key: str, file) -> None:
     flag = con1
 
     if not flag:
-        print(f"Table dim sanity check failed on {key}")
+        print(f"Tabile dim sanity check failed on {key}")
     else:
         print("Table dim Sanity check passed")
 
@@ -298,12 +298,12 @@ def parse_fight(file):
     # print(n)
 
     print(json.dumps(d, sort_keys=True, indent=4))
-<<<<<<< HEAD
-=======
-    sys.exit()
->>>>>>> main
 
     return d
+
+
+def sebastian_csv_fix():
+    pass
 
 
 def clean(s):
