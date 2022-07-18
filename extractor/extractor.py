@@ -13,6 +13,7 @@ import sys
 import time
 from datetime import datetime
 
+
 load_dotenv()
 access_key_id = os.getenv("access_key_id")
 secret_access_key_id = os.getenv("secret_access_key_id")
@@ -37,15 +38,18 @@ def stage_layer_1():
 
     # dictionary of past cards with their dates
     card_urls_dic = get_card_urls_dic()
-
+    print(f"finished getting urls {card_urls_dic}")
     # date is the key, url is the val
     for date, card_url in card_urls_dic.items():
         # list of fight urls for that card
         time.sleep(1)  # being respectful of their servers
         fight_urls_list = get_fight_url_list(card_url)
+        print(f"finished getting fight urls list with: {fight_urls_list}")
 
         for f in fight_urls_list:
+            print("entering create_fight_page")
             fight_page, names = create_fight_page(f, date)
+            print("create fight page passed")
             time.sleep(1)  # being respectful of their servers
             # pushes card page to s3 with date added somewhere
 
@@ -78,7 +82,7 @@ def get_card_urls_dic():
         event_date = datetime.strptime(
             f"{s[2]}-{datetime.strptime(s[0], '%B').month}-{s[1]}", "%Y-%m-%d"
         ).date()
-        print(event_date)
+        print(DATE_START, event_date, DATE_END)
         # get past events only
         if DATE_START < event_date and event_date < DATE_END:
             new_urls[str(event_date)] = e.find("a").get("href")
@@ -113,29 +117,28 @@ def create_fight_page(fight_url, date):
 def push_fight_page(fight_page, bucket, object_name, s3):
     bucket = "ufc-big-data"
     print("pushing: " + object_name + " to: " + bucket)
-    try:
-        # have to open twice for some reason idk
-        with (open(object_name, "w") as f):
-            f.write(fight_page)
-            current_objects = s3.list_objects(Bucket=bucket)
-            if object_name not in current_objects:
-                print(
-                    "trying to write filename:{}, bucket:{} key:{}".format(
-                        object_name, bucket, object_name
-                    )
+    # have to open twice for some reason idk
+    with (
+        open(f"/tmp/{object_name}", "w") as f
+    ):  # we add tmp as it seems to be the only folder that we can write to in AWS Lambda
+        f.write(fight_page)
+        current_objects = s3.list_objects(Bucket=bucket)
+        if object_name not in current_objects:
+            print(
+                "trying to write filename:{}, bucket:{} key:{}".format(
+                    object_name, bucket, object_name
                 )
-                s3.upload_file(Filename=object_name, Bucket=bucket, Key=object_name)
-                print("fight uploaded successfully")
-            else:
-                raise Exception("trying to overwrite objects !!!")
+            )
+            s3.upload_file(
+                Filename=f"/tmp/{object_name}", Bucket=bucket, Key=object_name
+            )
+            print("fight uploaded successfully")
+        else:
+            raise Exception("trying to overwrite objects !!!")
 
-        # if not create bucket, else push to that bucket
-        # --- check if object exists
-        # --- if yes throw error, else put object
-    except Exception as e:
-        # implement sns
-        print(e)
-        sys.exit(1)
+    # if not create bucket, else push to that bucket
+    # --- check if object exists
+    # --- if yes throw error, else put object
 
 
 __main__()
