@@ -50,7 +50,7 @@ S3R = boto3.resource(
 STAGE_LAYER_ONE: str = "ufc-big-data"
 STAGE_LAYER_TWO: str = "ufc-big-data-2"
 
-DEV_MODE: bool = False
+DEV_MODE: bool = True
 prefix_string: str = ""
 early_exit: bool = False
 if DEV_MODE:
@@ -72,7 +72,7 @@ def main():
         sanity_check(item["Key"], file)
         try:
             fight_data = parse_fight(file)
-            push_fight(fight_data, item["Key"])
+            # push_fight(fight_data, item["Key"])
         except IndexError as e:
             print(f"Index error on {item['Key']}, skipping for now.")
             logging.info(f"Failed on {item['Key']}")
@@ -127,6 +127,12 @@ def parse_fight(file):
     d["red"]["name"], d["blue"]["name"] = [
         x.text for x in parser.find_all(class_="b-link b-fight-details__person-link")
     ]
+
+    d["red"]["id"], d["blue"]["id"] = [
+        x.get("href").split("/")[-1]
+        for x in parser.find_all(class_="b-link b-fight-details__person-link")
+    ]
+
     d["metadata"]["weight class"] = parser.find(
         class_="b-fight-details__fight-title"
     ).text.strip()
@@ -193,8 +199,6 @@ def parse_fight(file):
     for r in range(1, num_rounds + 1):
         index_1 = r + 1 + (r - 1) * 10
         index_2 = r + 3 + (r - 1) * 9
-        print(f"round {r}")
-        print(f"index {index_1}")
 
         # index_1 = 2, 13, 24 ... + 11
         # index_2 = 4, 14, ...
@@ -293,7 +297,7 @@ def parse_fight(file):
     # n = columns_2[12].find_all(class_="b-fight-details__table-text")
     # print(n)
 
-    # print(json.dumps(d, sort_keys=True, indent=4))
+    print(json.dumps(d, sort_keys=True, indent=4))
 
     return d
 
@@ -331,5 +335,5 @@ def push_fight(fight_data, key):
     #     S3C.upload_file(file_name, STAGE_LAYER_TWO, file_name)
 
 
-if "__name__" == "__main__":
+if __name__ == "__main__":
     main()
