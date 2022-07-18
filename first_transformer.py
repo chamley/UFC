@@ -66,12 +66,20 @@ def main():
     )
     keys: Key_Vector = get_file_keys()  # O(n)
     print(f"Found {len(keys)} files to transform")
+    fights = []
+    rounds = []
     for item in keys:
         object = S3R.Object(bucket_name=STAGE_LAYER_ONE, key=item["Key"]).get()
         file = object["Body"].read()
         sanity_check(item["Key"], file)
         try:
             fight_data = parse_fight(file)
+
+            fixed_round_data, fixed_fight_data = fix_data(
+                fight_data, item["Key"][:-4]
+            )  # easier than rewriting the scraper code, just takes the mess of json and puts it in clean csv
+            fights.append(fight_data)
+            [rounds.append(x) for x in fixed_round_data]
             # push_fight(fight_data, item["Key"])
         except IndexError as e:
             print(f"Index error on {item['Key']}, skipping for now.")
@@ -82,6 +90,8 @@ def main():
             logging.info(f"Failed on {item['Key']}")
             print(e)
     logging.info("Successfuly exiting first transformer")
+
+    write_to_csv(fights, rounds)
 
 
 # checks whether our program will make correct assumptions about the structure of the page
@@ -297,13 +307,59 @@ def parse_fight(file):
     # n = columns_2[12].find_all(class_="b-fight-details__table-text")
     # print(n)
 
-    print(json.dumps(d, sort_keys=True, indent=4))
-
     return d
 
 
-def sebastian_csv_fix():
-    pass
+# returns an array of round (dict) and a single fight (dict)
+def fix_data(d, k):
+    rounds = []
+    fight = {}
+
+    if len(d["metadata"]["final_round"]):
+        last_round = int(d["metadata"]["final_round"][-1])
+    else:
+        last_round = int(d["metadata"]["final_round"])
+
+    for i in range(last_round):
+        n = i + 1
+        b = d["blue"][f"r{n}"]
+        r = d["red"][f"r{n}"]
+
+        b["fighter_id"] = d["blue"]["id"]
+        r["fighter_id"] = d["red"]["id"]
+        b["fight_key_nat"] = k
+        r["fight_key_nat"] = k
+        b["round"] = n
+        r["round"] = n
+        rounds.append(b)
+        rounds.append(r)
+
+    fight["fight_key_nat"] = k
+    fight["red_fighter_name"] = d["red"]["name"]
+    fight["red_fighter_id"] = d["red"]["id"]
+    fight["blue_fighter_name"] = d["blue"]["name"]
+    fight["blue_fighter_id"] = d["blue"]["id"]
+    fight["winner_fighter_name"] = (
+        d["blue"]["name"] if d["blue"]["result"] == "W" else d["blue"]["name"]
+    )
+    fight["winner_fighter_id"] = (
+        d["blue"]["id"] if d["blue"]["result"] == "W" else d["blue"]["id"]
+    )
+    fight["details"] = d["metadata"]["details"]
+    fight["final_round"] = last_round
+    fight["final_round_duration"] = d["metadata"][""]  # need to transform "time" here
+
+    # print(json.dumps(d, sort_keys=True, indent=4))
+
+    # fightkey, fighterkey, round_key, fight_keynat, [.. stats]
+    # fightkeynat,  red fighter key, winner_key details, final round, method, referee, round_format, weight class, fight date, is title fight  wmma, wc
+
+    sys.exit()
+    return [-1, -1]
+
+
+def write_to_csv(fights, rounds):
+    return -1
 
 
 def clean(s):
