@@ -17,6 +17,7 @@ import sys
 from importlib import reload
 import json
 from collections import defaultdict
+import pandas as pd
 
 T = datetime.datetime.today()
 load_dotenv()
@@ -75,7 +76,7 @@ def main():
         try:
             fight_data = parse_fight(file)
 
-            fixed_round_data, fixed_fight_data = fix_data(
+            fix_data(
                 fight_data, item["Key"][:-4]
             )  # easier than rewriting the scraper code, just takes the mess of json and puts it in clean csv
             # fights.append(fight_data)
@@ -90,8 +91,7 @@ def main():
         #     logging.info(f"Failed on {item['Key']}")
         #     print(e)
     logging.info("Successfuly exiting first transformer")
-
-    write_to_csv(fights, rounds)
+    print("Successfuly exiting first transformer")
 
 
 # checks whether our program will make correct assumptions about the structure of the page
@@ -368,6 +368,8 @@ def fix_data(d, k):
         d["metadata"]["weight class"].lower(), fight["wmma"]
     )
 
+    pd.DataFrame(rounds).to_parquet(f"{k}-rounds.parquet.gzip", compression="gzip")
+    pd.DataFrame(fight).to_csv(f"{k}-fight.csv")
     # print(json.dumps(fight, sort_keys=True, indent=4))
 
     # for r in rounds:
@@ -376,7 +378,7 @@ def fix_data(d, k):
     # fightkey, fighterkey, round_key, fight_keynat, [.. stats]
     # fightkeynat,  red fighter key, winner_key, details, final round, final round duration, method, referee, round_format, weight class, fight date, is title fight  wmma, wc
 
-    return [rounds, fight]
+    return 1
 
 
 def format_weight_class(s, wmma):
@@ -410,10 +412,6 @@ def format_weight_class(s, wmma):
             return "wflw"
         else:
             return "wcatchweight"
-
-
-def write_to_csv(fights, rounds):
-    return -1
 
 
 def clean(s):
