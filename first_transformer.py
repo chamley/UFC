@@ -54,7 +54,7 @@ DEV_MODE: bool = True
 prefix_string: str = ""
 early_exit: bool = False
 if DEV_MODE:
-    prefix_string = "fight-2020-11-28ashleeevans-smithnormadumont"  # "fight-2020-11-28anthonysmithdevinclark"  #
+    prefix_string = "fight-2020-11-28anthonysmithdevinclark"  # "fight-2020-11-28ashleeevans-smithnormadumont"  #
     early_exit = True
 else:
     prefix_string = ""
@@ -85,10 +85,10 @@ def main():
             print(f"Index error on {item['Key']}, skipping for now.")
             logging.info(f"Failed on {item['Key']}")
             print(e)
-        except AttributeError as e:
-            print(f"Attribute error on {item['Key']}, skipping for now.")
-            logging.info(f"Failed on {item['Key']}")
-            print(e)
+        # except AttributeError as e:
+        #     print(f"Attribute error on {item['Key']}, skipping for now.")
+        #     logging.info(f"Failed on {item['Key']}")
+        #     print(e)
     logging.info("Successfuly exiting first transformer")
 
     write_to_csv(fights, rounds)
@@ -335,27 +335,79 @@ def fix_data(d, k):
         rounds.append(r)
 
     fight["fight_key_nat"] = k
-    fight["red_fighter_name"] = d["red"]["name"]
+    fight["red_fighter_name"] = d["red"]["name"].lower().strip()
     fight["red_fighter_id"] = d["red"]["id"]
-    fight["blue_fighter_name"] = d["blue"]["name"]
+    fight["blue_fighter_name"] = d["blue"]["name"].lower().strip()
     fight["blue_fighter_id"] = d["blue"]["id"]
+
     fight["winner_fighter_name"] = (
-        d["blue"]["name"] if d["blue"]["result"] == "W" else d["blue"]["name"]
+        d["blue"]["name"].lower().strip()
+        if d["blue"]["result"] == "W"
+        else d["blue"]["name"].lower().strip()
     )
     fight["winner_fighter_id"] = (
         d["blue"]["id"] if d["blue"]["result"] == "W" else d["blue"]["id"]
     )
-    fight["details"] = d["metadata"]["details"]
+    fight["details"] = d["metadata"]["details"].lower().strip()
     fight["final_round"] = last_round
-    fight["final_round_duration"] = d["metadata"][""]  # need to transform "time" here
+    fight["final_round_duration"] = d["metadata"]["final_round_duration"].replace(
+        "Time:", ""
+    )
+    fight["method"] = d["metadata"]["method"].lower().strip()
+    fight["referee"] = d["metadata"]["referee"].replace("Referee:", "").lower().strip()
+    fight["round_format"] = (
+        d["metadata"]["round_format"].replace("Time format:", "").lower().strip()
+    )
+    fight["weight_class"] = d["metadata"]["weight class"].lower().strip()
+    fight["fight_date"] = k[6:16]
+    fight["is_title_fight"] = (
+        1 if "title" in d["metadata"]["weight class"].lower() else 0
+    )
+    fight["wmma"] = 1 if "women" in d["metadata"]["weight class"].lower() else 0
+    fight["wc"] = format_weight_class(
+        d["metadata"]["weight class"].lower(), fight["wmma"]
+    )
 
-    # print(json.dumps(d, sort_keys=True, indent=4))
+    print(json.dumps(fight, sort_keys=True, indent=4))
 
     # fightkey, fighterkey, round_key, fight_keynat, [.. stats]
-    # fightkeynat,  red fighter key, winner_key details, final round, method, referee, round_format, weight class, fight date, is title fight  wmma, wc
+    # fightkeynat,  red fighter key, winner_key, details, final round, final round duration, method, referee, round_format, weight class, fight date, is title fight  wmma, wc
 
     sys.exit()
     return [-1, -1]
+
+
+def format_weight_class(s, wmma):
+    if not wmma:
+        if "lightweight" in s:
+            return "lw"
+        elif "featherweight" in s:
+            return "few"
+        elif "bantamweight" in s:
+            return "bw"
+        elif "flyweight" in s:
+            return "flw"
+        elif "welterweight" in s:
+            return "ww"
+        elif "middleweight" in s:
+            return "mw"
+        elif "heavyweight" in s:
+            return "hw"
+        elif "light heavyweight" in s:
+            return "lhw"
+        else:
+            return "catchweight"
+    else:
+        if "strawweight" in s:
+            return "wsw"
+        elif "bantamweight" in s:
+            return "wbw"
+        elif "featherweight" in s:
+            return "wfew"
+        elif "flyweight" in s:
+            return "wflw"
+        else:
+            return "wcatchweight"
 
 
 def write_to_csv(fights, rounds):
