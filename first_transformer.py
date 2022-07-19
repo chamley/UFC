@@ -18,6 +18,8 @@ from importlib import reload
 import json
 from collections import defaultdict
 import pandas as pd
+import awswrangler as wr
+
 
 T = datetime.datetime.today()
 load_dotenv()
@@ -368,8 +370,18 @@ def fix_data(d, k):
         d["metadata"]["weight class"].lower(), fight["wmma"]
     )
 
-    pd.DataFrame(rounds).to_parquet(f"{k}-rounds.parquet.gzip", compression="gzip")
-    pd.DataFrame(fight).to_csv(f"{k}-fight.csv")
+    wr.s3.to_parquet(
+        pd.DataFrame(rounds),
+        path=f"s3://ufc-big-data-2/{k}-rounds.parquet.gzip",
+        compression="gzip",
+    )
+    wr.s3.to_csv(
+        pd.DataFrame(fight, index=[0]), path=f"s3://ufc-big-data-2/{k}-fight.csv"
+    )
+
+    # pd.DataFrame(rounds).to_parquet(f"{k}-rounds.parquet.gzip", compression="gzip")
+    # pd.DataFrame(fight, index=[0]).to_csv(f"{k}-fight.csv")
+
     # print(json.dumps(fight, sort_keys=True, indent=4))
 
     # for r in rounds:
