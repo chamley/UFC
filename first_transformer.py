@@ -1,7 +1,20 @@
+"""
+Desired behavior:
+    - backfill: look at all missing files in SL2 and try to backfill them with files in SL1, output any missing files.
+    - daterange: look at only files in SL1 within a certain date range and process only those
+    - read a csv of file names (in SL1) and process only those ones.
+
+
+GLOBAL RULES:
+    - never overwrite files, skip and output an error in logs
+
+
+"""
+
+
 # The first transformer parses a page and returns a new file for s3 where the data for a fight is
 # parsed and formatted clearly
 # pushes this new file back to S3
-
 # TO-DO list:
 #   Make the transformer run in parrallel, see .md
 #   Refactor all print to logging.
