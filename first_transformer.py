@@ -54,7 +54,7 @@ DEV_MODE: bool = True
 prefix_string: str = ""
 early_exit: bool = False
 if DEV_MODE:
-    prefix_string = "fight-2020-11-28anthonysmithdevinclark"  # "fight-2020-11-28ashleeevans-smithnormadumont"  #
+    prefix_string = "fight-2022-04-09alexandervolkanovskichansungjung"  # "fight-2020-11-28anthonysmithdevinclark"  # "fight-2020-11-28ashleeevans-smithnormadumont"  #
     early_exit = True
 else:
     prefix_string = ""
@@ -78,8 +78,8 @@ def main():
             fixed_round_data, fixed_fight_data = fix_data(
                 fight_data, item["Key"][:-4]
             )  # easier than rewriting the scraper code, just takes the mess of json and puts it in clean csv
-            fights.append(fight_data)
-            [rounds.append(x) for x in fixed_round_data]
+            # fights.append(fight_data)
+            # [rounds.append(x) for x in fixed_round_data]
             # push_fight(fight_data, item["Key"])
         except IndexError as e:
             print(f"Index error on {item['Key']}, skipping for now.")
@@ -368,13 +368,15 @@ def fix_data(d, k):
         d["metadata"]["weight class"].lower(), fight["wmma"]
     )
 
-    print(json.dumps(fight, sort_keys=True, indent=4))
+    # print(json.dumps(fight, sort_keys=True, indent=4))
+
+    # for r in rounds:
+    #     print(json.dumps(r, sort_keys=True, indent=4))
 
     # fightkey, fighterkey, round_key, fight_keynat, [.. stats]
     # fightkeynat,  red fighter key, winner_key, details, final round, final round duration, method, referee, round_format, weight class, fight date, is title fight  wmma, wc
 
-    sys.exit()
-    return [-1, -1]
+    return [rounds, fight]
 
 
 def format_weight_class(s, wmma):
