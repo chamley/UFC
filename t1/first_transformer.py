@@ -8,7 +8,6 @@ Desired behavior:
 GLOBAL RULES:
     - never overwrite files, skip and output an error in logs
 
-
 """
 
 
