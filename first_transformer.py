@@ -46,7 +46,7 @@ S3R = boto3.resource(
     aws_secret_access_key=SECRET_ACCESS_KEY_ID,
 )
 
-# refactor this into an argparse + write argpaser.py to process argparsses from all python.
+# refactor this into an argparse
 STAGE_LAYER_ONE: str = "ufc-big-data"
 STAGE_LAYER_TWO: str = "ufc-big-data-2"
 
