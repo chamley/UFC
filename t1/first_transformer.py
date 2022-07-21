@@ -478,19 +478,5 @@ def get_file_keys() -> Key_Vector:
     return keys
 
 
-# pushes json object back to s3
-def push_fight(fight_data, key):
-    file_name = f"{key}-SL-2.json"
-    print(f"Trying to write: {file_name}   to: {STAGE_LAYER_TWO}   ...")
-    S3C.put_object(Body=json.dumps(fight_data), Bucket=STAGE_LAYER_TWO, Key=file_name)
-    print(f"Written: {file_name}   to: {STAGE_LAYER_TWO} successfully!")
-    # with open(file_name, "w") as f:
-    #     x = json.dumps(fight_data, indent=4)
-    #     f.write(x)
-    #     S3C.upload_file(file_name, STAGE_LAYER_TWO, file_name)
-
-
 if __name__ == "__main__":
     main()
-
-# test comment
