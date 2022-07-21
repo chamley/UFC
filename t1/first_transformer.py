@@ -100,10 +100,10 @@ def main():
     )
     keys: Key_Vector = get_file_keys()  # O(n)
     print(f"Found {len(keys)} files to transform")
-    fights = []
-    rounds = []
+
     for item in keys:
         object = S3R.Object(bucket_name=STAGE_LAYER_ONE, key=item["Key"]).get()
+
         file = object["Body"].read()
         sanity_check(item["Key"], file)
         try:
@@ -143,7 +143,7 @@ def sanity_check(key: str, file) -> None:
     if not flag:
         print(f"Tabile dim sanity check failed on {key}")
     else:
-        print("Table dim Sanity check passed")
+        print(f"Table dim Sanity check passed on {key} ")
 
 
 def parse_fight(file):
@@ -327,9 +327,6 @@ def parse_fight(file):
                 class_="b-fight-details__table-text"
             )
         ]
-
-    # n = columns_2[12].find_all(class_="b-fight-details__table-text")
-    # print(n)
 
     return d
 
