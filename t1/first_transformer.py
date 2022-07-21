@@ -191,7 +191,7 @@ def parse_fight(file):
             *details,
         ) = [x.text.strip().replace("\n", "").replace("  ", "") for x in lookahead]
         d["metadata"]["details"] = "#".join(details)
-        print(json.dumps(d, sort_keys=True, indent=4))
+        # print(json.dumps(d, sort_keys=True, indent=4))
     else:
         (
             d["metadata"]["final_round"],
@@ -444,18 +444,31 @@ def clean(s):
     return [x.strip() for x in s.split("of")]
 
 
-# use the args specified to
+# We fetch keys of items we want to transform, following the logic of our args.
 def get_file_keys() -> Key_Vector:
     keys: Key_Vector = []
     res: dict = S3C.list_objects_v2(Bucket=STAGE_LAYER_ONE, Prefix=prefix_string)
 
+    ########### ########### ###########
+    # no-overwrite logic. Makes n/1000 calls to S3 where n is size of SL2.
+    res2 = S3C.list_objects_v2(Bucket=STAGE_LAYER_TWO, Prefix=prefix_string)
+    keys2 = []
+    while True:
+        items2 = res2["Contents"]
+        for i in items2:
+            keys2.append(i["Key"])
+        if not "NextContinuationToken" in res2:
+            break
+        t = res2["NextContinuationToken"]
+
+        res2 = S3C.list_objects_v2(
+            Bucket=STAGE_LAYER_TWO, Prefix=prefix_string, ContinuationToken=t
+        )
+    ########### ########### ########### ###########
+
     clean_dates: list = []
     count_dic = defaultdict(int)
     if args.csv:
-        # very important: at the end somewhere output
-        # how many file were found to
-        # be transformed for each date. eg: 4 fights on 2022-01-16, 0 fights for 2022-01-17 etc..
-
         dates_csv = (
             S3R.Object("ufc-meta-files", f"t1-dates/{args.csv}")
             .get()["Body"]
@@ -469,7 +482,13 @@ def get_file_keys() -> Key_Vector:
     while True:
         items = res["Contents"]
         for i in items:
-
+            x = i["Key"].replace(".txt", "") + "-rounds.parquet.gzip"
+            y = i["Key"].replace(".txt", "") + "-fight.csv"
+            if x in keys2 and y in keys2:
+                print(
+                    f"{i['Key'].replace('.txt', '')} already exists in SL2 ! Skipping."
+                )
+                continue
             if args.dates:
                 d = date.fromisoformat(i["Key"][6:16])
                 if not (START_DATE <= d and d <= END_DATE):
