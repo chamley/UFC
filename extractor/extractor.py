@@ -3,6 +3,15 @@
 
 # this script currently grabs the webpage of every single fight listed in ufcfights.com
 
+# desired functionality:
+# - dates: scrap all fights for given dates
+# - csv: grab a csv from s3 with a set of dates
+# - dev:
+
+
+# desired policy
+# - no-overwrite. output in logs.
+
 
 import os
 from dotenv import load_dotenv
