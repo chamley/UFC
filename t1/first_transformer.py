@@ -66,12 +66,10 @@ S3R = boto3.resource(
 STAGE_LAYER_ONE: str = "ufc-big-data"  # grab files from this s3 bucket
 STAGE_LAYER_TWO: str = "ufc-big-data-2"  # put files in this s3 bucket
 
-
-args = my_argument_parser().parse_args()
-
-
 DEV_MODE: bool = False
 prefix_string: str = ""
+
+args = my_argument_parser().parse_args()
 
 if args.dev:
     DEV_MODE: bool = True
@@ -88,9 +86,6 @@ elif args.dates:
 elif args.csv:
     print(f"fetching file in {args.csv}")
     pass  # do the stuff
-elif args.b:
-    print("backfilling all fights")
-    pass  # do stuff
 
 
 if DEV_MODE:
@@ -461,14 +456,21 @@ def clean(s):
     return [x.strip() for x in s.split("of")]
 
 
+# use the args specified to
 def get_file_keys() -> Key_Vector:
     keys: Key_Vector = []
     res: dict = S3C.list_objects_v2(Bucket=STAGE_LAYER_ONE, Prefix=prefix_string)
+
     while True:
         items = res["Contents"]
         for i in items:
-            print(i, items)
-            sys.exit()
+
+            # if -dates
+            if args.dates:
+                d = date.fromisoformat(i["Key"][6:16])
+                if not (START_DATE <= d and d <= END_DATE):
+                    continue
+
             keys.append(i)
         if not "NextContinuationToken" in res:
             break

@@ -15,7 +15,6 @@ def my_argument_parser():
         nargs=2,
         help="date range to cover. Takes 2 arguments (start and end) formatted like so: YYYY-MM-DD",
     )
-    arg_group.add_argument("-b", help="backfill all missing dates found in s3")
 
     arg_group.add_argument(
         "-csv",
