@@ -33,7 +33,7 @@ import pandas as pd
 import awswrangler as wr
 from t1_argumentparser import my_argument_parser
 from datetime import date
-
+import botocore
 
 T = datetime.datetime.today()
 load_dotenv()
@@ -109,20 +109,11 @@ def main():
         try:
             fight_data = parse_fight(file)
 
-            fix_data(
-                fight_data, item["Key"][:-4]
-            )  # easier than rewriting the scraper code, just takes the mess of json and puts it in clean csv
-            # fights.append(fight_data)
-            # [rounds.append(x) for x in fixed_round_data]
-            # push_fight(fight_data, item["Key"])
+            fix_data(fight_data, item["Key"][:-4])
         except IndexError as e:
             print(f"Index error on {item['Key']}, skipping for now.")
             logging.info(f"Failed on {item['Key']}")
             print(e)
-        # except AttributeError as e:
-        #     print(f"Attribute error on {item['Key']}, skipping for now.")
-        #     logging.info(f"Failed on {item['Key']}")
-        #     print(e)
     logging.info("Successfuly exiting first transformer")
     print("Successfuly exiting first transformer")
 
@@ -461,7 +452,7 @@ def get_file_keys() -> Key_Vector:
     keys: Key_Vector = []
     res: dict = S3C.list_objects_v2(Bucket=STAGE_LAYER_ONE, Prefix=prefix_string)
 
-    clean_dates: list
+    clean_dates: list = []
     count_dic = defaultdict(int)
     if args.csv:
         # very important: at the end somewhere output
@@ -488,9 +479,7 @@ def get_file_keys() -> Key_Vector:
                     continue
             if args.csv:
                 d = i["Key"][6:16]
-                print(len(d), len(clean_dates[0]))
-                if d == clean_dates[0]:
-                    print("trueeeeeeee $$$$")
+                if d in clean_dates:
                     count_dic[d] += 1
                 else:
                     continue
