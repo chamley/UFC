@@ -31,7 +31,7 @@ import json
 from collections import defaultdict
 import pandas as pd
 import awswrangler as wr
-
+from t1_argumentparser import my_argument_parser
 
 T = datetime.datetime.today()
 load_dotenv()
@@ -61,16 +61,21 @@ S3R = boto3.resource(
     aws_secret_access_key=SECRET_ACCESS_KEY_ID,
 )
 
-# refactor this into an argparse
 STAGE_LAYER_ONE: str = "ufc-big-data"
 STAGE_LAYER_TWO: str = "ufc-big-data-2"
 
-DEV_MODE: bool = True
+
+args = my_argument_parser().parse_args()
+
+DEV_MODE: bool = False
+
+if args.dev:
+    DEV_MODE: bool = False
+
+
 prefix_string: str = ""
-early_exit: bool = False
 if DEV_MODE:
     prefix_string = "fight-2022-04-09alexandervolkanovskichansungjung"  # "fight-2020-11-28anthonysmithdevinclark"  # "fight-2020-11-28ashleeevans-smithnormadumont"  #
-    early_exit = True
 else:
     prefix_string = ""
 
