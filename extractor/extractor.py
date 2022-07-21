@@ -21,7 +21,7 @@ import boto3
 import sys
 import time
 from datetime import datetime
-
+from e1_argumentparser import my_argument_parser
 
 load_dotenv()
 access_key_id = os.getenv("access_key_id")
@@ -35,6 +35,8 @@ S3C = boto3.client(
     aws_access_key_id=access_key_id,
     aws_secret_access_key=secret_access_key_id,
 )
+
+args = my_argument_parser().parse_args()
 
 
 def __main__():
