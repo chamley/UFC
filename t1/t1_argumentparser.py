@@ -1,8 +1,4 @@
 import argparse
-import boto3
-import csv
-
-from numpy import require
 
 
 def my_argument_parser():

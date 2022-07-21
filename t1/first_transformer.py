@@ -1,9 +1,8 @@
 """
 Desired behavior:
-    - backfill: look at all missing files in SL2 and try to backfill them with files in SL1, output any missing files.
     - daterange: look at only files in SL1 within a certain date range and process only those
-    - read a csv of file names (in SL1) and process only those ones.
-
+    - csv: read a csv (in s3) of file names (in SL1) and process only those ones.
+    - dev: activate DEV_MODE and stuff
 
 GLOBAL RULES:
     - never overwrite files, skip and output an error in logs
