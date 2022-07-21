@@ -16,6 +16,7 @@ def my_argument_parser():
         help="date range to cover. Takes 2 arguments (start and end) formatted like so: YYYY-MM-DD",
     )
     arg_group.add_argument("-b", help="backfill all missing dates found in s3")
+
     arg_group.add_argument(
         "-csv",
         help="provide an s3 url to the location of a csv with fight prefixes to apply t1 to like so: s3://bucket/full-file-name",

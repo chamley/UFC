@@ -32,6 +32,8 @@ from collections import defaultdict
 import pandas as pd
 import awswrangler as wr
 from t1_argumentparser import my_argument_parser
+from datetime import date
+
 
 T = datetime.datetime.today()
 load_dotenv()
@@ -67,13 +69,30 @@ STAGE_LAYER_TWO: str = "ufc-big-data-2"
 
 args = my_argument_parser().parse_args()
 
+
 DEV_MODE: bool = False
+prefix_string: str = ""
 
 if args.dev:
-    DEV_MODE: bool = False
+    DEV_MODE: bool = True
+elif args.dates:
+    try:
+        START_DATE = date.fromisoformat(args.d[0])
+        END_DATE = date.fromisoformat(args.d[1])
+        if END_DATE < START_DATE:
+            raise Exception
+        print(f"transforming fights from {START_DATE} to {END_DATE}")
+    except:
+        print("invalid dates")
+        sys.exit()
+elif args.csv:
+    print(f"fetching file in {args.csv}")
+    pass  # do the stuff
+elif args.b:
+    print("backfilling all fights")
+    pass  # do stuff
 
 
-prefix_string: str = ""
 if DEV_MODE:
     prefix_string = "fight-2022-04-09alexandervolkanovskichansungjung"  # "fight-2020-11-28anthonysmithdevinclark"  # "fight-2020-11-28ashleeevans-smithnormadumont"  #
 else:
@@ -398,11 +417,6 @@ def fix_data(d, k):
 
     # pd.DataFrame(rounds).to_parquet(f"{k}-rounds.parquet.gzip", compression="gzip")
     # pd.DataFrame(fight, index=[0]).to_csv(f"{k}-fight.csv")
-
-    # print(json.dumps(fight, sort_keys=True, indent=4))
-
-    # for r in rounds:
-    #     print(json.dumps(r, sort_keys=True, indent=4))
 
     # fightkey, fighterkey, round_key, fight_keynat, [.. stats]
     # fightkeynat,  red fighter key, winner_key, details, final round, final round duration, method, referee, round_format, weight class, fight date, is title fight  wmma, wc
