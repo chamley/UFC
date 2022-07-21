@@ -63,8 +63,8 @@ S3R = boto3.resource(
     aws_secret_access_key=SECRET_ACCESS_KEY_ID,
 )
 
-STAGE_LAYER_ONE: str = "ufc-big-data"
-STAGE_LAYER_TWO: str = "ufc-big-data-2"
+STAGE_LAYER_ONE: str = "ufc-big-data"  # grab files from this s3 bucket
+STAGE_LAYER_TWO: str = "ufc-big-data-2"  # put files in this s3 bucket
 
 
 args = my_argument_parser().parse_args()
@@ -77,8 +77,8 @@ if args.dev:
     DEV_MODE: bool = True
 elif args.dates:
     try:
-        START_DATE = date.fromisoformat(args.d[0])
-        END_DATE = date.fromisoformat(args.d[1])
+        START_DATE = date.fromisoformat(args.dates[0])
+        END_DATE = date.fromisoformat(args.dates[1])
         if END_DATE < START_DATE:
             raise Exception
         print(f"transforming fights from {START_DATE} to {END_DATE}")
@@ -467,6 +467,8 @@ def get_file_keys() -> Key_Vector:
     while True:
         items = res["Contents"]
         for i in items:
+            print(i, items)
+            sys.exit()
             keys.append(i)
         if not "NextContinuationToken" in res:
             break
