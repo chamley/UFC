@@ -14,7 +14,7 @@ def my_argument_parser():
 
     arg_group.add_argument(
         "-csv",
-        help="provide the name of the csv file with fight prefixes to apply t1. Folder is s3://ufc-meta/t1-dates",
+        help="provide the name of the csv file with fight dates to apply t1. Folder is s3://ufc-meta/t1-dates",
     )
     arg_group.add_argument(
         "-dev",
