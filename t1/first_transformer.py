@@ -1,7 +1,18 @@
+"""
+Desired behavior:
+    - daterange: look at only files in SL1 within a certain date range and process only those
+    - csv: read a csv (in s3) of file names (in SL1) and process only those ones.
+    - dev: activate DEV_MODE and stuff
+
+GLOBAL RULES:
+    - never overwrite files, skip and output an error in logs
+
+"""
+
+
 # The first transformer parses a page and returns a new file for s3 where the data for a fight is
 # parsed and formatted clearly
 # pushes this new file back to S3
-
 # TO-DO list:
 #   Make the transformer run in parrallel, see .md
 #   Refactor all print to logging.
@@ -17,6 +28,11 @@ import sys
 from importlib import reload
 import json
 from collections import defaultdict
+import pandas as pd
+import awswrangler as wr
+from t1_argumentparser import my_argument_parser
+from datetime import date
+import botocore
 
 T = datetime.datetime.today()
 load_dotenv()
@@ -46,16 +62,33 @@ S3R = boto3.resource(
     aws_secret_access_key=SECRET_ACCESS_KEY_ID,
 )
 
-# refactor this into an argparse + write argpaser.py to process argparsses from all python.
-STAGE_LAYER_ONE: str = "ufc-big-data"
-STAGE_LAYER_TWO: str = "ufc-big-data-2"
+STAGE_LAYER_ONE: str = "ufc-big-data"  # grab files from this s3 bucket
+STAGE_LAYER_TWO: str = "ufc-big-data-2"  # put files in this s3 bucket
 
-DEV_MODE: bool = True
+DEV_MODE: bool = False
 prefix_string: str = ""
-early_exit: bool = False
+
+args = my_argument_parser().parse_args()
+
+if args.dev:
+    DEV_MODE: bool = True
+elif args.dates:
+    try:
+        START_DATE = date.fromisoformat(args.dates[0])
+        END_DATE = date.fromisoformat(args.dates[1])
+        if END_DATE < START_DATE:
+            raise Exception
+        print(f"transforming fights from {START_DATE} to {END_DATE}")
+    except:
+        print("invalid dates")
+        sys.exit()
+elif args.csv:
+    print(f"fetching file in {args.csv}")
+    pass  # do the stuff
+
+
 if DEV_MODE:
-    prefix_string = "fight-2020-11-28ashleeevans-smithnormadumont"  # "fight-2020-11-28anthonysmithdevinclark"  #
-    early_exit = True
+    prefix_string = "fight-2022-04-09alexandervolkanovskichansungjung"  # "fight-2020-11-28anthonysmithdevinclark"  # "fight-2020-11-28ashleeevans-smithnormadumont"  #
 else:
     prefix_string = ""
 
@@ -66,22 +99,22 @@ def main():
     )
     keys: Key_Vector = get_file_keys()  # O(n)
     print(f"Found {len(keys)} files to transform")
+
     for item in keys:
         object = S3R.Object(bucket_name=STAGE_LAYER_ONE, key=item["Key"]).get()
+
         file = object["Body"].read()
         sanity_check(item["Key"], file)
         try:
             fight_data = parse_fight(file)
-            # push_fight(fight_data, item["Key"])
+
+            fix_data(fight_data, item["Key"][:-4])
         except IndexError as e:
             print(f"Index error on {item['Key']}, skipping for now.")
             logging.info(f"Failed on {item['Key']}")
             print(e)
-        except AttributeError as e:
-            print(f"Attribute error on {item['Key']}, skipping for now.")
-            logging.info(f"Failed on {item['Key']}")
-            print(e)
-    logging.info("Exiting first transformer")
+    logging.info("Successfuly exiting first transformer")
+    print("Successfuly exiting first transformer")
 
 
 # checks whether our program will make correct assumptions about the structure of the page
@@ -107,9 +140,9 @@ def sanity_check(key: str, file) -> None:
     flag = con1
 
     if not flag:
-        print(f"Table dim sanity check failed on {key}")
+        print(f"Tabile dim sanity check failed on {key}")
     else:
-        print("Table dim Sanity check passed")
+        print(f"Table dim Sanity check passed on {key} ")
 
 
 def parse_fight(file):
@@ -157,7 +190,7 @@ def parse_fight(file):
             *details,
         ) = [x.text.strip().replace("\n", "").replace("  ", "") for x in lookahead]
         d["metadata"]["details"] = "#".join(details)
-        print(json.dumps(d, sort_keys=True, indent=4))
+        # print(json.dumps(d, sort_keys=True, indent=4))
     else:
         (
             d["metadata"]["final_round"],
@@ -294,24 +327,178 @@ def parse_fight(file):
             )
         ]
 
-    # n = columns_2[12].find_all(class_="b-fight-details__table-text")
-    # print(n)
-
-    print(json.dumps(d, sort_keys=True, indent=4))
-
     return d
+
+
+# returns an array of round (dict) and a single fight (dict)
+def fix_data(d, k):
+    rounds = []
+    fight = {}
+
+    if len(d["metadata"]["final_round"]):
+        last_round = int(d["metadata"]["final_round"][-1])
+    else:
+        last_round = int(d["metadata"]["final_round"])
+
+    for i in range(last_round):
+        n = i + 1
+        b = d["blue"][f"r{n}"]
+        r = d["red"][f"r{n}"]
+
+        b["fighter_id"] = d["blue"]["id"]
+        r["fighter_id"] = d["red"]["id"]
+        b["fight_key_nat"] = k
+        r["fight_key_nat"] = k
+        b["round"] = n
+        r["round"] = n
+        rounds.append(b)
+        rounds.append(r)
+
+    fight["fight_key_nat"] = k
+    fight["red_fighter_name"] = d["red"]["name"].lower().strip()
+    fight["red_fighter_id"] = d["red"]["id"]
+    fight["blue_fighter_name"] = d["blue"]["name"].lower().strip()
+    fight["blue_fighter_id"] = d["blue"]["id"]
+
+    fight["winner_fighter_name"] = (
+        d["blue"]["name"].lower().strip()
+        if d["blue"]["result"] == "W"
+        else d["blue"]["name"].lower().strip()
+    )
+    fight["winner_fighter_id"] = (
+        d["blue"]["id"] if d["blue"]["result"] == "W" else d["blue"]["id"]
+    )
+    fight["details"] = d["metadata"]["details"].lower().strip()
+    fight["final_round"] = last_round
+    fight["final_round_duration"] = d["metadata"]["final_round_duration"].replace(
+        "Time:", ""
+    )
+    fight["method"] = d["metadata"]["method"].lower().strip()
+    fight["referee"] = d["metadata"]["referee"].replace("Referee:", "").lower().strip()
+    fight["round_format"] = (
+        d["metadata"]["round_format"].replace("Time format:", "").lower().strip()
+    )
+    fight["weight_class"] = d["metadata"]["weight class"].lower().strip()
+    fight["fight_date"] = k[6:16]
+    fight["is_title_fight"] = (
+        1 if "title" in d["metadata"]["weight class"].lower() else 0
+    )
+    fight["wmma"] = 1 if "women" in d["metadata"]["weight class"].lower() else 0
+    fight["wc"] = format_weight_class(
+        d["metadata"]["weight class"].lower(), fight["wmma"]
+    )
+
+    wr.s3.to_parquet(
+        pd.DataFrame(rounds),
+        path=f"s3://ufc-big-data-2/{k}-rounds.parquet.gzip",
+        compression="gzip",
+    )
+    wr.s3.to_csv(
+        pd.DataFrame(fight, index=[0]), path=f"s3://ufc-big-data-2/{k}-fight.csv"
+    )
+
+    # pd.DataFrame(rounds).to_parquet(f"{k}-rounds.parquet.gzip", compression="gzip")
+    # pd.DataFrame(fight, index=[0]).to_csv(f"{k}-fight.csv")
+
+    # fightkey, fighterkey, round_key, fight_keynat, [.. stats]
+    # fightkeynat,  red fighter key, winner_key, details, final round, final round duration, method, referee, round_format, weight class, fight date, is title fight  wmma, wc
+
+    return 1
+
+
+def format_weight_class(s, wmma):
+    if not wmma:
+        if "lightweight" in s:
+            return "lw"
+        elif "featherweight" in s:
+            return "few"
+        elif "bantamweight" in s:
+            return "bw"
+        elif "flyweight" in s:
+            return "flw"
+        elif "welterweight" in s:
+            return "ww"
+        elif "middleweight" in s:
+            return "mw"
+        elif "heavyweight" in s:
+            return "hw"
+        elif "light heavyweight" in s:
+            return "lhw"
+        else:
+            return "catchweight"
+    else:
+        if "strawweight" in s:
+            return "wsw"
+        elif "bantamweight" in s:
+            return "wbw"
+        elif "featherweight" in s:
+            return "wfew"
+        elif "flyweight" in s:
+            return "wflw"
+        else:
+            return "wcatchweight"
 
 
 def clean(s):
     return [x.strip() for x in s.split("of")]
 
 
+# We fetch keys of items we want to transform, following the logic of our args.
 def get_file_keys() -> Key_Vector:
     keys: Key_Vector = []
     res: dict = S3C.list_objects_v2(Bucket=STAGE_LAYER_ONE, Prefix=prefix_string)
+
+    ########### ########### ###########
+    # no-overwrite logic. Makes n/1000 calls to S3 where n is size of SL2.
+    res2 = S3C.list_objects_v2(Bucket=STAGE_LAYER_TWO, Prefix=prefix_string)
+    keys2 = []
+    while True:
+        items2 = res2["Contents"]
+        for i in items2:
+            keys2.append(i["Key"])
+        if not "NextContinuationToken" in res2:
+            break
+        t = res2["NextContinuationToken"]
+
+        res2 = S3C.list_objects_v2(
+            Bucket=STAGE_LAYER_TWO, Prefix=prefix_string, ContinuationToken=t
+        )
+    ########### ########### ########### ###########
+
+    clean_dates: list = []
+    count_dic = defaultdict(int)
+    if args.csv:
+        dates_csv = (
+            S3R.Object("ufc-meta-files", f"t1-dates/{args.csv}")
+            .get()["Body"]
+            .read()
+            .decode("utf-8")
+            .split(",")
+        )
+        # check for trailing comma
+        clean_dates = list(filter(lambda x: x, dates_csv))
+
     while True:
         items = res["Contents"]
         for i in items:
+            x = i["Key"].replace(".txt", "") + "-rounds.parquet.gzip"
+            y = i["Key"].replace(".txt", "") + "-fight.csv"
+            if x in keys2 and y in keys2:
+                print(
+                    f"{i['Key'].replace('.txt', '')} already exists in SL2 ! Skipping."
+                )
+                continue
+            if args.dates:
+                d = date.fromisoformat(i["Key"][6:16])
+                if not (START_DATE <= d and d <= END_DATE):
+                    continue
+            if args.csv:
+                d = i["Key"][6:16]
+                if d in clean_dates:
+                    count_dic[d] += 1
+                else:
+                    continue
+
             keys.append(i)
         if not "NextContinuationToken" in res:
             break
@@ -320,19 +507,11 @@ def get_file_keys() -> Key_Vector:
         res = S3C.list_objects_v2(
             Bucket=STAGE_LAYER_ONE, Prefix=prefix_string, ContinuationToken=t
         )
+
+    if args.csv:
+        for k, v in count_dic.items():
+            print(f"Found {v} file(s) for date: {k}")
     return keys
-
-
-# pushes json object back to s3
-def push_fight(fight_data, key):
-    file_name = f"{key}-SL-2.json"
-    print(f"Trying to write: {file_name}   to: {STAGE_LAYER_TWO}   ...")
-    S3C.put_object(Body=json.dumps(fight_data), Bucket=STAGE_LAYER_TWO, Key=file_name)
-    print(f"Written: {file_name}   to: {STAGE_LAYER_TWO} successfully!")
-    # with open(file_name, "w") as f:
-    #     x = json.dumps(fight_data, indent=4)
-    #     f.write(x)
-    #     S3C.upload_file(file_name, STAGE_LAYER_TWO, file_name)
 
 
 if __name__ == "__main__":

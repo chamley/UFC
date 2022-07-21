@@ -2,6 +2,11 @@ from dbhelper import DBHelper
 import logging
 import datetime
 import argparse
+<<<<<<< HEAD
+=======
+import csv
+import pandas as pd
+>>>>>>> main
 import os
 
 DATE = datetime.datetime.now()
@@ -20,15 +25,23 @@ def main() -> None:
         # create_Round_fact(db)
         # create_dirty_round_table(db)
         # create_dirty_fight_table(db)
+<<<<<<< HEAD
         build_date_dim(db)
+=======
+        date_dim_builder(db)
+>>>>>>> main
     finally:
         db.closeDB()
     logging.info("-- Building Database Finished --")
 
 
+<<<<<<< HEAD
 def build_date_dim(db: DBHelper) -> None:
     """the purpose of this function is to populate the date_dim. we tried doing this in sql but
     redshift gave us issues with the generate_series command"""
+=======
+def date_dim_builder(db) -> None:
+>>>>>>> main
 
     if "date_table.csv" not in os.listdir(os.getcwd()):
         with open("date_table.csv", "w") as f:
@@ -42,7 +55,13 @@ def build_date_dim(db: DBHelper) -> None:
             d["day"] = d["timestamp"].apply(lambda x: x.day)
             d["date_key"] = d["timestamp"].apply(lambda x: str(x).replace("-", ""))
             d.to_csv("date_table.csv")
+<<<<<<< HEAD
     with open("date_table.csv", "r") as f:
+=======
+
+    with open("date_table.csv", "r") as f:
+        next(f)  # skip the header
+>>>>>>> main
         db.getCursor().copy_from(f, "date_dim", sep=",")
 
 
