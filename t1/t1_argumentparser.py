@@ -13,16 +13,16 @@ def my_argument_parser():
     arg_group.add_argument(
         "-dates",
         nargs=2,
-        help="date range to cover. Takes 2 arguments (start and end) formatted like so: YYYY-MM-DD",
+        help="This is the main way of using this program. Lets you specify a date range to cover. Takes 2 arguments (start and end) formatted like so: YYYY-MM-DD. ",
     )
 
     arg_group.add_argument(
         "-csv",
-        help="provide an s3 url to the location of a csv with fight prefixes to apply t1 to like so: s3://bucket/full-file-name",
+        help="provide the name of the csv file with fight prefixes to apply t1. Folder is s3://ufc-meta/t1-dates",
     )
     arg_group.add_argument(
         "-dev",
-        help="activates dev flag you can put around the program to debug",
+        help="activates DEV_MODE flag you can put around the program to debug",
         action="store_true",
     )
     return parser

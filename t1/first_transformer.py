@@ -461,14 +461,38 @@ def get_file_keys() -> Key_Vector:
     keys: Key_Vector = []
     res: dict = S3C.list_objects_v2(Bucket=STAGE_LAYER_ONE, Prefix=prefix_string)
 
+    clean_dates: list
+    count_dic = defaultdict(int)
+    if args.csv:
+        # very important: at the end somewhere output
+        # how many file were found to
+        # be transformed for each date. eg: 4 fights on 2022-01-16, 0 fights for 2022-01-17 etc..
+
+        dates_csv = (
+            S3R.Object("ufc-meta-files", f"t1-dates/{args.csv}")
+            .get()["Body"]
+            .read()
+            .decode("utf-8")
+            .split(",")
+        )
+        # check for trailing comma
+        clean_dates = list(filter(lambda x: x, dates_csv))
+
     while True:
         items = res["Contents"]
         for i in items:
 
-            # if -dates
             if args.dates:
                 d = date.fromisoformat(i["Key"][6:16])
                 if not (START_DATE <= d and d <= END_DATE):
+                    continue
+            if args.csv:
+                d = i["Key"][6:16]
+                print(len(d), len(clean_dates[0]))
+                if d == clean_dates[0]:
+                    print("trueeeeeeee $$$$")
+                    count_dic[d] += 1
+                else:
                     continue
 
             keys.append(i)
@@ -479,6 +503,10 @@ def get_file_keys() -> Key_Vector:
         res = S3C.list_objects_v2(
             Bucket=STAGE_LAYER_ONE, Prefix=prefix_string, ContinuationToken=t
         )
+
+    if args.csv:
+        for k, v in count_dic.items():
+            print(f"Found {v} file(s) for date: {k}")
     return keys
 
 
