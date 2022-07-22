@@ -23,7 +23,7 @@ import time
 from datetime import datetime
 from e1_argumentparser import my_argument_parser
 from datetime import date
-
+import json
 
 load_dotenv()
 access_key_id = os.getenv("access_key_id")
@@ -41,7 +41,6 @@ S3C = boto3.client(
     aws_secret_access_key=secret_access_key_id,
 )
 DEV_MODE: bool = False
-
 args = my_argument_parser().parse_args()
 
 if args.dev:
@@ -70,26 +69,45 @@ def stage_layer_1():
 
     # dictionary of past cards with their dates
     card_urls_dic = get_card_urls_dic()
-    print(f"finished getting urls {card_urls_dic}")
+    print("finished getting EVENT (not singleton fight) urls:")
+    print(json.dumps(card_urls_dic, sort_keys=False, indent=4))
+
+    res2 = S3C.list_objects_v2(Bucket=STAGE_LAYER_ONE)
+    current_fight_pages = []
+    while True:
+        items2 = res2["Contents"]
+        for i in items2:
+            current_fight_pages.append(i["Key"])
+        if not "NextContinuationToken" in res2:
+            break
+        t = res2["NextContinuationToken"]
+
+        res2 = S3C.list_objects_v2(Bucket=STAGE_LAYER_ONE, ContinuationToken=t)
 
     # date is the key, url is the val
     for date, card_url in card_urls_dic.items():
         # list of fight urls for that card
         time.sleep(1)  # being respectful of their servers
         fight_urls_list = get_fight_url_list(card_url)
-        print(f"finished getting fight urls list with: {fight_urls_list}")
+        print(f"fight urls for {card_url} \n: {fight_urls_list}")
 
         for f in fight_urls_list:
-
             print("entering create_fight_page")
             fight_page, names = create_fight_page(f, date)
             print("create fight page passed")
             time.sleep(1)  # being respectful of their servers
             # pushes card page to s3 with date added somewhere
 
-            push_fight_page(
-                fight_page, "fight-" + date.replace("_", "-") + names.lower() + ".txt"
-            )
+            key = "fight-" + date.replace("_", "-") + names.lower() + ".txt"
+
+            # print(key)
+            # print(current_fight_pages)
+            if key in current_fight_pages:
+                print(
+                    f"we already have {key} in SL1, no-overwrite policy at the moment"
+                )
+            else:
+                push_fight_page(fight_page, key)
 
 
 # fetch the urls of all past cards with date
@@ -152,23 +170,19 @@ def create_fight_page(fight_url, date):
 def push_fight_page(fight_page, object_name):
     print("pushing: " + object_name + " to: " + STAGE_LAYER_ONE)
 
-    with (
-        open(f"/tmp/{object_name}", "w") as f
-    ):  # we add tmp as it seems to be the only folder that we can write to in AWS Lambda
+    # we add tmp as it seems to be the only folder that we can write to in AWS Lambda
+    with (open(f"/tmp/{object_name}", "w") as f):
         f.write(fight_page)
-        current_objects = S3C.list_objects(Bucket=bucket)
-        if object_name not in current_objects:
-            print(
-                "trying to write filename:{}, bucket:{} key:{}".format(
-                    object_name, STAGE_LAYER_ONE, object_name
-                )
+        print(
+            "trying to write filename:{}, bucket:{} key:{}".format(
+                object_name, STAGE_LAYER_ONE, object_name
             )
-            S3C.upload_file(
-                Filename=f"/tmp/{object_name}", Bucket=STAGE_LAYER_ONE, Key=object_name
-            )
-            print("fight uploaded successfully")
-        else:
-            raise Exception("trying to overwrite objects !!!")
+        )
+        sys.exit()
+        S3C.upload_file(
+            Filename=f"/tmp/{object_name}", Bucket=STAGE_LAYER_ONE, Key=object_name
+        )
+        print("fight uploaded successfully")
 
 
 __main__()
