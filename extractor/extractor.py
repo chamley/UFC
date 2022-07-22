@@ -28,8 +28,10 @@ from datetime import date
 load_dotenv()
 access_key_id = os.getenv("access_key_id")
 secret_access_key_id = os.getenv("secret_access_key_id")
-DATE_END = datetime.today().date()  # get all events previous to DATE
 STAGE_LAYER_ONE: str = "ufc-big-data"
+TODAY = datetime.today().date()  # make sure we don't parse the future event promo
+START_DATE: str
+END_DATE: str
 
 S3C = boto3.client(
     "s3",
@@ -37,11 +39,12 @@ S3C = boto3.client(
     aws_access_key_id=access_key_id,
     aws_secret_access_key=secret_access_key_id,
 )
+DEV_MODE: bool = False
 
 args = my_argument_parser().parse_args()
 
 if args.dev:
-    DEV_MODE: bool = True
+    DEV_MODE = True  # not implemented curr
 elif args.dates:
     try:
         START_DATE = date.fromisoformat(args.dates[0])
