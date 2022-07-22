@@ -9,7 +9,7 @@
 # - dev:
 
 
-# desired policy
+# Desired policy
 # - no-overwrite. output in logs.
 
 
@@ -29,9 +29,10 @@ load_dotenv()
 access_key_id = os.getenv("access_key_id")
 secret_access_key_id = os.getenv("secret_access_key_id")
 STAGE_LAYER_ONE: str = "ufc-big-data"
+STAGE_LAYER_TWO: str = "ufc-big-data-2"
 TODAY = datetime.today().date()  # make sure we don't parse the future event promo
-START_DATE: str
-END_DATE: str
+START_DATE: date
+END_DATE: date
 
 S3C = boto3.client(
     "s3",
@@ -104,6 +105,8 @@ def get_card_urls_dic():
     objects = S3C.list_objects_v2(
         Bucket=STAGE_LAYER_ONE, Prefix=f"fight-{datetime.today().year}"
     )
+    print(objects)
+    sys.exit()
     # take advantage of the fact that our object naming leverage's s3's storing of objects in alphabetical order
     x = objects["Contents"][-1:][0]["Key"][6:16]
     DATE_START = datetime.strptime(x, "%Y-%m-%d").date()
