@@ -71,7 +71,7 @@ def stage_layer_1():
     # dictionary of past cards with their dates
     card_urls_dic = get_card_urls_dic()
     print(f"finished getting urls {card_urls_dic}")
-    sys.exit()
+
     # date is the key, url is the val
     for date, card_url in card_urls_dic.items():
         # list of fight urls for that card
@@ -80,6 +80,7 @@ def stage_layer_1():
         print(f"finished getting fight urls list with: {fight_urls_list}")
 
         for f in fight_urls_list:
+
             print("entering create_fight_page")
             fight_page, names = create_fight_page(f, date)
             print("create fight page passed")
@@ -87,10 +88,7 @@ def stage_layer_1():
             # pushes card page to s3 with date added somewhere
 
             push_fight_page(
-                fight_page,
-                "ufc-night-" + date.replace("_", "-").replace(" ", ""),
-                "fight-" + date.replace("_", "-") + names.lower() + ".txt",
-                S3C,
+                fight_page, "fight-" + date.replace("_", "-") + names.lower() + ".txt"
             )
 
 
@@ -101,11 +99,6 @@ def get_card_urls_dic():
     response = requests.get(endpoint)
 
     parser = BeautifulSoup(response.text, "html.parser")
-
-    # find out which objects are missing
-    objects = S3C.list_objects_v2(
-        Bucket=STAGE_LAYER_ONE, Prefix=f"fight-{datetime.today().year}"
-    )
 
     events = parser.find_all("i", class_="b-statistics__table-content")  # ohai
     for e in events:
@@ -156,23 +149,22 @@ def create_fight_page(fight_url, date):
     return [date + "\n" + fight_page.text, names.replace(" ", "")]
 
 
-def push_fight_page(fight_page, bucket, object_name, s3):
-    bucket = "ufc-big-data"
-    print("pushing: " + object_name + " to: " + bucket)
+def push_fight_page(fight_page, object_name):
+    print("pushing: " + object_name + " to: " + STAGE_LAYER_ONE)
 
     with (
         open(f"/tmp/{object_name}", "w") as f
     ):  # we add tmp as it seems to be the only folder that we can write to in AWS Lambda
         f.write(fight_page)
-        current_objects = s3.list_objects(Bucket=bucket)
+        current_objects = S3C.list_objects(Bucket=bucket)
         if object_name not in current_objects:
             print(
                 "trying to write filename:{}, bucket:{} key:{}".format(
-                    object_name, bucket, object_name
+                    object_name, STAGE_LAYER_ONE, object_name
                 )
             )
-            s3.upload_file(
-                Filename=f"/tmp/{object_name}", Bucket=bucket, Key=object_name
+            S3C.upload_file(
+                Filename=f"/tmp/{object_name}", Bucket=STAGE_LAYER_ONE, Key=object_name
             )
             print("fight uploaded successfully")
         else:
