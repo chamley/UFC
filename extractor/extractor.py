@@ -71,6 +71,7 @@ def stage_layer_1():
     # dictionary of past cards with their dates
     card_urls_dic = get_card_urls_dic()
     print(f"finished getting urls {card_urls_dic}")
+    sys.exit()
     # date is the key, url is the val
     for date, card_url in card_urls_dic.items():
         # list of fight urls for that card
@@ -105,10 +106,6 @@ def get_card_urls_dic():
     objects = S3C.list_objects_v2(
         Bucket=STAGE_LAYER_ONE, Prefix=f"fight-{datetime.today().year}"
     )
-    # print([x["Key"].replace(".txt", "") for x in objects["Contents"]])
-    # take advantage of the fact that our object naming leverage's s3's storing of objects in alphabetical order
-    # x = objects["Contents"][-1:][0]["Key"][6:16]
-    # print(x)
 
     events = parser.find_all("i", class_="b-statistics__table-content")  # ohai
     for e in events:
@@ -116,17 +113,15 @@ def get_card_urls_dic():
         event_date = datetime.strptime(
             f"{s[2]}-{datetime.strptime(s[0], '%B').month}-{s[1]}", "%Y-%m-%d"
         ).date()
-        print(START_DATE, event_date, END_DATE, TODAY)
+        # print(START_DATE, event_date, END_DATE, TODAY)
 
         # conditions. verbosity for clarity ##
         # no future
-        if event_date > TODAY:
+        if TODAY <= event_date:
             continue
-        # if date constrained
-        if args.dates:
-            if START_DATE <= event_date and event_date <= END_DATE:
-                continue
-
+        # if date constrained and not inside date interval
+        if args.dates and not (START_DATE <= event_date and event_date <= END_DATE):
+            continue
         # grow list
         new_urls[str(event_date)] = e.find("a").get("href")
 
@@ -164,7 +159,7 @@ def create_fight_page(fight_url, date):
 def push_fight_page(fight_page, bucket, object_name, s3):
     bucket = "ufc-big-data"
     print("pushing: " + object_name + " to: " + bucket)
-    # have to open twice for some reason idk
+
     with (
         open(f"/tmp/{object_name}", "w") as f
     ):  # we add tmp as it seems to be the only folder that we can write to in AWS Lambda
@@ -182,10 +177,6 @@ def push_fight_page(fight_page, bucket, object_name, s3):
             print("fight uploaded successfully")
         else:
             raise Exception("trying to overwrite objects !!!")
-
-    # if not create bucket, else push to that bucket
-    # --- check if object exists
-    # --- if yes throw error, else put object
 
 
 __main__()
