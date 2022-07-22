@@ -117,12 +117,21 @@ def get_card_urls_dic():
             f"{s[2]}-{datetime.strptime(s[0], '%B').month}-{s[1]}", "%Y-%m-%d"
         ).date()
         print(START_DATE, event_date, END_DATE, TODAY)
+
+        # conditions. verbosity for clarity ##
         # no future
+        if event_date > TODAY:
+            continue
+        # if date constrained
+        if args.dates:
+            if START_DATE <= event_date and event_date <= END_DATE:
+                continue
 
-        # get past events only
+        # grow list
+        new_urls[str(event_date)] = e.find("a").get("href")
 
-        if DATE_START < event_date and event_date < DATE_END:
-            new_urls[str(event_date)] = e.find("a").get("href")
+        if DEV_MODE:
+            break
 
     return new_urls
 
@@ -148,6 +157,7 @@ def create_fight_page(fight_url, date):
     x = parser.find_all(class_="b-link b-fight-details__person-link")
 
     names = x[0].text + x[1].text
+
     return [date + "\n" + fight_page.text, names.replace(" ", "")]
 
 
