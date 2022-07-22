@@ -22,6 +22,8 @@ import sys
 import time
 from datetime import datetime
 from e1_argumentparser import my_argument_parser
+from datetime import date
+
 
 load_dotenv()
 access_key_id = os.getenv("access_key_id")
@@ -37,6 +39,21 @@ S3C = boto3.client(
 )
 
 args = my_argument_parser().parse_args()
+
+if args.dev:
+    DEV_MODE: bool = True
+elif args.dates:
+    try:
+        START_DATE = date.fromisoformat(args.dates[0])
+        END_DATE = date.fromisoformat(args.dates[1])
+        if END_DATE < START_DATE:
+            raise Exception
+        print(f"transforming fights from {START_DATE} to {END_DATE}")
+    except:
+        print("invalid dates")
+        sys.exit()
+elif args.csv:
+    print(f"Using file: {args.csv}")
 
 
 def __main__():
