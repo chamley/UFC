@@ -59,7 +59,7 @@ elif args.csv:
     print(f"Using file: {args.csv}")
 
 
-def __main__():
+def main():
     print("starting script ..\n#\n#\n#\n#\n#\n#\n#")
     stage_layer_1()
 
@@ -178,11 +178,11 @@ def push_fight_page(fight_page, object_name):
                 object_name, STAGE_LAYER_ONE, object_name
             )
         )
-        sys.exit()
+        sys.exit(
         S3C.upload_file(
             Filename=f"/tmp/{object_name}", Bucket=STAGE_LAYER_ONE, Key=object_name
         )
         print("fight uploaded successfully")
 
 
-__main__()
+main()
