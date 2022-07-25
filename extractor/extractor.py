@@ -114,7 +114,7 @@ def stage_layer_1():
         res2 = S3C.list_objects_v2(Bucket=STAGE_LAYER_ONE, ContinuationToken=t)
 
     # date is the key, url is the val
-    for date, card_url in card_urls_dic.items():
+    for date_, card_url in card_urls_dic.items():
         # list of fight urls for that card
         time.sleep(1)  # being respectful of their servers
         fight_urls_list = get_fight_url_list(card_url)
@@ -122,15 +122,16 @@ def stage_layer_1():
 
         for f in fight_urls_list:
             print("creating fight_page. ..")
-            fight_page, names = create_fight_page(f, date)
+            fight_page, names = create_fight_page(f, date_)
             print("fight page created.")
             time.sleep(1)  # being respectful of their servers
             # pushes card page to s3 with date added somewhere
 
-            key = "fight-" + date.replace("_", "-") + names.lower() + ".txt"
+            key = "fight-" + date_.replace("_", "-") + names.lower() + ".txt"
 
-            print(key, "ahoi")
-            sys.exit()
+            if clean_dates:
+                if date_ in clean_dates:
+                    continue
             # print(current_fight_pages)
             if key in current_fight_pages:
                 print(
