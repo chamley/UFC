@@ -1,5 +1,6 @@
-# To do list:
-#   remove limiter on get_card urls dic
+"""
+ohai
+"""
 
 # this script currently grabs the webpage of every single fight listed in ufcfights.com
 
@@ -98,6 +99,16 @@ def stage_layer_1():
 
     # dictionary of past cards with their dates
     card_urls_dic = get_card_urls_dic()
+    if clean_dates:
+        clean_dic = {}
+
+        for x in card_urls_dic.keys():
+            if x in clean_dates:
+                print(x)
+                clean_dic[x] = card_urls_dic[x]
+
+        card_urls_dic = clean_dic
+
     print("finished getting EVENT (not singleton fight) urls:")
     print(json.dumps(card_urls_dic, sort_keys=False, indent=4))
 
@@ -129,10 +140,6 @@ def stage_layer_1():
 
             key = "fight-" + date_.replace("_", "-") + names.lower() + ".txt"
 
-            if clean_dates:
-                if date_ in clean_dates:
-                    continue
-            # print(current_fight_pages)
             if key in current_fight_pages:
                 print(
                     f"we already have {key} in SL1, no-overwrite policy at the moment"
