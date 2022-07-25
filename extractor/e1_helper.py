@@ -1,6 +1,23 @@
 import argparse
 
 
+def get_dates(s3_url, S3R):
+    print(f"Using file: {s3_url}")
+    dates_csv = (
+        S3R.Object("ufc-meta-files", f"e1-dates/{s3_url}")
+        .get()["Body"]
+        .read()
+        .decode("utf-8")
+        .split(",")
+    )
+    clean_dates = list(filter(lambda x: x, dates_csv))
+    print("found event dates:")
+
+    for x in clean_dates:
+        print(f"\t {x}")
+    return clean_dates
+
+
 def my_argument_parser():
     parser = argparse.ArgumentParser(description="Extract Data from ufcstats.com")
     arg_group = parser.add_mutually_exclusive_group(required=False)

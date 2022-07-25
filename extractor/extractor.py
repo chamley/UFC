@@ -21,7 +21,7 @@ import boto3
 import sys
 import time
 from datetime import datetime
-from e1_argumentparser import my_argument_parser
+from e1_helper import my_argument_parser, get_dates
 from datetime import date
 import json
 
@@ -33,6 +33,7 @@ STAGE_LAYER_TWO: str = "ufc-big-data-2"
 TODAY = datetime.today().date()  # make sure we don't parse the future event promo
 START_DATE: date
 END_DATE: date
+clean_dates = []
 
 S3C = boto3.client(
     "s3",
@@ -40,9 +41,17 @@ S3C = boto3.client(
     aws_access_key_id=access_key_id,
     aws_secret_access_key=secret_access_key_id,
 )
+S3R = boto3.resource(
+    "s3",
+    region_name="us-east-1",
+    aws_access_key_id=access_key_id,
+    aws_secret_access_key=secret_access_key_id,
+)
+
 DEV_MODE: bool = False
 PROD_MODE: bool = False
 args = my_argument_parser().parse_args()
+
 
 if args.dev:
     DEV_MODE = True  # not implemented curr
@@ -57,17 +66,31 @@ elif args.dates:
         print("invalid dates")
         sys.exit()
 elif args.csv:
-    print(f"Using file: {args.csv}")
+    clean_dates = get_dates(args.csv, S3R)
 else:
     PROD_MODE = True
 
 
 def main(event, context):
     if PROD_MODE:
-        print(event, context)
-        sys.exit()
+        if event["dev"]:
+            DEV_MODE = True  # not implemented curr
+        elif event["dates"]:
+            try:
+                START_DATE = date.fromisoformat(event["dates"]["start"])
+                END_DATE = date.fromisoformat(event["dates"]["end"])
+                if END_DATE < START_DATE:
+                    raise Exception
+                print(f"transforming fights from {START_DATE} to {END_DATE}")
+            except:
+                print("invalid dates")
+                sys.exit()
+        elif event["csv"]:
+            clean_dates = get_dates(event["csv"], S3R)
+
     print("starting script ..\n#\n#\n#\n#\n#\n#\n#")
     stage_layer_1()
+    return 1
 
 
 # we grab the latest raw data. We transform in another stage
@@ -98,15 +121,16 @@ def stage_layer_1():
         print(f"fight urls for {card_url} \n: {fight_urls_list}")
 
         for f in fight_urls_list:
-            print("entering create_fight_page")
+            print("creating fight_page. ..")
             fight_page, names = create_fight_page(f, date)
-            print("create fight page passed")
+            print("fight page created.")
             time.sleep(1)  # being respectful of their servers
             # pushes card page to s3 with date added somewhere
 
             key = "fight-" + date.replace("_", "-") + names.lower() + ".txt"
 
-            # print(key)
+            print(key, "ahoi")
+            sys.exit()
             # print(current_fight_pages)
             if key in current_fight_pages:
                 print(
@@ -189,3 +213,7 @@ def push_fight_page(fight_page, object_name):
             Filename=f"/tmp/{object_name}", Bucket=STAGE_LAYER_ONE, Key=object_name
         )
         print("fight uploaded successfully")
+
+
+if not PROD_MODE:
+    main({}, None)
