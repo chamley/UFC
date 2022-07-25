@@ -13,6 +13,7 @@
 # - no-overwrite. output in logs.
 
 
+from multiprocessing import context
 import os
 from dotenv import load_dotenv
 from bs4 import BeautifulSoup
@@ -59,7 +60,7 @@ elif args.csv:
     print(f"Using file: {args.csv}")
 
 
-def main():
+def main(event, context):
     print("starting script ..\n#\n#\n#\n#\n#\n#\n#")
     stage_layer_1()
 
@@ -178,11 +179,8 @@ def push_fight_page(fight_page, object_name):
                 object_name, STAGE_LAYER_ONE, object_name
             )
         )
-        sys.exit(
+
         S3C.upload_file(
             Filename=f"/tmp/{object_name}", Bucket=STAGE_LAYER_ONE, Key=object_name
         )
         print("fight uploaded successfully")
-
-
-main()
