@@ -13,7 +13,6 @@
 # - no-overwrite. output in logs.
 
 
-from multiprocessing import context
 import os
 from dotenv import load_dotenv
 from bs4 import BeautifulSoup
@@ -61,6 +60,7 @@ elif args.csv:
 
 
 def main(event, context):
+    print(event, context)
     print("starting script ..\n#\n#\n#\n#\n#\n#\n#")
     stage_layer_1()
 
@@ -172,7 +172,7 @@ def push_fight_page(fight_page, object_name):
     print("pushing: " + object_name + " to: " + STAGE_LAYER_ONE)
 
     # we add tmp as it seems to be the only folder that we can write to in AWS Lambda
-    with (open(f"/tmp/{object_name}", "w") as f):
+    with open(f"/tmp/{object_name}", "w") as f:
         f.write(fight_page)
         print(
             "trying to write filename:{}, bucket:{} key:{}".format(
