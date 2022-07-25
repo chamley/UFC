@@ -41,6 +41,7 @@ S3C = boto3.client(
     aws_secret_access_key=secret_access_key_id,
 )
 DEV_MODE: bool = False
+PROD_MODE: bool = False
 args = my_argument_parser().parse_args()
 
 if args.dev:
@@ -57,10 +58,14 @@ elif args.dates:
         sys.exit()
 elif args.csv:
     print(f"Using file: {args.csv}")
+else:
+    PROD_MODE = True
 
 
 def main(event, context):
-    print(event, context)
+    if PROD_MODE:
+        print(event, context)
+        sys.exit()
     print("starting script ..\n#\n#\n#\n#\n#\n#\n#")
     stage_layer_1()
 

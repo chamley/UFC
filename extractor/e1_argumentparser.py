@@ -3,7 +3,7 @@ import argparse
 
 def my_argument_parser():
     parser = argparse.ArgumentParser(description="Extract Data from ufcstats.com")
-    arg_group = parser.add_mutually_exclusive_group(required=True)
+    arg_group = parser.add_mutually_exclusive_group(required=False)
     arg_group.add_argument(
         "-dates",
         nargs=2,
