@@ -14,6 +14,8 @@ ohai
 # - no-overwrite. output in logs.
 
 
+from collections import defaultdict
+from email.policy import default
 import os
 from dotenv import load_dotenv
 from bs4 import BeautifulSoup
@@ -74,6 +76,7 @@ else:
 
 def main(event, context):
     if PROD_MODE:
+        event = defaultdict(lambda: None, event)
         if event["dev"]:
             DEV_MODE = True  # not implemented curr
         elif event["dates"]:
@@ -91,6 +94,7 @@ def main(event, context):
 
     print("starting script ..\n#\n#\n#\n#\n#\n#\n#")
     stage_layer_1()
+    print("ending script ......")
     return 1
 
 
