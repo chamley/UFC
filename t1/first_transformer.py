@@ -83,8 +83,7 @@ elif args.dates:
         print("invalid dates")
         sys.exit()
 elif args.csv:
-    print(f"fetching file in {args.csv}")
-    pass  # do the stuff
+    print(f"Using file: {args.csv}")
 
 
 if DEV_MODE:
