@@ -8,15 +8,23 @@ import os
 from dotenv import load_dotenv
 from bs4 import BeautifulSoup
 import requests
-import datetime
 import boto3
 import sys
 import time
+from datetime import datetime
 
 load_dotenv()
 access_key_id = os.getenv("access_key_id")
 secret_access_key_id = os.getenv("secret_access_key_id")
-DATE = datetime.date.today()  # get all events previous to DATE
+DATE_END = datetime.today().date()  # get all events previous to DATE
+STAGE_LAYER_ONE: str = "ufc-big-data"
+
+S3C = boto3.client(
+    "s3",
+    region_name="us-east-1",
+    aws_access_key_id=access_key_id,
+    aws_secret_access_key=secret_access_key_id,
+)
 
 
 def __main__():
@@ -26,12 +34,7 @@ def __main__():
 
 # we grab the latest raw data. We transform in another stage
 def stage_layer_1():
-    s3 = boto3.client(
-        "s3",
-        region_name="us-east-1",
-        aws_access_key_id=access_key_id,
-        aws_secret_access_key=secret_access_key_id,
-    )
+
     # dictionary of past cards with their dates
     card_urls_dic = get_card_urls_dic()
 
@@ -50,7 +53,7 @@ def stage_layer_1():
                 fight_page,
                 "ufc-night-" + date.replace("_", "-").replace(" ", ""),
                 "fight-" + date.replace("_", "-") + names.lower() + ".txt",
-                s3,
+                S3C,
             )
 
 
@@ -62,15 +65,23 @@ def get_card_urls_dic():
 
     parser = BeautifulSoup(response.text, "html.parser")
 
-    events = parser.find_all("i", class_="b-statistics__table-content")
+    # find out which objects are missing
+    objects = S3C.list_objects_v2(
+        Bucket=STAGE_LAYER_ONE, Prefix=f"fight-{datetime.today().year}"
+    )
+    # take advantage of the fact that our object naming leverage's s3's storing of objects in alphabetical order
+    x = objects["Contents"][-1:][0]["Key"][6:16]
+    DATE_START = datetime.strptime(x, "%Y-%m-%d").date()
+    events = parser.find_all("i", class_="b-statistics__table-content")  # ohai
     for e in events:
         s = e.span.text.strip().replace(",", "").split()
-        date = datetime.date(
-            int(s[2]), datetime.datetime.strptime(s[0], "%B").month, int(s[1])
-        )
+        event_date = datetime.strptime(
+            f"{s[2]}-{datetime.strptime(s[0], '%B').month}-{s[1]}", "%Y-%m-%d"
+        ).date()
+        print(event_date)
         # get past events only
-        if date < DATE:
-            new_urls[str(date)] = e.find("a").get("href")
+        if DATE_START < event_date and event_date < DATE_END:
+            new_urls[str(event_date)] = e.find("a").get("href")
 
     return new_urls
 
@@ -106,36 +117,18 @@ def push_fight_page(fight_page, bucket, object_name, s3):
         # have to open twice for some reason idk
         with (open(object_name, "w") as f):
             f.write(fight_page)
-
-        current_buckets = (
-            s3.list_buckets()
-        )  # we're still pretty low data so network calls dont need caching
-        # check if bucket exists, if not create it
-        if bucket not in current_buckets:
-            print(
-                "trying to write filename:{}, bucket:{} key:{}".format(
-                    object_name, bucket, object_name
-                )
-            )
-            s3.create_bucket(Bucket=bucket)
-
-            s3.upload_file(Filename=object_name, Bucket=bucket, Key=object_name)
-            print("fight page uploaded successfully")
-        else:
             current_objects = s3.list_objects(Bucket=bucket)
             if object_name not in current_objects:
-                s3.upload_file(Filename=object_name, Bucket=bucket, Key=object_name)
                 print(
                     "trying to write filename:{}, bucket:{} key:{}".format(
                         object_name, bucket, object_name
                     )
                 )
-            else:
                 s3.upload_file(Filename=object_name, Bucket=bucket, Key=object_name)
-                print("bucket overwritten")
+                print("fight uploaded successfully")
+            else:
                 raise Exception("trying to overwrite objects !!!")
 
-            pass
         # if not create bucket, else push to that bucket
         # --- check if object exists
         # --- if yes throw error, else put object
