@@ -6,3 +6,7 @@ error_list.txt
 sat upload logs.txt
 refresh-mind.py
 .DS_Store
+__pycache__/e1_helper.cpython-310.pyc
+extractor/__pycache__/
+extractor/__pycache__
+extractor/__pycache__/e1_helper.cpython-310.pyc

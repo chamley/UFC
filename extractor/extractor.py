@@ -15,6 +15,7 @@ ohai
 
 
 from collections import defaultdict
+from distutils.command.clean import clean
 from email.policy import default
 import os
 from dotenv import load_dotenv
@@ -54,17 +55,18 @@ S3R = boto3.resource(
 DEV_MODE: bool = False
 PROD_MODE: bool = False
 args = my_argument_parser().parse_args()
-
+DATE_SPECIFIED: bool = False
 
 if args.dev:
     DEV_MODE = True  # not implemented curr
 elif args.dates:
+    DATE_SPECIFIED = True
     try:
         START_DATE = date.fromisoformat(args.dates[0])
         END_DATE = date.fromisoformat(args.dates[1])
         if END_DATE < START_DATE:
             raise Exception
-        print(f"transforming fights from {START_DATE} to {END_DATE}")
+        print(f"extracting fights from {START_DATE} to {END_DATE}")
     except:
         print("invalid dates")
         sys.exit()
@@ -75,11 +77,15 @@ else:
 
 
 def main(event, context):
+    global DEV_MODE, DATE_SPECIFIED, clean_dates, START_DATE, END_DATE
+
     if PROD_MODE:
         event = defaultdict(lambda: None, event)
         if event["dev"]:
             DEV_MODE = True  # not implemented curr
         elif event["dates"]:
+            DATE_SPECIFIED = True
+            print("date specified flag set")
             try:
                 START_DATE = date.fromisoformat(event["dates"]["start"])
                 END_DATE = date.fromisoformat(event["dates"]["end"])
@@ -95,7 +101,7 @@ def main(event, context):
     print("starting script ..\n#\n#\n#\n#\n#\n#\n#")
     stage_layer_1()
     print("ending script ......")
-    return 1
+    return json.dumps({"status_code": "200"})
 
 
 # we grab the latest raw data. We transform in another stage
@@ -154,6 +160,9 @@ def stage_layer_1():
 
 # fetch the urls of all past cards with date
 def get_card_urls_dic():
+
+    global START_DATE, TODAY, END_DATE, DEV_MODE
+
     new_urls = {}
     endpoint = "http://ufcstats.com/statistics/events/completed?page=all"
     response = requests.get(endpoint)
@@ -166,14 +175,15 @@ def get_card_urls_dic():
         event_date = datetime.strptime(
             f"{s[2]}-{datetime.strptime(s[0], '%B').month}-{s[1]}", "%Y-%m-%d"
         ).date()
-        # print(START_DATE, event_date, END_DATE, TODAY)
 
         # conditions. verbosity for clarity ##
         # no future
         if TODAY <= event_date:
             continue
         # if date constrained and not inside date interval
-        if args.dates and not (START_DATE <= event_date and event_date <= END_DATE):
+        if (DATE_SPECIFIED) and not (
+            START_DATE <= event_date and event_date <= END_DATE
+        ):
             continue
         # grow list
         new_urls[str(event_date)] = e.find("a").get("href")
