@@ -1,7 +1,9 @@
 from fileinput import filename
+import json
 from airflow import DAG
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 from airflow.operators.python import PythonOperator
+import boto3
 
 default_args = {
     "owner": "seb",
@@ -19,9 +21,25 @@ def dummy_function():
         pass
 
 
+def trigger_extractor_lambda():
+    lambdaclient = boto3.client("lambda", "us-east-1")
+    payload = {
+        "dates": {
+            "start": f"{date.today()-timedelta(weeks=1)}",
+            "end": f"{date.today()}",
+        }
+    }
+    res = lambdaclient.invoke(
+        FunctionName="ufc-extractor",
+        InvocationType="Event",
+        Payload=json.dumps(payload),
+    )
+    return res
+
+
 with DAG(
     "ufc-main-dag",
-    start_date=datetime(2022, 7, 7),
+    start_date=datetime(2022, 7, 20),
     schedule_interval="@weekly",
     default_args=default_args,
     catchup=catchup,
@@ -29,6 +47,9 @@ with DAG(
     dummy_task = PythonOperator(task_id="dummy_task", python_callable=dummy_function)
 
     # lambda pulls raw data into S3
+    extractor_task = PythonOperator(
+        task_id="extractor_task", python_callable=trigger_extractor_lambda
+    )
 
     # run tests against structure of raw data
 
