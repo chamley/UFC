@@ -30,6 +30,7 @@ import json
 from collections import defaultdict
 import pandas as pd
 import awswrangler as wr
+from sqlalchemy import false
 from t1_argumentparser import my_argument_parser
 from datetime import date
 import botocore
@@ -64,38 +65,55 @@ S3R = boto3.resource(
 
 STAGE_LAYER_ONE: str = "ufc-big-data"  # grab files from this s3 bucket
 STAGE_LAYER_TWO: str = "ufc-big-data-2"  # put files in this s3 bucket
-
+PRODUCTION_MODE = False
 DEV_MODE: bool = False
 prefix_string: str = ""
-
-args = my_argument_parser().parse_args()
-
-if args.dev:
-    DEV_MODE: bool = True
-elif args.dates:
-    try:
-        START_DATE = date.fromisoformat(args.dates[0])
-        END_DATE = date.fromisoformat(args.dates[1])
-        if END_DATE < START_DATE:
-            raise Exception
-        print(f"transforming fights from {START_DATE} to {END_DATE}")
-    except:
-        print("invalid dates")
-        sys.exit()
-elif args.csv:
-    print(f"Using file: {args.csv}")
+START_DATE: date
+END_DATE: date
 
 
-if DEV_MODE:
-    prefix_string = "fight-2022-04-09alexandervolkanovskichansungjung"  # "fight-2020-11-28anthonysmithdevinclark"  # "fight-2020-11-28ashleeevans-smithnormadumont"  #
-else:
-    prefix_string = ""
+def main(event, context):
+    global DEV_MODE, START_DATE, END_DATE, PRODUCTION_MODE, prefix_string
 
-
-def main():
     print(
         "========================= Entering first transformer ======================="
     )
+
+    ######## oh man did we suck at coding this ####################################################
+    event = defaultdict(lambda: None, event)
+    args = my_argument_parser().parse_args()
+
+    if event:
+        PRODUCTION_MODE = True
+        if event["dates"]:
+            START_DATE = date.fromisoformat(event["dates"]["start"])
+            END_DATE = date.fromisoformat(event["dates"]["end"])
+        elif event["dev"]:
+            DEV_MODE = True
+        elif event["csv"]:
+            print(f"Using file: {args.csv}")
+    else:
+        if args.dev or event["dev"]:
+            DEV_MODE: bool = True
+        elif args.dates:
+            try:
+                START_DATE = date.fromisoformat(args.dates[0])
+                END_DATE = date.fromisoformat(args.dates[1])
+                if END_DATE < START_DATE:
+                    raise Exception
+                print(f"transforming fights from {START_DATE} to {END_DATE}")
+            except:
+                print("invalid dates")
+                sys.exit()
+        elif args.csv:
+            print(f"Using file: {args.csv}")
+
+    if DEV_MODE:
+        prefix_string = "fight-2022-04-09alexandervolkanovskichansungjung"  # "fight-2020-11-28anthonysmithdevinclark"  # "fight-2020-11-28ashleeevans-smithnormadumont"  #
+    else:
+        prefix_string = ""
+    ########################################################################################################
+
     keys: Key_Vector = get_file_keys()  # O(n)
     print(f"Found {len(keys)} files to transform")
 
@@ -513,5 +531,5 @@ def get_file_keys() -> Key_Vector:
     return keys
 
 
-if __name__ == "__main__":
-    main()
+if PRODUCTION_MODE:
+    main({}, None)

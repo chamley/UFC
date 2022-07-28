@@ -5,7 +5,7 @@ def my_argument_parser():
     parser = argparse.ArgumentParser(
         description="Perform a transformation step from stage layer 1 to stage layer 2"
     )
-    arg_group = parser.add_mutually_exclusive_group(required=True)
+    arg_group = parser.add_mutually_exclusive_group()
     arg_group.add_argument(
         "-dates",
         nargs=2,
