@@ -30,7 +30,6 @@ import json
 from collections import defaultdict
 import pandas as pd
 import awswrangler as wr
-from sqlalchemy import false
 from t1_argumentparser import my_argument_parser
 from datetime import date
 import botocore
@@ -70,28 +69,36 @@ DEV_MODE: bool = False
 prefix_string: str = ""
 START_DATE: date
 END_DATE: date
+DATE_SPECIFIED = False
+CSV_SPECIFIED = False
+CSV_NAME = ""
+
+args = my_argument_parser().parse_args()
 
 
 def main(event, context):
-    global DEV_MODE, START_DATE, END_DATE, PRODUCTION_MODE, prefix_string
+    global DEV_MODE, START_DATE, END_DATE, PRODUCTION_MODE, prefix_string, DATE_SPECIFIED, CSV_SPECIFIED, CSV_NAME
 
     print(
         "========================= Entering first transformer ======================="
     )
 
-    ######## oh man did we suck at coding this ####################################################
+    ######## oh man is this ugly (setting context, given the program args) ####################################################
     event = defaultdict(lambda: None, event)
-    args = my_argument_parser().parse_args()
 
     if event:
         PRODUCTION_MODE = True
         if event["dates"]:
             START_DATE = date.fromisoformat(event["dates"]["start"])
             END_DATE = date.fromisoformat(event["dates"]["end"])
+            DATE_SPECIFIED = True
         elif event["dev"]:
             DEV_MODE = True
         elif event["csv"]:
-            print(f"Using file: {args.csv}")
+            CSV_NAME = event["csv"]
+            print(f"Using file: {CSV_NAME}")
+            CSV_SPECIFIED = True
+
     else:
         if args.dev or event["dev"]:
             DEV_MODE: bool = True
@@ -99,6 +106,7 @@ def main(event, context):
             try:
                 START_DATE = date.fromisoformat(args.dates[0])
                 END_DATE = date.fromisoformat(args.dates[1])
+                DATE_SPECIFIED = True
                 if END_DATE < START_DATE:
                     raise Exception
                 print(f"transforming fights from {START_DATE} to {END_DATE}")
@@ -106,7 +114,9 @@ def main(event, context):
                 print("invalid dates")
                 sys.exit()
         elif args.csv:
-            print(f"Using file: {args.csv}")
+            CSV_NAME = args.csv
+            print(f"Using file: {CSV_NAME}")
+            CSV_SPECIFIED = True
 
     if DEV_MODE:
         prefix_string = "fight-2022-04-09alexandervolkanovskichansungjung"  # "fight-2020-11-28anthonysmithdevinclark"  # "fight-2020-11-28ashleeevans-smithnormadumont"  #
@@ -484,9 +494,9 @@ def get_file_keys() -> Key_Vector:
 
     clean_dates: list = []
     count_dic = defaultdict(int)
-    if args.csv:
+    if CSV_SPECIFIED:
         dates_csv = (
-            S3R.Object("ufc-meta-files", f"t1-dates/{args.csv}")
+            S3R.Object("ufc-meta-files", f"t1-dates/{CSV_NAME}")
             .get()["Body"]
             .read()
             .decode("utf-8")
@@ -505,7 +515,7 @@ def get_file_keys() -> Key_Vector:
                     f"{i['Key'].replace('.txt', '')} already exists in SL2 ! Skipping."
                 )
                 continue
-            if args.dates:
+            if DATE_SPECIFIED:
                 d = date.fromisoformat(i["Key"][6:16])
                 if not (START_DATE <= d and d <= END_DATE):
                     continue
@@ -525,7 +535,7 @@ def get_file_keys() -> Key_Vector:
             Bucket=STAGE_LAYER_ONE, Prefix=prefix_string, ContinuationToken=t
         )
 
-    if args.csv:
+    if CSV_SPECIFIED:
         for k, v in count_dic.items():
             print(f"Found {v} file(s) for date: {k}")
     return keys
