@@ -30,7 +30,7 @@ import json
 from collections import defaultdict
 import pandas as pd
 import awswrangler as wr
-from t1_argumentparser import my_argument_parser
+from t1_helper import my_argument_parser
 from datetime import date
 import botocore
 
