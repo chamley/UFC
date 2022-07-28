@@ -101,7 +101,8 @@ def main(event, context):
 
     else:
         if args.dev or event["dev"]:
-            DEV_MODE: bool = True
+            DEV_MODE = True
+            print("dev mode ...")
         elif args.dates:
             try:
                 START_DATE = date.fromisoformat(args.dates[0])
@@ -541,5 +542,5 @@ def get_file_keys() -> Key_Vector:
     return keys
 
 
-if PRODUCTION_MODE:
+if not PRODUCTION_MODE:
     main({}, None)
