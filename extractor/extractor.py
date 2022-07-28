@@ -101,7 +101,7 @@ def main(event, context):
     print("starting script ..\n#\n#\n#\n#\n#\n#\n#")
     stage_layer_1()
     print("ending script ......")
-    return json.dumps({"status_code": "200"})
+    print("no return values")
 
 
 # we grab the latest raw data. We transform in another stage

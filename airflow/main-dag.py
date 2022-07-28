@@ -29,12 +29,11 @@ def trigger_extractor_lambda():
             "end": f"{date.today()}",
         }
     }
-    res = lambdaclient.invoke(
+    lambdaclient.invoke(
         FunctionName="ufc-extractor",
         InvocationType="Event",
         Payload=json.dumps(payload),
     )
-    return res
 
 
 with DAG(
