@@ -81,3 +81,6 @@ with DAG(
     # merge into normal data
 
     # refresh materialized views
+
+
+dummy_task >> extractor_task >> t1_task
