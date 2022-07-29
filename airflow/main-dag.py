@@ -36,6 +36,21 @@ def trigger_extractor_lambda():
     )
 
 
+def trigger_t1_lambda():
+    lambdaclient = boto3.client("lambda", "us-east-1")
+    payload = {
+        "dates": {
+            "start": f"{date.today()-timedelta(weeks=1)}",
+            "end": f"{date.today()}",
+        }
+    }
+    lambdaclient.invoke(
+        FunctionName="ufc-t1",
+        InvocationType="Event",
+        Payload=json.dumps(payload),
+    )
+
+
 with DAG(
     "ufc-main-dag",
     start_date=datetime(2022, 7, 20),
@@ -49,6 +64,7 @@ with DAG(
     extractor_task = PythonOperator(
         task_id="extractor_task", python_callable=trigger_extractor_lambda
     )
+    t1_task = PythonOperator(task_id="t1_task", python_callable=trigger_t1_lambda)
 
     # run tests against structure of raw data
 
