@@ -23,7 +23,6 @@ import boto3
 from dotenv import load_dotenv
 import os
 import datetime
-import logging
 import sys
 from importlib import reload
 import json
@@ -38,11 +37,6 @@ T = datetime.datetime.today()
 load_dotenv()
 
 # short on time, I dont know why im forced to do this.
-logging.shutdown()
-reload(logging)
-logging.basicConfig(
-    filename=f"logs/first_transformer-{T}.log", encoding="utf-8", level=logging.DEBUG
-)
 
 
 Key_Vector = list[dict]
@@ -100,7 +94,7 @@ def main(event, context):
             CSV_SPECIFIED = True
 
     else:
-        if args.dev or event["dev"]:
+        if args.dev:
             DEV_MODE = True
             print("dev mode ...")
         elif args.dates:
@@ -120,7 +114,7 @@ def main(event, context):
             CSV_SPECIFIED = True
 
     if DEV_MODE:
-        prefix_string = "fight-2022-04-09alexandervolkanovskichansungjung"  # "fight-2020-11-28anthonysmithdevinclark"  # "fight-2020-11-28ashleeevans-smithnormadumont"  #
+        prefix_string = "fight-2020-11-28anthonysmithdevinclark"  # "fight-2022-04-09alexandervolkanovskichansungjung"  #  "fight-2020-11-28ashleeevans-smithnormadumont"  #
     else:
         prefix_string = ""
     ########################################################################################################
@@ -139,9 +133,7 @@ def main(event, context):
             fix_data(fight_data, item["Key"][:-4])
         except IndexError as e:
             print(f"Index error on {item['Key']}, skipping for now.")
-            logging.info(f"Failed on {item['Key']}")
             print(e)
-    logging.info("Successfuly exiting first transformer")
     print("Successfuly exiting first transformer")
 
 
@@ -505,7 +497,6 @@ def get_file_keys() -> Key_Vector:
         )
         # check for trailing comma
         clean_dates = list(filter(lambda x: x, dates_csv))
-
     while True:
         items = res["Contents"]
         for i in items:
@@ -520,7 +511,7 @@ def get_file_keys() -> Key_Vector:
                 d = date.fromisoformat(i["Key"][6:16])
                 if not (START_DATE <= d and d <= END_DATE):
                     continue
-            if args.csv:
+            if CSV_SPECIFIED:
                 d = i["Key"][6:16]
                 if d in clean_dates:
                     count_dic[d] += 1

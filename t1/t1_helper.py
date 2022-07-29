@@ -1,5 +1,7 @@
 import argparse
 
+x = {"dates": {"start": "2020-01-01", "end": "2021-01-01"}}
+
 
 def my_argument_parser():
     parser = argparse.ArgumentParser(
