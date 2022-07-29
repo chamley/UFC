@@ -39,7 +39,6 @@ load_dotenv()
 # short on time, I dont know why im forced to do this.
 
 
-Key_Vector = list[dict]
 ACCESS_KEY_ID: str = os.getenv("access_key_id")
 SECRET_ACCESS_KEY_ID: str | None = os.getenv("secret_access_key_id")
 DATE: datetime.date = datetime.date.today()
@@ -119,7 +118,7 @@ def main(event, context):
         prefix_string = ""
     ########################################################################################################
 
-    keys: Key_Vector = get_file_keys()  # O(n)
+    keys = get_file_keys()  # O(n)
     print(f"Found {len(keys)} files to transform")
 
     for item in keys:
@@ -464,8 +463,8 @@ def clean(s):
 
 
 # We fetch keys of items we want to transform, following the logic of our args.
-def get_file_keys() -> Key_Vector:
-    keys: Key_Vector = []
+def get_file_keys():
+    keys = []
     res: dict = S3C.list_objects_v2(Bucket=STAGE_LAYER_ONE, Prefix=prefix_string)
 
     ########### ########### ###########

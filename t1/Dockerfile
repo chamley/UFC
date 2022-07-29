@@ -5,7 +5,6 @@ RUN  pip3 install -r requirements.txt --target "${LAMBDA_TASK_ROOT}"
 
 COPY first_transformer.py ${LAMBDA_TASK_ROOT}  
 COPY t1_helper.py ${LAMBDA_TASK_ROOT}
-COPY logs ${LAMBDA_TASK_ROOT}
 
 CMD ["first_transformer.main"]
 
