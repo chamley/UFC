@@ -40,7 +40,7 @@ load_dotenv()
 
 
 ACCESS_KEY_ID: str = os.getenv("access_key_id")
-SECRET_ACCESS_KEY_ID: str | None = os.getenv("secret_access_key_id")
+SECRET_ACCESS_KEY_ID = os.getenv("secret_access_key_id")
 DATE: datetime.date = datetime.date.today()
 S3C = boto3.client(
     "s3",
@@ -68,6 +68,27 @@ CSV_NAME = ""
 
 args = my_argument_parser().parse_args()
 
+if args.dev:
+    DEV_MODE = True
+    print("dev mode ...")
+elif args.dates:
+    try:
+        START_DATE = date.fromisoformat(args.dates[0])
+        END_DATE = date.fromisoformat(args.dates[1])
+        DATE_SPECIFIED = True
+        if END_DATE < START_DATE:
+            raise Exception
+        print(f"transforming fights from {START_DATE} to {END_DATE}")
+    except:
+        print("invalid dates")
+        sys.exit()
+elif args.csv:
+    CSV_NAME = args.csv
+    print(f"Using file: {CSV_NAME}")
+    CSV_SPECIFIED = True
+else:
+    PRODUCTION_MODE = True
+
 
 def main(event, context):
     global DEV_MODE, START_DATE, END_DATE, PRODUCTION_MODE, prefix_string, DATE_SPECIFIED, CSV_SPECIFIED, CSV_NAME
@@ -75,7 +96,6 @@ def main(event, context):
     print(
         "========================= Entering first transformer ======================="
     )
-
     ######## oh man is this ugly (setting context, given the program args) ####################################################
     event = defaultdict(lambda: None, event)
 
@@ -89,26 +109,6 @@ def main(event, context):
             DEV_MODE = True
         elif event["csv"]:
             CSV_NAME = event["csv"]
-            print(f"Using file: {CSV_NAME}")
-            CSV_SPECIFIED = True
-
-    else:
-        if args.dev:
-            DEV_MODE = True
-            print("dev mode ...")
-        elif args.dates:
-            try:
-                START_DATE = date.fromisoformat(args.dates[0])
-                END_DATE = date.fromisoformat(args.dates[1])
-                DATE_SPECIFIED = True
-                if END_DATE < START_DATE:
-                    raise Exception
-                print(f"transforming fights from {START_DATE} to {END_DATE}")
-            except:
-                print("invalid dates")
-                sys.exit()
-        elif args.csv:
-            CSV_NAME = args.csv
             print(f"Using file: {CSV_NAME}")
             CSV_SPECIFIED = True
 
