@@ -1,31 +1,60 @@
+from cmath import e
 import pytest
 import sys
 from moto import mock_s3
 import boto3
 from dotenv import load_dotenv
 import os
+from io import StringIO
+import csv
 
-load_dotenv()
+import config
+
 sys.path.append(".")
 
 
 from src.extractor.e1_helper import get_dates
+from src.extractor.e1_helper import my_argument_parser
 
-REGION_NAME = os.getenv("REGION_NAME")
-UFC_META_FILES_LOCATION = os.getenv("UFC_META_FILES_LOCATION")
+REGION_NAME = config.REGION_NAME
+UFC_META_FILES_LOCATION = config.UFC_META_FILES_LOCATION
+E1_CSV_OPT_DATE_FOLDER_PATH = config.E1_CSV_OPT_DATE_FOLDER_PATH
+
+
+def create_csv(date_list):
+    buffer = StringIO()
+    writer = csv.writer(buffer, delimiter=",")
+    writer.writerow(date_list)
+    return buffer
 
 
 @mock_s3
 class TestGetDates(object):
-    def test_normal_usage(self):
+    @pytest.mark.parametrize(
+        "mock_s3_endpoint, mock_data, expected",
+        [
+            ("sebtest.csv", "2021-01-01".encode("utf-8"), ["2021-01-01"]),
+            (
+                "sebtest2.csv",
+                "2021-01-01,2022-01-01".encode("utf-8"),
+                ["2021-01-01", "2022-01-01"],
+            ),
+        ],
+    )
+    def test_normal_usage(self, mock_s3_endpoint, mock_data, expected):
         s3c = boto3.client("s3", REGION_NAME)
         s3c.create_bucket(Bucket=UFC_META_FILES_LOCATION)
-        s3c.put_object(Bucket=UFC_META_FILES_LOCATION, Key="")
+        s3c.put_object(
+            Bucket=UFC_META_FILES_LOCATION,
+            Key=f"{E1_CSV_OPT_DATE_FOLDER_PATH}/{mock_s3_endpoint}",
+            Body=mock_data,
+        )
+        actual = get_dates(mock_s3_endpoint, boto3.resource("s3", REGION_NAME))
 
-        get_dates()
+        assert actual == expected, "fetches a csv from s3"
 
-        assert True
 
-    def test_free_tests_weee(object):
-        assert True
-        assert True
+class TestMyArgumentParser(object):
+    def test_returns_a_parser_with_a_parse_args_method(self):
+        parser = my_argument_parser()
+        assert bool(parser.parse_args()), "has the correct module used"
