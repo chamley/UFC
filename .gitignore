@@ -1,12 +1,12 @@
 #ignore pyenv
 .venv
-.env
-logs/
-error_list.txt
+src/.env
+src/logs/
+src/error_list.txt
 sat upload logs.txt
-refresh-mind.py
-.DS_Store
-__pycache__/e1_helper.cpython-310.pyc
-extractor/__pycache__/
-extractor/__pycache__
-extractor/__pycache__/e1_helper.cpython-310.pyc
+src/refresh-mind.py
+src/.DS_Store
+src/__pycache__/e1_helper.cpython-310.pyc
+src/extractor/__pycache__/
+src/extractor/__pycache__
+src/extractor/__pycache__/e1_helper.cpython-310.pyc
