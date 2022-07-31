@@ -28,26 +28,27 @@ from datetime import datetime
 from e1_helper import my_argument_parser, get_dates
 from datetime import date
 import json
+from configfile import STAGE_LAYER_ONE, REGION_NAME
 
 load_dotenv()
 access_key_id = os.getenv("access_key_id")
 secret_access_key_id = os.getenv("secret_access_key_id")
-STAGE_LAYER_ONE: str = "ufc-big-data"
-STAGE_LAYER_TWO: str = "ufc-big-data-2"
+
 TODAY = datetime.today().date()  # make sure we don't parse the future event promo
 START_DATE: date
 END_DATE: date
 clean_dates = []
 
+
 S3C = boto3.client(
     "s3",
-    region_name="us-east-1",
+    region_name=REGION_NAME,
     aws_access_key_id=access_key_id,
     aws_secret_access_key=secret_access_key_id,
 )
 S3R = boto3.resource(
     "s3",
-    region_name="us-east-1",
+    region_name=REGION_NAME,
     aws_access_key_id=access_key_id,
     aws_secret_access_key=secret_access_key_id,
 )
