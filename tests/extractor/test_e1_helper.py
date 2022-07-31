@@ -8,17 +8,12 @@ import os
 from io import StringIO
 import csv
 
-import config
-
 sys.path.append(".")
+from configfile import REGION_NAME, UFC_META_FILES_LOCATION, E1_CSV_OPT_DATE_FOLDER_PATH
 
 
 from src.extractor.e1_helper import get_dates
 from src.extractor.e1_helper import my_argument_parser
-
-REGION_NAME = config.REGION_NAME
-UFC_META_FILES_LOCATION = config.UFC_META_FILES_LOCATION
-E1_CSV_OPT_DATE_FOLDER_PATH = config.E1_CSV_OPT_DATE_FOLDER_PATH
 
 
 def create_csv(date_list):
