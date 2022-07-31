@@ -5,7 +5,8 @@ import boto3
 from io import StringIO
 import csv
 
-sys.path.append(".")
+
+sys.path.append("./src/extractor")
 from configfile import REGION_NAME, UFC_META_FILES_LOCATION, E1_CSV_OPT_DATE_FOLDER_PATH
 
 

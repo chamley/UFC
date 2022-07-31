@@ -39,7 +39,6 @@ START_DATE: date
 END_DATE: date
 clean_dates = []
 
-
 S3C = boto3.client(
     "s3",
     region_name=REGION_NAME,
