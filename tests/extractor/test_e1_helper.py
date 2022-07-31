@@ -1,10 +1,7 @@
-from cmath import e
 import pytest
 import sys
 from moto import mock_s3
 import boto3
-from dotenv import load_dotenv
-import os
 from io import StringIO
 import csv
 
