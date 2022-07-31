@@ -1,4 +1,5 @@
 import sys
+from tkinter.font import names
 import requests
 import os
 
@@ -22,32 +23,42 @@ class fakeRequest(object):
         self.text = f
 
 
-@pytest.mark.parametrize(
-    "data, date, expected",
-    [
-        (
-            fakeRequest(open("tests/extractor/mock_inputs/test-volk-data.html").read()),
-            "2022-07-02",
-            open("tests/extractor/mock_inputs/test-volk-expected.html").read(),
-        ),
-        (
-            fakeRequest(
-                open("tests/extractor/mock_inputs/test-andrade-data.html").read()
-            ),
-            "2022-04-23",
-            open("tests/extractor/mock_inputs/test-andrade-expected.html").read(),
-        ),
-    ],
-)
 class TestCreateFightPage(object):
-    print(os.getcwd())
-
+    @pytest.mark.parametrize(
+        "data, date, expected",
+        [
+            (
+                fakeRequest(
+                    open("tests/extractor/mock_inputs/test-volk-data.html").read()
+                ),
+                "2022-07-02",
+                [
+                    open("tests/extractor/mock_inputs/test-volk-expected.html").read(),
+                    "AlexanderVolkanovskiMaxHolloway",
+                ],
+            ),
+            (
+                fakeRequest(
+                    open("tests/extractor/mock_inputs/test-andrade-data.html").read()
+                ),
+                "2022-04-23",
+                [
+                    open(
+                        "tests/extractor/mock_inputs/test-andrade-expected.html"
+                    ).read(),
+                    "AmandaLemosJessicaAndrade",
+                ],
+            ),
+        ],
+    )
     def test_creates_page_properly(self, data, date, expected, mocker):
         mock_req_get = mocker.patch("src.extractor.extractor.requests")
         mock_req_get.get.return_value = data
-        actual, _ = create_fight_page("", date)
+        actual_page, actual_names = create_fight_page("", date)
 
-        assert actual in expected and expected in actual
+        assert actual_page in expected[0] and expected[0] in actual_page
+        assert actual_names == expected[1]
 
-    # def test_indentifies_names_correctly(self):
-    #     assert True
+
+class TestPushFightPage(object):
+    pass
