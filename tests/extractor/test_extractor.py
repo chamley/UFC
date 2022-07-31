@@ -1,6 +1,9 @@
 import sys
+import requests
+import os
 
 sys.path.append(".")
+sys.path.append("./tests/extractor")
 
 from src.extractor.extractor import (
     main,
@@ -14,9 +17,37 @@ import pytest
 from moto import mock_s3
 
 
-class TestCreateFightPage(object):
-    def test_parses_page_properly(self):
-        assert True
+class fakeRequest(object):
+    def __init__(self, f) -> None:
+        self.text = f
 
-    def test_raises_error_if_bad_url(self):
-        pass
+
+@pytest.mark.parametrize(
+    "data, date, expected",
+    [
+        (
+            fakeRequest(open("tests/extractor/mock_inputs/test-volk-data.html").read()),
+            "2022-07-02",
+            open("tests/extractor/mock_inputs/test-volk-expected.html").read(),
+        ),
+        (
+            fakeRequest(
+                open("tests/extractor/mock_inputs/test-andrade-data.html").read()
+            ),
+            "2022-04-23",
+            open("tests/extractor/mock_inputs/test-andrade-expected.html").read(),
+        ),
+    ],
+)
+class TestCreateFightPage(object):
+    print(os.getcwd())
+
+    def test_creates_page_properly(self, data, date, expected, mocker):
+        mock_req_get = mocker.patch("src.extractor.extractor.requests")
+        mock_req_get.get.return_value = data
+        actual, _ = create_fight_page("", date)
+
+        assert actual in expected and expected in actual
+
+    # def test_indentifies_names_correctly(self):
+    #     assert True
