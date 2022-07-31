@@ -1,7 +1,5 @@
 import sys
-from tkinter.font import names
-import requests
-import os
+
 
 sys.path.append(".")
 sys.path.append("./tests/extractor")
@@ -14,7 +12,9 @@ from src.extractor.extractor import (
     create_fight_page,
     push_fight_page,
 )
+from configfile import STAGE_LAYER_ONE, REGION_NAME
 import pytest
+import boto3
 from moto import mock_s3
 
 
@@ -60,5 +60,11 @@ class TestCreateFightPage(object):
         assert actual_names == expected[1]
 
 
+@mock_s3
 class TestPushFightPage(object):
-    pass
+    def test_pushes_fight_page_correctly(self):
+        s3c = boto3.client("s3", region=REGION_NAME)
+        s3c.create_bucket(Bucket=STAGE_LAYER_ONE)
+        push_fight_page(fight_page, object_name)
+
+        assert True
