@@ -149,7 +149,7 @@ class TestGetFightUrlList(object):
         assert actual == expected
 
 
-# class TestGetCardUrlsDic(object):
-#     def test_exhaustive_list_returned(self, mocker):
-#         mocker_requets_get = mocker.patch("src.extractor.extractor.requests")
-#         mocker.get.response_value = ""
+class TestGetCardUrlsDic(object):
+    def test_exhaustive_list_returned(self, mocker):
+        mocker_requets_get = mocker.patch("src.extractor.extractor.requests")
+        mocker.get.response_value = ""
