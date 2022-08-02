@@ -819,10 +819,10 @@ class TestGetCardUrlsDic(object):
         )
 
         actual = get_card_urls_dic(
-            START_DATE, TODAY, END_DATE, DEV_MODE, DATE_SPECIFIED
+            START_DATE, END_DATE, TODAY, DEV_MODE, DATE_SPECIFIED
         )
         assert expected == actual
 
-    # def test_dev_specified_argument(self, mocker):
-    #     pass
-    #     # put a spy on datetime.strptime to check its only been called twice
+    def test_dev_specified_argument(self, mocker):
+        pass
+        # put a spy on datetime.strptime to check its only been called twice
