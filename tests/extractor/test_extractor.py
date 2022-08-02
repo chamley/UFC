@@ -1,6 +1,7 @@
 import sys
 
 from pendulum import datetime
+from sqlalchemy import DATE
 
 sys.path.append(".")
 sys.path.append("./tests/extractor")
@@ -808,8 +809,8 @@ class TestGetCardUrlsDic(object):
     def test_date_specified_argument(
         self, START_DATE, TODAY, END_DATE, expected, mocker
     ):
-        mocker.patch("src.extractor.extractor.START_DATE", "START_DATE", 4)
-
+        DEV_MODE = False
+        DATE_SPECIFIED = True
         mocker_requests_get = mocker.patch("src.extractor.extractor.requests")
         mocker_requests_get.get.return_value = fakeRequest(
             open(
@@ -817,10 +818,11 @@ class TestGetCardUrlsDic(object):
             ).read()
         )
 
-        actual = get_card_urls_dic()
-        print(len(actual))
+        actual = get_card_urls_dic(
+            START_DATE, TODAY, END_DATE, DEV_MODE, DATE_SPECIFIED
+        )
         assert expected == actual
 
-    def test_dev_specified_argument(self, mocker):
-        pass
-        # put a spy on datetime.strptime to check its only been called twice
+    # def test_dev_specified_argument(self, mocker):
+    #     pass
+    #     # put a spy on datetime.strptime to check its only been called twice
