@@ -77,7 +77,7 @@ elif args.csv:
 else:
     PROD_MODE = True
 
-
+# main function
 def main(event, context):
     global DEV_MODE, DATE_SPECIFIED, clean_dates, START_DATE, END_DATE
 
