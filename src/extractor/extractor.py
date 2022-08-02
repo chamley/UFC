@@ -37,8 +37,8 @@ access_key_id = os.getenv("access_key_id")
 secret_access_key_id = os.getenv("secret_access_key_id")
 
 TODAY = datetime.today().date()  # make sure we don't parse the future event promo
-START_DATE: date
-END_DATE: date
+START_DATE = END_DATE = date.fromisoformat("1111-11-11")
+
 clean_dates = []
 
 S3C = boto3.client(
@@ -161,7 +161,13 @@ def stage_layer_1():
 
 
 # fetch the urls of all past cards with date
-def get_card_urls_dic():
+def get_card_urls_dic(
+    START_DATE=START_DATE,
+    END_DATE=END_DATE,
+    TODAY=TODAY,
+    DEV_MODE=DEV_MODE,
+    DATE_SPECIFIED=DATE_SPECIFIED,
+):
 
     new_urls = {}
     endpoint = "http://ufcstats.com/statistics/events/completed?page=all"
