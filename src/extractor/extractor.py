@@ -163,8 +163,6 @@ def stage_layer_1():
 # fetch the urls of all past cards with date
 def get_card_urls_dic():
 
-    global START_DATE, TODAY, END_DATE, DEV_MODE
-
     new_urls = {}
     endpoint = "http://ufcstats.com/statistics/events/completed?page=all"
     response = requests.get(endpoint)
@@ -178,7 +176,7 @@ def get_card_urls_dic():
             f"{s[2]}-{datetime.strptime(s[0], '%B').month}-{s[1]}", "%Y-%m-%d"
         ).date()
 
-        # conditions. verbosity for clarity ##
+        # conditions ##
         # no future
         if TODAY <= event_date:
             continue
