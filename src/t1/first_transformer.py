@@ -41,8 +41,6 @@ from configfile import STAGE_LAYER_ONE, STAGE_LAYER_TWO, REGION_NAME
 T = datetime.datetime.today()
 load_dotenv()
 
-# short on time, I dont know why im forced to do this.
-
 
 ACCESS_KEY_ID: str = os.getenv("access_key_id")
 SECRET_ACCESS_KEY_ID = os.getenv("secret_access_key_id")

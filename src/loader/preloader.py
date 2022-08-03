@@ -1,14 +1,21 @@
 import sys
 
 sys.path.append(".")
+
+
 import argparse
+from configfile import STAGE_LAYER_TWO, REGION_NAME
 
-
-GLOBAL_ARGS = {}
+# global args
+GA = {
+    "PROD_MODE": "False",
+    "STAGE_LAYER_TWO": STAGE_LAYER_TWO,
+    "REGION_NAME": REGION_NAME,
+}
 
 
 def main(event={}, context=None):
-    pass
+    my_args = my_argument_parser().parse_args()
 
 
 def my_argument_parser():
@@ -27,3 +34,4 @@ def my_argument_parser():
         action="store_true",
         help="set DEV_MODE flag to help writing/debugging the program",
     )
+    return parser
