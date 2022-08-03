@@ -1,21 +1,24 @@
+from collections import defaultdict
 import sys
 
 sys.path.append(".")
 
 
 import argparse
+
+
 from configfile import STAGE_LAYER_TWO, REGION_NAME
 
 # global args
 GA = {
-    "PROD_MODE": "False",
+    "PROD_MODE": False,
+    "DEV_MODE": False,
+    "DATE_SPECIFIED": False,
     "STAGE_LAYER_TWO": STAGE_LAYER_TWO,
     "REGION_NAME": REGION_NAME,
+    "START_DATE": None,
+    "END_DATE": None,
 }
-
-
-def main(event={}, context=None):
-    my_args = my_argument_parser().parse_args()
 
 
 def my_argument_parser():
@@ -34,4 +37,15 @@ def my_argument_parser():
         action="store_true",
         help="set DEV_MODE flag to help writing/debugging the program",
     )
+
     return parser
+
+
+def main(event={}, context=None):
+    event = defaultdict(lambda: None, event)
+
+    args = my_argument_parser().parse_args()
+
+
+if __name__ == "__main__":
+    main()

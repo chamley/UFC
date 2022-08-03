@@ -17,8 +17,6 @@ import sys
 
 sys.path.append(".")
 from collections import defaultdict
-from distutils.command.clean import clean
-from email.policy import default
 import os
 from dotenv import load_dotenv
 from bs4 import BeautifulSoup
