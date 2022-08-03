@@ -17,6 +17,10 @@ GLOBAL RULES:
 #   Make the transformer run in parrallel, see .md
 #   Refactor all print to logging.
 #   Refactor sanity checks to testing.
+import sys
+
+sys.path.append(".")
+
 
 from bs4 import BeautifulSoup
 import boto3
@@ -32,6 +36,7 @@ import awswrangler as wr
 from t1_helper import my_argument_parser
 from datetime import date
 import botocore
+from configfile import STAGE_LAYER_ONE, STAGE_LAYER_TWO, REGION_NAME
 
 T = datetime.datetime.today()
 load_dotenv()
@@ -44,19 +49,17 @@ SECRET_ACCESS_KEY_ID = os.getenv("secret_access_key_id")
 DATE: datetime.date = datetime.date.today()
 S3C = boto3.client(
     "s3",
-    region_name="us-east-1",
+    region_name=REGION_NAME,
     aws_access_key_id=ACCESS_KEY_ID,
     aws_secret_access_key=SECRET_ACCESS_KEY_ID,
 )
 S3R = boto3.resource(
     "s3",
-    region_name="us-east-1",
+    region_name=REGION_NAME,
     aws_access_key_id=ACCESS_KEY_ID,
     aws_secret_access_key=SECRET_ACCESS_KEY_ID,
 )
 
-STAGE_LAYER_ONE: str = "ufc-big-data"  # grab files from this s3 bucket
-STAGE_LAYER_TWO: str = "ufc-big-data-2"  # put files in this s3 bucket
 PRODUCTION_MODE = False
 DEV_MODE: bool = False
 prefix_string: str = ""
