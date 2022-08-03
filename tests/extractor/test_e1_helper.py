@@ -6,6 +6,15 @@ from io import StringIO
 import csv
 
 
+### see issue here: https://github.com/spulec/moto/issues/1941
+
+import os
+
+os.environ["AWS_ACCESS_KEY_ID"] = "test"
+os.environ["AWS_SECRET_ACCESS_KEY"] = "test"
+
+###
+
 sys.path.append("./src/extractor")
 from configfile import REGION_NAME, UFC_META_FILES_LOCATION, E1_CSV_OPT_DATE_FOLDER_PATH
 
