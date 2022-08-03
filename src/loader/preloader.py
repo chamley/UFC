@@ -49,7 +49,18 @@ def main(event={}, context=None):
     global GA
     event = defaultdict(lambda: None, event)
 
+    # set global args
     GA = prep_script(GA, event, args)
+
+    # tentative skeleton, review !!!
+
+    # fetch the two sets of filenames (fight, round) add to returnable
+
+    # build all tables required, add names (arg+datetime.now() based) to returnable
+
+    # boot up ec2 instance here? maybe we can pass it returnable here and its easier than xcoms
+
+    #
 
 
 # mamma mia, el spaghetti!!
