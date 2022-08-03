@@ -57,15 +57,12 @@ def prep_script(GA, event, args):
     if event:
         GA["PROD_MODE"] = True
         if event["dates"]:
-            try:
-                GA["START_DATE"] = date.fromisoformat(event["dates"]["start"])
-                GA["END_DATE"] = date.fromisoformat(event["dates"]["end"])
-                GA["DATE_SPECIFIED"] = True
-                if GA["END_DATE"] < GA["START_DATE"]:
-                    raise Exception
-            except:
-                print("invalid dates")
-                sys.exit()
+            GA["START_DATE"] = date.fromisoformat(event["dates"]["start"])
+            GA["END_DATE"] = date.fromisoformat(event["dates"]["end"])
+            GA["DATE_SPECIFIED"] = True
+            if GA["END_DATE"] < GA["START_DATE"]:
+                raise ValueError("invalid dates")
+
         elif event["dev"]:
             GA["DEV_MODE"] = True
             print("DEV MODE ....")
@@ -73,21 +70,16 @@ def prep_script(GA, event, args):
             print("invalid event inputted")
             sys.exit()
     elif args.dates:
-        try:
-            GA["START_DATE"] = date.fromisoformat(args.dates[0])
-            GA["END_DATE"] = date.fromisoformat(args.dates[1])
-            GA["DATE_SPECIFIED"] = True
-            if GA["END_DATE"] < GA["START_DATE"]:
-                raise Exception
-        except:
-            print("invalid dates")
-            sys.exit()
+        GA["START_DATE"] = date.fromisoformat(args.dates[0])
+        GA["END_DATE"] = date.fromisoformat(args.dates[1])
+        GA["DATE_SPECIFIED"] = True
+        if GA["END_DATE"] < GA["START_DATE"]:
+            raise ValueError("invalid dates")
     elif args.dev:
         GA["DEV_MODE"] = True
         print("DEV MODE ....")
     else:
-        print("invalid input to script!")
-        sys.exit()
+        raise ValueError("invalid input to script!")
 
 
 if not GA["PROD_MODE"] and __name__ == "__main__":
