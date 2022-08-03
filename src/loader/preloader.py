@@ -81,6 +81,8 @@ def prep_script(GA, event, args):
     else:
         raise ValueError("invalid input to script!")
 
+    return GA
+
 
 if not GA["PROD_MODE"] and __name__ == "__main__":
     main()
