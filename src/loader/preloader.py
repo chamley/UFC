@@ -10,8 +10,8 @@ from datetime import date
 
 from configfile import STAGE_LAYER_TWO, REGION_NAME
 
-# global args. massaged around at start of script then left alone.
-GA = {
+# global args. configured at start then not modified.
+STATE = {
     "PROD_MODE": False,
     "DEV_MODE": False,
     "DATE_SPECIFIED": False,
@@ -28,7 +28,7 @@ def my_argument_parser():
 
 
 parser = argparse.ArgumentParser(
-    description="this script is for a lambda that serves as a precursor to a load of fresh data. we gather all the metadata and spin up all the temp tables for the load"
+    description="this script is for a lambda that serves as a precursor to a load of fresh data. we STATEther all the metadata and spin up all the temp tables for the load"
 )
 
 arg_group = parser.add_mutually_exclusive_group()
@@ -46,54 +46,63 @@ args = my_argument_parser().parse_args()
 
 
 def main(event={}, context=None):
-    global GA
+    global STATE  # should only be required here and nowhere else
+
     event = defaultdict(lambda: None, event)
 
     # set global args
-    GA = prep_script(GA, event, args)
+    STATE = prep_script(STATE, event, args)
 
-    # tentative skeleton, review !!!
+    file_spec = fetch_file_names()
+    # fetch the two sets of filenames (fight, round)
 
-    # fetch the two sets of filenames (fight, round) add to returnable
+    build_tables()
 
-    # build all tables required, add names (arg+datetime.now() based) to returnable
 
-    # boot up ec2 instance here? maybe we can pass it returnable here and its easier than xcoms
+def build_tables(STATE=STATE):
+    # here we build all intermediary tables necesarry
+    # use state + datetime.now() to name them and make logs clear
+    pass
 
-    #
+
+# given inputs to script fetch the set of prefixes to submit
+# to redshift copy command
+def fetch_file_names(STATE=STATE):
+    x = {"fights": None, "rounds": None}
+    return x
 
 
 # mamma mia, el spaghetti!!
-def prep_script(GA, event, args):
+def prep_script(STATE, event, args):
     if event:
-        GA["PROD_MODE"] = True
+        STATE["PROD_MODE"] = True
         if event["dates"]:
-            GA["START_DATE"] = date.fromisoformat(event["dates"]["start"])
-            GA["END_DATE"] = date.fromisoformat(event["dates"]["end"])
-            GA["DATE_SPECIFIED"] = True
-            if GA["END_DATE"] < GA["START_DATE"]:
+            STATE["START_DATE"] = date.fromisoformat(event["dates"]["start"])
+            STATE["END_DATE"] = date.fromisoformat(event["dates"]["end"])
+            STATE["DATE_SPECIFIED"] = True
+            if STATE["END_DATE"] < STATE["START_DATE"]:
                 raise ValueError("invalid dates")
 
         elif event["dev"]:
-            GA["DEV_MODE"] = True
+            STATE["DEV_MODE"] = True
             print("DEV MODE ....")
         else:
             print("invalid event inputted")
             sys.exit()
     elif args.dates:
-        GA["START_DATE"] = date.fromisoformat(args.dates[0])
-        GA["END_DATE"] = date.fromisoformat(args.dates[1])
-        GA["DATE_SPECIFIED"] = True
-        if GA["END_DATE"] < GA["START_DATE"]:
+        STATE["START_DATE"] = date.fromisoformat(args.dates[0])
+        STATE["END_DATE"] = date.fromisoformat(args.dates[1])
+        STATE["DATE_SPECIFIED"] = True
+        if STATE["END_DATE"] < STATE["START_DATE"]:
             raise ValueError("invalid dates")
     elif args.dev:
-        GA["DEV_MODE"] = True
+        STATE["DEV_MODE"] = True
         print("DEV MODE ....")
     else:
         raise ValueError("invalid input to script!")
 
-    return GA
+    return STATE
 
 
-if not GA["PROD_MODE"] and __name__ == "__main__":
+if not STATE["PROD_MODE"] and __name__ == "__main__":
     main()
