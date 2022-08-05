@@ -169,6 +169,9 @@ def parse_fight(file):
     # 1. Returns nested dicts.
     # 2. Ugly script that turns a fight page into a giant dict with the relevant data
 
+    def clean(s):
+        return [x.strip() for x in s.split("of")]
+
     d = defaultdict(dict)
     d["red"], d["blue"], d["metadata"] = [
         defaultdict(dict),
@@ -407,6 +410,10 @@ def fix_data(d, k):
     fight["wc"] = format_weight_class(
         d["metadata"]["weight class"].lower(), fight["wmma"]
     )
+    print(ACCESS_KEY_ID)
+    print(rounds[0].keys())
+    print(fight)
+    sys.exit()
 
     wr.s3.to_parquet(
         pd.DataFrame(rounds),
@@ -457,10 +464,6 @@ def format_weight_class(s, wmma):
             return "wflw"
         else:
             return "wcatchweight"
-
-
-def clean(s):
-    return [x.strip() for x in s.split("of")]
 
 
 # We fetch keys of items we want to transform, following the logic of our args.
