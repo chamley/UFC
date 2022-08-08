@@ -7,11 +7,11 @@
 
 <h3>Stack</h3>
 
-💻 Data Engineering Tools: Airflow,  Docker, DBT (tbd), DBT-ge (tbd)
+💻 Data Engineering Tools: Airflow,  Docker, DBT (tbd), 
 
 ☁️ Cloud: AWS (Lambda, S3, Redshift, ECR, MWAA)
 
-✅ CI/Testing: Travis CI, Pytest, Coveralls (tbd)
+✅ CI/Testing: DBT-ge (tbd), Travis CI, Pytest, Coveralls (tbd)
 
 📊 Visualization: Tableau
 
