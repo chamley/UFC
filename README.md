@@ -7,11 +7,17 @@
 
 Stack
 
-🎛 Data Engineering Tools: Airflow,  Docker, DBT (tbd), DBT-ge (tbd)
+💻 Data Engineering Tools: Airflow,  Docker, DBT (tbd), DBT-ge (tbd)
+
 ☁️ Cloud: AWS (Lambda, S3, Redshift, ECR, MWAA)
-CI: Travis CI
-Visualization: Tableau
-Libraries: pandas, boto3, , awswrangler, beautifulsoup, psycop2g, moto3, pytest, pydantic (tbd)
-Languages: Python/SQL (Redshift's version of Postgres)
-Workflow Tools: Black (linter), VSCode, Datagrip
+
+✅ CI/Testing: Travis CI, Pytest, Coveralls
+
+📊 Visualization: Tableau
+
+📚 Libraries: pandas, boto3, , awswrangler, beautifulsoup, psycop2g, moto3, pydantic (tbd)
+
+🌈 Languages: Python/SQL (Redshift's version of Postgres)
+
+🧰 Workflow Tools: Black (linter), VSCode, Datagrip
 
