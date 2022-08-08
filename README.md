@@ -1,4 +1,4 @@
-Code Status:
+<h3>Code Status:</h3>
 
 [![Coverage Status](https://coveralls.io/repos/github/chamley/UFC/badge.svg?branch=main)](https://coveralls.io/github/chamley/UFC?branch=main)
 [![Build Status](https://app.travis-ci.com/chamley/UFC.svg?branch=main)](https://app.travis-ci.com/chamley/UFC)
