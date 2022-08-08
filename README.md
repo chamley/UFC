@@ -21,3 +21,5 @@
 
 🧰 Workflow Tools: Black (linter), VSCode, Datagrip
 
+
+Personal project where I hope to aggregate all available data in the world about mma and turn it into insights.
