@@ -5,8 +5,13 @@
 [![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/chamley/UFC/issues)
 ![AWS](https://img.shields.io/badge/AWS-%23FF9900.svg?style=for-the-badge&logo=amazon-aws&logoColor=white)
 
-He thinks whiskey gonna help him
+Stack
 
-
-
+🎛 Data Engineering Tools: Airflow,  Docker, DBT (tbd), DBT-ge (tbd)
+☁️ Cloud: AWS (Lambda, S3, Redshift, ECR, MWAA)
+CI: Travis CI
+Visualization: Tableau
+Libraries: pandas, boto3, , awswrangler, beautifulsoup, psycop2g, moto3, pytest, pydantic (tbd)
+Languages: Python/SQL (Redshift's version of Postgres)
+Workflow Tools: Black (linter), VSCode, Datagrip
 
