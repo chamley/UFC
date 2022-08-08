@@ -11,7 +11,7 @@
 
 ☁️ Cloud: AWS (Lambda, S3, Redshift, ECR, MWAA)
 
-✅ CI/Testing: Travis CI, Pytest, Coveralls
+✅ CI/Testing: Travis CI, Pytest, Coveralls (tbd)
 
 📊 Visualization: Tableau
 
