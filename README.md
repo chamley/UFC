@@ -5,7 +5,7 @@
 [![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/chamley/UFC/issues)
 ![AWS](https://img.shields.io/badge/AWS-%23FF9900.svg?style=for-the-badge&logo=amazon-aws&logoColor=white)
 
-Stack
+<h3>Stack</h3>
 
 💻 Data Engineering Tools: Airflow,  Docker, DBT (tbd), DBT-ge (tbd)
 
