@@ -3,7 +3,7 @@
 [![Coverage Status](https://coveralls.io/repos/github/chamley/UFC/badge.svg?branch=main)](https://coveralls.io/github/chamley/UFC?branch=main)
 [![Build Status](https://app.travis-ci.com/chamley/UFC.svg?branch=main)](https://app.travis-ci.com/chamley/UFC)
 ![Github last-commit](https://img.shields.io/github/last-commit/chamley/UFC)
-
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 <h3>Stack</h3>
 
