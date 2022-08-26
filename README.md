@@ -6,7 +6,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 
-Hi. This is my personal project where I hope to aggregate all available data in the world about mma.
+Hi. This is my personal project where I hope to aggregate all available data in the world about mma in the UFC league.
 
 <h3>Stack</h3>
 
