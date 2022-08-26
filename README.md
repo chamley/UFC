@@ -5,6 +5,9 @@
 ![Github last-commit](https://img.shields.io/github/last-commit/chamley/UFC)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
+
+Hi. This is my personal project where I hope to aggregate all available data in the world about mma.
+
 <h3>Stack</h3>
 
 💻 Data Engineering Tools: Airflow,  Docker, DBT (tbd), 
@@ -22,4 +25,4 @@
 🧰 Workflow Tools: Black (linter), VSCode, Datagrip
 
 
-Personal project where I hope to aggregate all available data in the world about mma.
+
