@@ -12,7 +12,7 @@ default_args = {
     "retry_delay": timedelta(minutes=1),
 }
 
-catchup = False
+catchup = True
 
 
 def dummy_function():
