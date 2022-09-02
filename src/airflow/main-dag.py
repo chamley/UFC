@@ -4,6 +4,7 @@ from airflow import DAG
 from datetime import datetime, timedelta, date
 from airflow.operators.python import PythonOperator
 import boto3
+import sys
 
 default_args = {
     "owner": "seb",
@@ -21,12 +22,12 @@ def dummy_function():
         pass
 
 
-def trigger_extractor_lambda():
+def trigger_extractor_lambda(ds, **kwargs):
     lambdaclient = boto3.client("lambda", "us-east-1")
     payload = {
         "dates": {
-            "start": f"{date.today()-timedelta(weeks=1)}",
-            "end": f"{date.today()}",
+            "start": f"{date.fromisoformat(ds)-timedelta(weeks=1)}",
+            "end": f"{date.fromisoformat(ds)}",
         }
     }
     lambdaclient.invoke(
@@ -36,12 +37,12 @@ def trigger_extractor_lambda():
     )
 
 
-def trigger_t1_lambda():
+def trigger_t1_lambda(ds, **kwargs):
     lambdaclient = boto3.client("lambda", "us-east-1")
     payload = {
         "dates": {
-            "start": f"{date.today()-timedelta(weeks=1)}",
-            "end": f"{date.today()}",
+            "start": f"{date.fromisoformat(ds)-timedelta(weeks=1)}",
+            "end": f"{date.fromisoformat(ds)}",
         }
     }
     lambdaclient.invoke(
@@ -62,9 +63,14 @@ with DAG(
 
     # lambda pulls raw data into S3
     extractor_task = PythonOperator(
-        task_id="extractor_task", python_callable=trigger_extractor_lambda
+        task_id="extractor_task",
+        python_callable=trigger_extractor_lambda,
+        provide_context=True,
     )
-    t1_task = PythonOperator(task_id="t1_task", python_callable=trigger_t1_lambda)
+
+    t1_task = PythonOperator(
+        task_id="t1_task", python_callable=trigger_t1_lambda, provide_context=True
+    )
 
     # run tests against structure of raw data
 
@@ -82,5 +88,5 @@ with DAG(
 
     # refresh materialized views
 
-
+sys.exit()
 dummy_task >> extractor_task >> t1_task
