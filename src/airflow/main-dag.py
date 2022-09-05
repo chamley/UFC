@@ -62,7 +62,7 @@ with DAG(
     catchup=catchup,
 ) as dag:
     dummy_task = PythonOperator(task_id="dummy_task", python_callable=dummy_function)
-
+    logging.info("ohai")
     # lambda pulls raw data into S3
     extractor_task = PythonOperator(
         task_id="extractor_task",
