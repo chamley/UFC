@@ -59,7 +59,7 @@ with DAG(
     start_date=datetime(2022, 7, 20),
     schedule_interval="@weekly",
     default_args=default_args,
-    catchup=catchup,
+    catchup=True,
 ) as dag:
     dummy_task = PythonOperator(task_id="dummy_task", python_callable=dummy_function)
     logging.info("ohai")
