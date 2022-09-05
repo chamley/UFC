@@ -4,6 +4,7 @@ from airflow import DAG
 from datetime import datetime, timedelta, date
 from airflow.operators.python import PythonOperator
 import boto3
+import logging
 
 default_args = {
     "owner": "seb",
@@ -22,8 +23,8 @@ def dummy_function():
 
 
 def trigger_extractor_lambda(ds, **kwargs):
-    print(ds)
-    print(date.fromisoformat(ds))
+    logging.info(ds)
+    logging.info(date.fromisoformat(ds))
     lambdaclient = boto3.client("lambda", "us-east-1")
     payload = {
         "dates": {
