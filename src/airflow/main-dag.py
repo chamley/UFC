@@ -22,6 +22,8 @@ def dummy_function():
 
 
 def trigger_extractor_lambda(ds, **kwargs):
+    print(ds)
+    print(date.fromisoformat(ds))
     lambdaclient = boto3.client("lambda", "us-east-1")
     payload = {
         "dates": {
