@@ -4,7 +4,6 @@ from airflow import DAG
 from datetime import datetime, timedelta, date
 from airflow.operators.python import PythonOperator
 import boto3
-import sys
 
 default_args = {
     "owner": "seb",
@@ -88,5 +87,4 @@ with DAG(
 
     # refresh materialized views
 
-sys.exit()
 dummy_task >> extractor_task >> t1_task
