@@ -56,7 +56,9 @@ def trigger_t1_lambda(ds, **kwargs):
 
 
 with DAG("ufc-main-dag", default_args=default_args) as dag:
-    dummy_task = PythonOperator(task_id="dummy_task", python_callable=dummy_function)
+    dummy_task = PythonOperator(
+        task_id="dummy_task", python_callable=dummy_function, dag=dag
+    )
     logging.info("ohai")
     # lambda pulls raw data into S3
     extractor_task = PythonOperator(
