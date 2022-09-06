@@ -13,6 +13,7 @@ default_args = {
     "retry_delay": timedelta(minutes=1),
     "start_date": datetime(2022, 7, 20),
     "catchup": True,
+    "schedule_interval": "@weekly",
 }
 
 
@@ -54,7 +55,7 @@ def trigger_t1_lambda(ds, **kwargs):
     )
 
 
-with DAG("ufc-main-dag", schedule_interval="@weekly", default_args=default_args) as dag:
+with DAG("ufc-main-dag", default_args=default_args) as dag:
     dummy_task = PythonOperator(task_id="dummy_task", python_callable=dummy_function)
     logging.info("ohai")
     # lambda pulls raw data into S3
