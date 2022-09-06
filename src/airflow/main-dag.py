@@ -63,10 +63,14 @@ with DAG("ufc-main-dag", default_args=default_args) as dag:
         task_id="extractor_task",
         python_callable=trigger_extractor_lambda,
         provide_context=True,
+        dag=dag,
     )
 
     t1_task = PythonOperator(
-        task_id="t1_task", python_callable=trigger_t1_lambda, provide_context=True
+        task_id="t1_task",
+        python_callable=trigger_t1_lambda,
+        provide_context=True,
+        dag=dag,
     )
 
     # run tests against structure of raw data
