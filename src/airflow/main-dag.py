@@ -11,9 +11,9 @@ default_args = {
     "email_on_failure": "false",
     "retries": 1,
     "retry_delay": timedelta(minutes=1),
+    "start_date": datetime(2022, 7, 20),
+    "catchup": True,
 }
-
-catchup = True
 
 
 def dummy_function():
@@ -54,13 +54,7 @@ def trigger_t1_lambda(ds, **kwargs):
     )
 
 
-with DAG(
-    "ufc-main-dag",
-    start_date=datetime(2022, 7, 20),
-    schedule_interval="@weekly",
-    default_args=default_args,
-    catchup=True,
-) as dag:
+with DAG("ufc-main-dag", schedule_interval="@weekly", default_args=default_args) as dag:
     dummy_task = PythonOperator(task_id="dummy_task", python_callable=dummy_function)
     logging.info("ohai")
     # lambda pulls raw data into S3
