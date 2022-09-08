@@ -1,4 +1,3 @@
-from fileinput import filename
 import json
 from airflow import DAG
 from datetime import datetime, timedelta, date
@@ -63,7 +62,10 @@ with DAG(
     start_date=datetime(2022, 7, 20),
 ) as dag:
     dummy_task = PythonOperator(
-        task_id="dummy_task", python_callable=dummy_function, dag=dag
+        task_id="dummy_task",
+        python_callable=dummy_function,
+        dag=dag,
+        provide_context=True,
     )
     logging.info("ohai")
     # lambda pulls raw data into S3
