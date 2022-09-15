@@ -25,4 +25,12 @@ Hi. This is my personal project where I hope to aggregate all available data in 
 🧰 Workflow Tools: Black (linter), VSCode, Datagrip
 
 
+Notes:
+
+
+
+Dashboards not deployed due to TableauServer not having a free tier
+
+
+
 
