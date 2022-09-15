@@ -11,15 +11,11 @@ default_args = {
     "retries": 1,
     "retry_delay": timedelta(minutes=1),
     # "start_date": datetime(2022, 7, 20),
-    # "catchup": True,
-    # "schedule_interval": "@weekly",
 }
 
 
 def dummy_function():
-    file_name = str(datetime.today()) + "_dummy.csv"
-    with open(file_name, "w") as f:
-        pass
+    x = 1
 
 
 def trigger_extractor_lambda(ds, **kwargs):
