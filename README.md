@@ -27,7 +27,8 @@ Hi. This is my personal project where I hope to aggregate all available data in 
 
 Notes:
 
-
+![Example Dashboard 1](misc/d1.png)
+![Example Dashboard 2](misc/d2.png)
 
 Dashboards not deployed due to TableauServer not having a free tier
 
