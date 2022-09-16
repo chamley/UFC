@@ -1,12 +1,6 @@
 import argparse
 
 
-class InvalidDates(Exception):
-    """invalid dates passed to lambda"""
-
-    pass
-
-
 x = {"dates": {"start": "2020-01-01", "end": "2021-01-01"}}
 
 
