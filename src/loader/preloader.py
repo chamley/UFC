@@ -23,7 +23,6 @@ STATE = {
 
 
 def my_argument_parser():
-
     return parser
 
 
@@ -37,6 +36,7 @@ arg_group.add_argument(
     nargs=2,
     help="this is the main way of using this program. specify an interval of dates to use when scanning SL2 for files to upload",
 )
+
 arg_group.add_argument(
     "-dev",
     action="store_true",
@@ -44,65 +44,20 @@ arg_group.add_argument(
 )
 args = my_argument_parser().parse_args()
 
-
+# run as lambda
 def main(event={}, context=None):
     global STATE  # should only be required here and nowhere else
 
+    STATE = prepstate(event, STATE)
+
     event = defaultdict(lambda: None, event)
 
-    # set global args
-    STATE = prep_script(STATE, event, args)
 
-    file_spec = fetch_file_names()
-    # fetch the two sets of filenames (fight, round)
-
-    build_tables()
-
-
-def build_tables(STATE=STATE):
-    # here we build all intermediary tables necesarry
-    # use state + datetime.now() to name them and make logs clear
-    pass
-
-
-# given inputs to script fetch the set of prefixes to submit
-# to redshift copy command
-def fetch_file_names(STATE=STATE):
-    x = {"fights": None, "rounds": None}
-    return x
-
-
-# mamma mia, el spaghetti!!
-def prep_script(STATE, event, args):
-    if event:
-        STATE["PROD_MODE"] = True
-        if event["dates"]:
-            STATE["START_DATE"] = date.fromisoformat(event["dates"]["start"])
-            STATE["END_DATE"] = date.fromisoformat(event["dates"]["end"])
-            STATE["DATE_SPECIFIED"] = True
-            if STATE["END_DATE"] < STATE["START_DATE"]:
-                raise ValueError("invalid dates")
-
-        elif event["dev"]:
-            STATE["DEV_MODE"] = True
-            print("DEV MODE ....")
-        else:
-            print("invalid event inputted")
-            sys.exit()
-    elif args.dates:
-        STATE["START_DATE"] = date.fromisoformat(args.dates[0])
-        STATE["END_DATE"] = date.fromisoformat(args.dates[1])
-        STATE["DATE_SPECIFIED"] = True
-        if STATE["END_DATE"] < STATE["START_DATE"]:
-            raise ValueError("invalid dates")
-    elif args.dev:
-        STATE["DEV_MODE"] = True
-        print("DEV MODE ....")
-    else:
-        raise ValueError("invalid input to script!")
-
+def prepstate(event, STATE):
+    """any preprocessing before script occurs here"""
     return STATE
 
 
-if not STATE["PROD_MODE"] and __name__ == "__main__":
+# run as script
+if __name__ == "__main__":
     main()
