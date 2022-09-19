@@ -27,6 +27,10 @@ def main(event={}, context=None):
 
     STATE = prepstate(event, STATE)
 
+    # formulate 2 query strings that we can pass to redshift that includes all the files we wish to apply copy to.
+    # trigger COPY from redshift
+def formulate_query(STATE=STATE):
+    
 
 def prepstate(event, STATE):
     """any preprocessing before script occurs here"""

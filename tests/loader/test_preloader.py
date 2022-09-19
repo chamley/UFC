@@ -57,6 +57,15 @@ class TestPrepstate(object):
                     "END_DATE": date.fromisoformat("2021-09-08"),
                 },
             ),
+            (
+                return_default_state(),
+                {"dates": {"start": "2020-09-08", "end": "2020-09-08"}},
+                {
+                    **return_default_state(),
+                    "START_DATE": date.fromisoformat("2020-09-08"),
+                    "END_DATE": date.fromisoformat("2020-09-08"),
+                },
+            ),
         ],
     )
     def test_sets_dates_approriately(self, STATE, event, expected):
