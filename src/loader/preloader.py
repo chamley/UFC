@@ -27,8 +27,6 @@ def main(event={}, context=None):
 
     STATE = prepstate(event, STATE)
 
-    event = defaultdict(lambda: None, event)
-
 
 def prepstate(event, STATE):
     """any preprocessing before script occurs here"""
@@ -45,8 +43,8 @@ def prepstate(event, STATE):
     except TypeError:
         raise ValueError("Invalid Dates")
 
-    STATE["START_DATE"] = event["dates"]["start"]
-    STATE["END_DATE"] = event["dates"]["end"]
+    STATE["START_DATE"] = date.fromisoformat(event["dates"]["start"])
+    STATE["END_DATE"] = date.fromisoformat(event["dates"]["end"])
 
     return STATE
 

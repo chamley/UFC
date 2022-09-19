@@ -45,7 +45,24 @@ class TestPrepstate(object):
         with pytest.raises(ValueError):
             prepstate(event, STATE)
 
-    # def test_sets_dates_approriately(self, STATE, event):
+    @pytest.mark.parametrize(
+        "STATE, event, expected",
+        [
+            (
+                return_default_state(),
+                {"dates": {"start": "2020-09-08", "end": "2021-09-08"}},
+                {
+                    **return_default_state(),
+                    "START_DATE": date.fromisoformat("2020-09-08"),
+                    "END_DATE": date.fromisoformat("2021-09-08"),
+                },
+            ),
+        ],
+    )
+    def test_sets_dates_approriately(self, STATE, event, expected):
+        event = defaultdict(lambda: None, event)
+        actual = prepstate(event, STATE)
+        assert actual == expected
 
 
 # class TestPrepScript(object):
