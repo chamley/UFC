@@ -33,7 +33,7 @@ from e1_helper import my_argument_parser, get_dates
 from datetime import date
 import json
 from configfile import STAGE_LAYER_ONE, REGION_NAME
-from ..customExceptions import InvalidDates
+from e1_exceptions import InvalidDates
 
 load_dotenv()
 access_key_id = os.getenv("access_key_id")
