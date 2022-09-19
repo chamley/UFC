@@ -414,8 +414,8 @@ def fix_data(d, k):
     print(ACCESS_KEY_ID)
     print(rounds[0].keys())
     print(fight)
-    sys.exit()
 
+    # two different storage formats, for the memes.
     wr.s3.to_parquet(
         pd.DataFrame(rounds),
         path=f"s3://ufc-big-data-2/{k}-rounds.parquet.gzip",
