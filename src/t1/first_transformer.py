@@ -412,8 +412,8 @@ def fix_data(d, k):
         d["metadata"]["weight class"].lower(), fight["wmma"]
     )
     print(ACCESS_KEY_ID)
-    print(rounds[0])
-    print(fight)
+    print(rounds[0].keys())
+    print(fight.keys())
 
     sys.exit()
 
