@@ -6,20 +6,23 @@ import boto3
 sys.path.append(".")
 
 
-import argparse
 from datetime import date
-from configfile import STAGE_LAYER_TWO, REGION_NAME, LOAD_MANIFEST_BUCKET
+from configfile import STAGE_LAYER_TWO, REGION_NAME, LOAD_MANIFEST_FOLDER_URI
 
 
-S3C.
+S3C = boto3.client(
+    "s3",
+    region_name=REGION_NAME,
+)
+
 
 # global args. configured at start then not modified.
 STATE = {
     "PROD_MODE": True,
     "STAGE_LAYER_TWO": STAGE_LAYER_TWO,
     "REGION_NAME": REGION_NAME,
-    "START_DATE": None,
-    "END_DATE": None,
+    "START_DATE": None,  # becomes date object
+    "END_DATE": None,  # becomes date object
 }
 
 
@@ -31,7 +34,7 @@ def main(event={}, context=None):
     STATE = prepstate(event, STATE)
 
     # build manifest file for query and push to s3
-    manifest = createManifest()
+    manifest_fight, manifest_round = createManifests()
 
     # build query for fight_source
     # build query for round_source
@@ -41,9 +44,12 @@ def main(event={}, context=None):
     # Conclusion: pack it all together. Then commit.
 
 
-def createManifest(STATE=STATE):
+def createManifests(STATE=STATE):
+    # create manifest
 
-    return ""
+    # push to LOAD_MANIFEST_FOLDER_URI with timestamped + descriptive names for each manifest
+    # return both manifest URI
+    return "fight manifest uri", "round manifest uri"
 
 
 def prepstate(event, STATE):
