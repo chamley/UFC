@@ -1,15 +1,17 @@
 from collections import defaultdict
 import sys
 from datetime import date
+import boto3
 
 sys.path.append(".")
 
 
 import argparse
 from datetime import date
+from configfile import STAGE_LAYER_TWO, REGION_NAME, LOAD_MANIFEST_BUCKET
 
-from configfile import STAGE_LAYER_TWO, REGION_NAME
-from loader_exceptions import InvalidDates
+
+S3C.
 
 # global args. configured at start then not modified.
 STATE = {
@@ -28,10 +30,20 @@ def main(event={}, context=None):
 
     STATE = prepstate(event, STATE)
 
+    # build manifest file for query and push to s3
+    manifest = createManifest()
+
     # build query for fight_source
     # build query for round_source
 
-    # two easy calls to psycopg2
+    # We want to pack as much data into a transaction block therefore pack all the dates together
+    # For data sanity sake we want no fights without rounds or rounds without fights, so put both COPY commands together in same transation block
+    # Conclusion: pack it all together. Then commit.
+
+
+def createManifest(STATE=STATE):
+
+    return ""
 
 
 def prepstate(event, STATE):
