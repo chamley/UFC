@@ -9,6 +9,7 @@ import argparse
 from datetime import date
 
 from configfile import STAGE_LAYER_TWO, REGION_NAME
+from loader_exceptions import InvalidDates
 
 # global args. configured at start then not modified.
 STATE = {
@@ -27,11 +28,10 @@ def main(event={}, context=None):
 
     STATE = prepstate(event, STATE)
 
-    # formulate the two different ways to load
-    #   - parquet to redshift
-    #   - csv to df to redshift for )
+    # build query for fight_source
+    # build query for round_source
 
-    # execute (aws wrangler)
+    # two easy calls to psycopg2
 
 
 def prepstate(event, STATE):
