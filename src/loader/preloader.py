@@ -4,6 +4,7 @@ from datetime import date, datetime
 import boto3
 import json
 import psycopg2
+from dbhelper import DBHelper
 
 sys.path.append(".")
 
@@ -40,28 +41,44 @@ def main(event={}, context=None):
     global STATE  # should only be required here and nowhere else
     event = defaultdict(lambda: None, event)
 
-    # test
+    #### test
     event = defaultdict(
         lambda: None, {"dates": {"start": "2020-09-08", "end": "2021-10-08"}}
     )
-
+    #### test
     STATE = prepstate(event, STATE)
+    fight_manifest_file_name, round_manifest_file_name = createManifests()
+    callCopy(fight_manifest_file_name, round_manifest_file_name)
 
-    # build manifest file for query and push to s3
-    manifest_fight, manifest_round = createManifests()
 
-    sys.exit()
+# We want to pack as much data into a transaction block therefore pack all the dates together
+# For data sanity sake we want no fights without rounds or rounds without fights,
+# so put both COPY commands together in same transation block
+def callCopy(fight_manifest_file_name, round_manifest_file_name):
+    db = DBHelper()
 
-    # build query for fight_source
-    # build query for round_source
+    the_rounds_query = f"""
+                copy round_source
+                from 's3://{UFC_META_FILES_LOCATION}/{LOAD_MANIFEST_FOLDER}/{round_manifest_file_name}'
+                iam_role 'arn:aws:iam::830838610144:role/ufc-redshift-cluster-policies';
+            """
 
-    # We want to pack as much data into a transaction block therefore pack all the dates together
-    # For data sanity sake we want no fights without rounds or rounds without fights, so put both COPY commands together in same transation block
-    # Conclusion: pack it all together. Then commit.
+    the_fights_query = f"""
+                copy fight_source
+                from 's3://{UFC_META_FILES_LOCATION}/{LOAD_MANIFEST_FOLDER}/{fight_manifest_file_name}'
+                iam_role 'arn:aws:iam::830838610144:role/ufc-redshift-cluster-policies';
+            """
+    conn = db.getConn()
+    cur = db.getCursor()
+    cur.execute(the_rounds_query)
+    cur.execute(the_fights_query)
+    conn.commit()
+    db.closeDB()
 
 
 # Design Decisions:
 # I like the idea of pushing a manifest to S3 and keeping them as potential logs.
+# creates manifests and pushes them to s3 and returns us their location
 def createManifests(STATE=STATE):
     """given input to Lambda build a manifest dict and also push it as a timestamped log to s3 meta files"""
     round_manifest = {
@@ -118,7 +135,7 @@ def createManifests(STATE=STATE):
         Key=f"{LOAD_MANIFEST_FOLDER}/{round_manifest_file_name}",
         Body=json.dumps(round_manifest),
     )
-    return fight_manifest, round_manifest
+    return fight_manifest_file_name, round_manifest_file_name
 
 
 # check date inside bounds
