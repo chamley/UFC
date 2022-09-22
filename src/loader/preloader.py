@@ -54,7 +54,7 @@ def main(event={}, context=None):
 
 # We want to pack as much data into a transaction block therefore pack all the dates together
 # For data sanity sake we want no fights without rounds or rounds without fights,
-# so put both COPY commands together in same transation block
+# so put both COPY commands together in same transation block.
 def callCopy(fight_manifest_file_name, round_manifest_file_name):
     db = DBHelper()
 
