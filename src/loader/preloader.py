@@ -1,7 +1,9 @@
 from collections import defaultdict
 import sys
-from datetime import date
+from datetime import date, datetime
 import boto3
+import json
+
 
 sys.path.append(".")
 
@@ -51,6 +53,8 @@ def main(event={}, context=None):
     # Conclusion: pack it all together. Then commit.
 
 
+# Design Decisions:
+# I like the idea of pushing a manifest to S3 and keeping them as potential logs.
 def createManifests(STATE=STATE):
     round_manifest = {
         "entries": []
@@ -90,8 +94,17 @@ def createManifests(STATE=STATE):
             {"url": f"s3://{STAGE_LAYER_TWO}/{x}", "mandatory": True}
         )
 
-    fight_manifest_file_name = ""
-    round_manifest_file_name = ""
+    fight_manifest_file_name = f"fight-manifest-{datetime.now().isoformat(sep='-').replace(':','-').replace('.','-')}.json"
+    round_manifest_file_name = f"round-manifest-{datetime.now().isoformat(sep='-').replace(':','-').replace('.','-')}.json"
+
+    print(json.dumps(fight_manifest, indent=4))
+    print(json.dumps(round_manifest, indent=4))
+    print(fight_manifest_file_name)
+    print(round_manifest_file_name)
+
+    # manifest_bucket = S3C.Bucket(f"{LOAD_MANIFEST_FOLDER}")
+    # manifest_bucket.put_object(Body=json.dumps(fight_manifest))
+
     sys.exit()
 
     return "fight manifest uri", "round manifest uri"
