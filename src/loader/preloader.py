@@ -6,8 +6,8 @@ import boto3
 sys.path.append(".")
 
 
-from datetime import date
-from configfile import STAGE_LAYER_TWO, REGION_NAME, LOAD_MANIFEST_FOLDER_URI
+from datetime import date, timedelta
+from configfile import STAGE_LAYER_TWO, REGION_NAME, LOAD_MANIFEST_FOLDER
 
 
 S3C = boto3.client(
@@ -45,11 +45,39 @@ def main(event={}, context=None):
 
 
 def createManifests(STATE=STATE):
+    manifest = {
+        "entries": []
+    }  # entry example {"url":"s3://mybucket/custdata.1", "mandatory":true},
+
     # create manifest
+
+    # ARE WE DESIGNING OUR LAMBDA FUNCTIONS TO BE IDEMPOTENT ??????
+
+    # linear scan of SL2 to find names of files that should be in there, add to manifest.
+    # design: narrowing search space in lambda takes pressure off of datalake (stupid at this scale but whatever)
+    years = [x for x in range(STATE["START_DATE"].year, STATE["END_DATE"].year + 1)]
+    keys = []
 
     # push to LOAD_MANIFEST_FOLDER_URI with timestamped + descriptive names for each manifest
     # return both manifest URI
     return "fight manifest uri", "round manifest uri"
+
+
+def get_files(prefix_string=""):
+    keys = []
+    res: dict = S3C.list_objects_v2(Bucket=STAGE_LAYER_TWO, Prefix=prefix_string)
+    while True:
+        items = res["Contents"]
+        for i in items:
+            keys.append(i)
+        if not "NextContinuationToken" in res:
+            break
+        t = res["NextContinuationToken"]
+
+        res = S3C.list_objects_v2(
+            Bucket=STAGE_LAYER_TWO, Prefix=prefix_string, ContinuationToken=t
+        )
+    return keys
 
 
 def prepstate(event, STATE):
