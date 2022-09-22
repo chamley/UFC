@@ -3,8 +3,7 @@ import sys
 from datetime import date, datetime
 import boto3
 import json
-import psycopg2
-from dbhelper import DBHelper
+from ..dbhelper import DBHelper
 
 sys.path.append(".")
 
@@ -15,6 +14,7 @@ from configfile import (
     REGION_NAME,
     LOAD_MANIFEST_FOLDER,
     UFC_META_FILES_LOCATION,
+    REDSHIFT_S3_READ_IAM_ROLE,
 )
 
 
@@ -41,11 +41,12 @@ def main(event={}, context=None):
     global STATE  # should only be required here and nowhere else
     event = defaultdict(lambda: None, event)
 
-    #### test
+    #### test #######################################################
     event = defaultdict(
         lambda: None, {"dates": {"start": "2020-09-08", "end": "2021-10-08"}}
     )
-    #### test
+    #### test #######################################################
+
     STATE = prepstate(event, STATE)
     fight_manifest_file_name, round_manifest_file_name = createManifests()
     callCopy(fight_manifest_file_name, round_manifest_file_name)
@@ -60,13 +61,13 @@ def callCopy(fight_manifest_file_name, round_manifest_file_name):
     the_rounds_query = f"""
                 copy round_source
                 from 's3://{UFC_META_FILES_LOCATION}/{LOAD_MANIFEST_FOLDER}/{round_manifest_file_name}'
-                iam_role 'arn:aws:iam::830838610144:role/ufc-redshift-cluster-policies';
+                iam_role '{REDSHIFT_S3_READ_IAM_ROLE}';
             """
 
     the_fights_query = f"""
                 copy fight_source
                 from 's3://{UFC_META_FILES_LOCATION}/{LOAD_MANIFEST_FOLDER}/{fight_manifest_file_name}'
-                iam_role 'arn:aws:iam::830838610144:role/ufc-redshift-cluster-policies';
+                iam_role '{REDSHIFT_S3_READ_IAM_ROLE}';
             """
     conn = db.getConn()
     cur = db.getCursor()
