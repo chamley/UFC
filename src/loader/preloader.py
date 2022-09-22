@@ -13,6 +13,8 @@ from configfile import STAGE_LAYER_TWO, REGION_NAME, LOAD_MANIFEST_FOLDER
 S3C = boto3.client(
     "s3",
     region_name=REGION_NAME,
+    access_key_id="AKIA4C4OXDDQP7NUC6VN",
+    secret_access_key_id="DqXhI4gu0M3xD5mWwmO7QouneMRTJqdoUo5n/jI4",
 )
 
 
@@ -30,6 +32,11 @@ STATE = {
 def main(event={}, context=None):
     global STATE  # should only be required here and nowhere else
     event = defaultdict(lambda: None, event)
+
+    # test
+    event = defaultdict(
+        lambda: None, {"dates": {"start": "2020-09-08", "end": "2021-09-08"}}
+    )
 
     STATE = prepstate(event, STATE)
 
@@ -58,8 +65,14 @@ def createManifests(STATE=STATE):
     years = [x for x in range(STATE["START_DATE"].year, STATE["END_DATE"].year + 1)]
     keys = []
 
+    for y in years:
+        keys.append(get_files(f"fight-{y}"))
+
     # push to LOAD_MANIFEST_FOLDER_URI with timestamped + descriptive names for each manifest
     # return both manifest URI
+    print(keys)
+    sys.exit()
+
     return "fight manifest uri", "round manifest uri"
 
 
