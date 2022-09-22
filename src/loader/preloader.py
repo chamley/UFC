@@ -63,17 +63,31 @@ def createManifests(STATE=STATE):
     # linear scan of SL2 to find names of files that should be in there, add to manifest.
     # design: narrowing search space in lambda takes pressure off of datalake (stupid at this scale but whatever)
     years = [x for x in range(STATE["START_DATE"].year, STATE["END_DATE"].year + 1)]
-    keys = []
+    objects = []
 
     for y in years:
-        keys.append(get_files(f"fight-{y}"))
+        objects.extend(get_files(f"fight-{y}"))
 
     # push to LOAD_MANIFEST_FOLDER_URI with timestamped + descriptive names for each manifest
     # return both manifest URI
-    print(keys)
+    keys = [x["Key"] for x in objects]
+
+    rounds = filter(lambda x: x[-3] == "zip" and inside_bounds(x), keys)
+    fights = filter(lambda x: x[-3] == "zip" and inside_bounds(x), keys)
+
+    for x in rounds:
+        print(x)
+        print("\n")
     sys.exit()
 
     return "fight manifest uri", "round manifest uri"
+
+
+def inside_bounds(x, STATE=STATE):
+    return (
+        STATE["START_DATE"] <= date.fromisoformat(x[6:16])
+        and date.fromisoformat(x[6:16]) <= STATE["END_DATE"]
+    )
 
 
 def get_files(prefix_string=""):
