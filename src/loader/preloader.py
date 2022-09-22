@@ -3,7 +3,7 @@ import sys
 from datetime import date, datetime
 import boto3
 import json
-from ..dbhelper import DBHelper
+from dbhelper_loader import DBHelper
 
 sys.path.append(".")
 
