@@ -77,18 +77,17 @@ def createManifests(STATE=STATE):
     )  # x[-3] == "zip"
     fights = filter(lambda x: x[-3:] == "csv" and inside_bounds(x), keys)
 
-    for x in rounds:
-        print(x)
-        print("\n")
-
     for x in fights:
         print(x)
-        print("\n")
+    for y in rounds:
+        print(y)
+
     sys.exit()
 
     return "fight manifest uri", "round manifest uri"
 
 
+# check date inside bounds
 def inside_bounds(x, STATE=STATE):
     return (
         STATE["START_DATE"] <= date.fromisoformat(x[6:16])
