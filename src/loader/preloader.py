@@ -13,8 +13,8 @@ from configfile import STAGE_LAYER_TWO, REGION_NAME, LOAD_MANIFEST_FOLDER
 S3C = boto3.client(
     "s3",
     region_name=REGION_NAME,
-    access_key_id="AKIA4C4OXDDQP7NUC6VN",
-    secret_access_key_id="DqXhI4gu0M3xD5mWwmO7QouneMRTJqdoUo5n/jI4",
+    aws_access_key_id="AKIA4C4OXDDQP7NUC6VN",
+    aws_secret_access_key="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",
 )
 
 

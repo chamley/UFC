@@ -411,11 +411,6 @@ def fix_data(d, k):
     fight["wc"] = format_weight_class(
         d["metadata"]["weight class"].lower(), fight["wmma"]
     )
-    print(ACCESS_KEY_ID)
-    print(rounds[0].keys())
-    print(fight.keys())
-
-    sys.exit()
 
     # two different storage formats, for the memes.
     wr.s3.to_parquet(
