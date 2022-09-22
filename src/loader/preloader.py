@@ -3,12 +3,12 @@ import sys
 from datetime import date, datetime
 import boto3
 import json
-from dbhelper_loader import DBHelper
+
 
 sys.path.append(".")
 
-
-from datetime import date, timedelta
+from dbhelper_loader import DBHelper
+from datetime import date
 from configfile import (
     STAGE_LAYER_TWO,
     REGION_NAME,

@@ -15,7 +15,7 @@ DB_HOST = (
 DB_USERNAME = os.getenv("db_username")
 DB_PASSWORD = os.getenv("db_password")
 
-## PARALLELISM:
+## DESIGN DECISION - PARALLELISM:
 ## For THREAD SAFTEY each query must create its own cursor.
 ## The db connection itself however can be shared.
 ## HOWEVER, due to transaction blocks being per connection and
@@ -23,6 +23,8 @@ DB_PASSWORD = os.getenv("db_password")
 ## and just generate new DBHelper instances inside threads.
 ## else we propagate errors of buggy code into errors of non-buggy
 ## code and creating a log digging scenario.
+
+
 class DBHelper:
     def __init__(self):
         self.conn = psycopg2.connect(
