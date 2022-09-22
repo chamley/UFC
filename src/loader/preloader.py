@@ -52,13 +52,16 @@ def main(event={}, context=None):
 
 
 def createManifests(STATE=STATE):
-    manifest = {
+    round_manifest = {
+        "entries": []
+    }  # entry example {"url":"s3://mybucket/custdata.1", "mandatory":true},
+    fight_manifest = {
         "entries": []
     }  # entry example {"url":"s3://mybucket/custdata.1", "mandatory":true},
 
     # create manifest
 
-    # ARE WE DESIGNING OUR LAMBDA FUNCTIONS TO BE IDEMPOTENT ??????
+    # ARE WE DESIGNING OUR LAMBDA FUNCTIONS TO BE IDEMPOTENT ?????
 
     # linear scan of SL2 to find names of files that should be in there, add to manifest.
     # design: narrowing search space in lambda takes pressure off of datalake (stupid at this scale but whatever)
@@ -78,10 +81,17 @@ def createManifests(STATE=STATE):
     fights = filter(lambda x: x[-3:] == "csv" and inside_bounds(x), keys)
 
     for x in fights:
-        print(x)
-    for y in rounds:
-        print(y)
+        fight_manifest["entries"].append(
+            {"url": f"s3://{STAGE_LAYER_TWO}/{x}", "mandatory": True}
+        )
 
+    for x in rounds:
+        round_manifest["entries"].append(
+            {"url": f"s3://{STAGE_LAYER_TWO}/{x}", "mandatory": True}
+        )
+
+    fight_manifest_file_name = ""
+    round_manifest_file_name = ""
     sys.exit()
 
     return "fight manifest uri", "round manifest uri"
