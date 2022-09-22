@@ -3,13 +3,18 @@ import sys
 from datetime import date, datetime
 import boto3
 import json
-
+import psycopg2
 
 sys.path.append(".")
 
 
 from datetime import date, timedelta
-from configfile import STAGE_LAYER_TWO, REGION_NAME, LOAD_MANIFEST_FOLDER
+from configfile import (
+    STAGE_LAYER_TWO,
+    REGION_NAME,
+    LOAD_MANIFEST_FOLDER,
+    UFC_META_FILES_LOCATION,
+)
 
 
 S3C = boto3.client(
@@ -45,6 +50,8 @@ def main(event={}, context=None):
     # build manifest file for query and push to s3
     manifest_fight, manifest_round = createManifests()
 
+    sys.exit()
+
     # build query for fight_source
     # build query for round_source
 
@@ -56,6 +63,7 @@ def main(event={}, context=None):
 # Design Decisions:
 # I like the idea of pushing a manifest to S3 and keeping them as potential logs.
 def createManifests(STATE=STATE):
+    """given input to Lambda build a manifest dict and also push it as a timestamped log to s3 meta files"""
     round_manifest = {
         "entries": []
     }  # entry example {"url":"s3://mybucket/custdata.1", "mandatory":true},
@@ -63,11 +71,10 @@ def createManifests(STATE=STATE):
         "entries": []
     }  # entry example {"url":"s3://mybucket/custdata.1", "mandatory":true},
 
-    # create manifest
+    # ARE WE DESIGNING OUR LAMBDA FUNCTIONS TO BE IDEMPOTENT ????? nope
 
-    # ARE WE DESIGNING OUR LAMBDA FUNCTIONS TO BE IDEMPOTENT ?????
+    # build 2 lists (round/fights) of the keys of the objects to load to db
 
-    # linear scan of SL2 to find names of files that should be in there, add to manifest.
     # design: narrowing search space in lambda takes pressure off of datalake (stupid at this scale but whatever)
     years = [x for x in range(STATE["START_DATE"].year, STATE["END_DATE"].year + 1)]
     objects = []
@@ -84,6 +91,7 @@ def createManifests(STATE=STATE):
     )  # x[-3] == "zip"
     fights = filter(lambda x: x[-3:] == "csv" and inside_bounds(x), keys)
 
+    # build manifest
     for x in fights:
         fight_manifest["entries"].append(
             {"url": f"s3://{STAGE_LAYER_TWO}/{x}", "mandatory": True}
@@ -97,17 +105,20 @@ def createManifests(STATE=STATE):
     fight_manifest_file_name = f"fight-manifest-{datetime.now().isoformat(sep='-').replace(':','-').replace('.','-')}.json"
     round_manifest_file_name = f"round-manifest-{datetime.now().isoformat(sep='-').replace(':','-').replace('.','-')}.json"
 
-    print(json.dumps(fight_manifest, indent=4))
-    print(json.dumps(round_manifest, indent=4))
-    print(fight_manifest_file_name)
-    print(round_manifest_file_name)
-
-    # manifest_bucket = S3C.Bucket(f"{LOAD_MANIFEST_FOLDER}")
-    # manifest_bucket.put_object(Body=json.dumps(fight_manifest))
-
-    sys.exit()
-
-    return "fight manifest uri", "round manifest uri"
+    # Push our manifest log file
+    S3C.put_object(
+        ACL="private",
+        Bucket=f"{UFC_META_FILES_LOCATION}",
+        Key=f"{LOAD_MANIFEST_FOLDER}/{fight_manifest_file_name}",
+        Body=json.dumps(fight_manifest),
+    )
+    S3C.put_object(
+        ACL="private",
+        Bucket=f"{UFC_META_FILES_LOCATION}",
+        Key=f"{LOAD_MANIFEST_FOLDER}/{round_manifest_file_name}",
+        Body=json.dumps(round_manifest),
+    )
+    return fight_manifest, round_manifest
 
 
 # check date inside bounds
