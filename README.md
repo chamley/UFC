@@ -30,8 +30,9 @@ Notes:
 ![Example Dashboard 1](misc/d1.png)
 ![Example Dashboard 2](misc/d2.png)
 
-Dashboards not deployed due to TableauServer not having a free tier and my Redshift/MWAA costs lightly bankrupting me.
-
+Notes:
+- Dashboards not deployed due to TableauServer not having a free tier and my Redshift/MWAA costs lightly bankrupting me.
+- No cloudformation/terraform code to give you, built with ClickOps like a noob.
 
 
 
