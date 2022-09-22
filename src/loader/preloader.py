@@ -3,7 +3,15 @@ import sys
 from datetime import date, datetime
 import boto3
 import json
+import os
 
+
+# LOCAL runs require this: #
+from dotenv import load_dotenv
+
+load_dotenv()
+ACCESS_KEY_ID = os.getenv("access_key_id")
+SECRET_ACCESS_KEY_ID = os.getenv("secret_access_key_id")
 
 sys.path.append(".")
 
@@ -21,8 +29,8 @@ from configfile import (
 S3C = boto3.client(
     "s3",
     region_name=REGION_NAME,
-    aws_access_key_id="AKIA4C4OXDDQP7NUC6VN",
-    aws_secret_access_key="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",
+    aws_access_key_id=ACCESS_KEY_ID,
+    aws_secret_access_key=SECRET_ACCESS_KEY_ID,
 )
 
 
