@@ -36,7 +36,6 @@ import awswrangler as wr
 from t1_helper import my_argument_parser
 from t1_exceptions import InvalidDates
 from datetime import date
-import botocore
 from configfile import STAGE_LAYER_ONE, STAGE_LAYER_TWO, REGION_NAME
 
 T = datetime.datetime.today()
@@ -413,6 +412,11 @@ def fix_data(d, k):
     )
 
     # two different storage formats, for the memes.
+    boto3.setup_default_session(
+        region_name="us-east-1",
+        aws_access_key_id=ACCESS_KEY_ID,
+        aws_secret_access_key=SECRET_ACCESS_KEY_ID,
+    )
     wr.s3.to_parquet(
         pd.DataFrame(rounds),
         path=f"s3://ufc-big-data-2/{k}-rounds.gz.parquet",
@@ -501,7 +505,7 @@ def get_file_keys():
     while True:
         items = res["Contents"]
         for i in items:
-            x = i["Key"].replace(".txt", "") + "-rounds.parquet.gzip"
+            x = i["Key"].replace(".txt", "") + "-rounds.gz.parquet"
             y = i["Key"].replace(".txt", "") + "-fight.csv"
             if x in keys2 and y in keys2:
                 print(
