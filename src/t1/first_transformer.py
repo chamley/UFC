@@ -425,7 +425,7 @@ def fix_data(d, k):
     wr.s3.to_csv(
         pd.DataFrame(fight, index=[0]), path=f"s3://ufc-big-data-2/{k}-fight.csv"
     )
-
+    print("fight successfully written!")
     # pd.DataFrame(rounds).to_parquet(f"{k}-rounds.parquet.gzip", compression="gzip")
     # pd.DataFrame(fight, index=[0]).to_csv(f"{k}-fight.csv")
 
