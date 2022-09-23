@@ -69,13 +69,18 @@ def callCopy(fight_manifest_file_name, round_manifest_file_name):
     the_rounds_query = f"""
                 copy round_source
                 from 's3://{UFC_META_FILES_LOCATION}/{LOAD_MANIFEST_FOLDER}/{round_manifest_file_name}'
-                iam_role '{REDSHIFT_S3_READ_IAM_ROLE}';
+                -- iam_role '{REDSHIFT_S3_READ_IAM_ROLE}';
+                access_key_id '{ACCESS_KEY_ID}'
+                secret_access_key '{SECRET_ACCESS_KEY_ID}'
             """
 
     the_fights_query = f"""
                 copy fight_source
                 from 's3://{UFC_META_FILES_LOCATION}/{LOAD_MANIFEST_FOLDER}/{fight_manifest_file_name}'
-                iam_role '{REDSHIFT_S3_READ_IAM_ROLE}';
+                -- iam_role '{REDSHIFT_S3_READ_IAM_ROLE}';
+                access_key_id '{ACCESS_KEY_ID}'
+                secret_access_key '{SECRET_ACCESS_KEY_ID}'
+
             """
     conn = db.getConn()
     cur = db.getCursor()
