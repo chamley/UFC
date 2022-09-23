@@ -354,7 +354,7 @@ def parse_fight(file):
     return d
 
 
-# returns an array of round (dict) and a single fight (dict)
+# transform and push
 def fix_data(d, k):
     rounds = []
     fight = {}
