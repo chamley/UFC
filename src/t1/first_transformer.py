@@ -349,7 +349,7 @@ def parse_fight(file):
                 class_="b-fight-details__table-text"
             )
         ]
-
+    print("fight parsed.")
     return d
 
 
