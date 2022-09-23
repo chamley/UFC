@@ -51,7 +51,7 @@ def main(event={}, context=None):
 
     #### test #######################################################
     event = defaultdict(
-        lambda: None, {"dates": {"start": "2004-01-01", "end": "2005-03-01"}}
+        lambda: None, {"dates": {"start": "2000-01-01", "end": "2001-12-31"}}
     )
     #### test #######################################################
 
@@ -72,7 +72,9 @@ def callCopy(fight_manifest_file_name, round_manifest_file_name):
                 -- iam_role '{REDSHIFT_S3_READ_IAM_ROLE}';
                 access_key_id '{ACCESS_KEY_ID}'
                 secret_access_key '{SECRET_ACCESS_KEY_ID}'
-                FORMAT AS CSV
+                csv
+                IGNOREHEADER 1
+                manifest
             """
 
     the_fights_query = f"""
@@ -81,8 +83,9 @@ def callCopy(fight_manifest_file_name, round_manifest_file_name):
                 -- iam_role '{REDSHIFT_S3_READ_IAM_ROLE}';
                 access_key_id '{ACCESS_KEY_ID}'
                 secret_access_key '{SECRET_ACCESS_KEY_ID}'
-                FORMAT AS CSV
-
+                csv
+                IGNOREHEADER 1
+                manifest
             """
     print(the_rounds_query)
     print(the_fights_query)
