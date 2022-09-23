@@ -51,7 +51,7 @@ def main(event={}, context=None):
 
     #### test #######################################################
     event = defaultdict(
-        lambda: None, {"dates": {"start": "2020-09-08", "end": "2021-10-08"}}
+        lambda: None, {"dates": {"start": "2004-01-01", "end": "2005-03-01"}}
     )
     #### test #######################################################
 
@@ -120,7 +120,7 @@ def createManifests(STATE=STATE):
     keys = [x["Key"] for x in objects]
 
     rounds = filter(
-        lambda x: x[-3:] == "zip" and inside_bounds(x), keys
+        lambda x: x[-4:] == "quet" and inside_bounds(x), keys
     )  # x[-3] == "zip"
     fights = filter(lambda x: x[-3:] == "csv" and inside_bounds(x), keys)
 
