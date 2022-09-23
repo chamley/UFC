@@ -151,6 +151,7 @@ def createManifests(STATE=STATE):
         Key=f"{LOAD_MANIFEST_FOLDER}/{round_manifest_file_name}",
         Body=json.dumps(round_manifest),
     )
+    print(f"manifests built: {round_manifest_file_name} AND {fight_manifest_file_name}")
     return fight_manifest_file_name, round_manifest_file_name
 
 
