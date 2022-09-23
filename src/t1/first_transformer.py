@@ -415,7 +415,7 @@ def fix_data(d, k):
     # two different storage formats, for the memes.
     wr.s3.to_parquet(
         pd.DataFrame(rounds),
-        path=f"s3://ufc-big-data-2/{k}-rounds.parquet.gzip",
+        path=f"s3://ufc-big-data-2/{k}-rounds.gz.parquet",
         compression="gzip",
     )
     wr.s3.to_csv(
