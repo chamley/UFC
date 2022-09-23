@@ -72,7 +72,7 @@ def callCopy(fight_manifest_file_name, round_manifest_file_name):
                 -- iam_role '{REDSHIFT_S3_READ_IAM_ROLE}';
                 access_key_id '{ACCESS_KEY_ID}'
                 secret_access_key '{SECRET_ACCESS_KEY_ID}'
-                FORMAT AS PARQUET
+                FORMAT AS CSV
             """
 
     the_fights_query = f"""
@@ -81,9 +81,12 @@ def callCopy(fight_manifest_file_name, round_manifest_file_name):
                 -- iam_role '{REDSHIFT_S3_READ_IAM_ROLE}';
                 access_key_id '{ACCESS_KEY_ID}'
                 secret_access_key '{SECRET_ACCESS_KEY_ID}'
-                FORMAT AS PARQUET
+                FORMAT AS CSV
 
             """
+    print(the_rounds_query)
+    print(the_fights_query)
+
     conn = db.getConn()
     cur = db.getCursor()
     cur.execute(the_rounds_query)
@@ -120,9 +123,9 @@ def createManifests(STATE=STATE):
     keys = [x["Key"] for x in objects]
 
     rounds = filter(
-        lambda x: x[-3:] == "csv" and inside_bounds(x), keys
+        lambda x: x[-10:] == "rounds.csv" and inside_bounds(x), keys
     )  # x[-3] == "zip"
-    fights = filter(lambda x: x[-3:] == "csv" and inside_bounds(x), keys)
+    fights = filter(lambda x: x[-9:] == "fight.csv" and inside_bounds(x), keys)
 
     # build manifest
     for x in fights:
