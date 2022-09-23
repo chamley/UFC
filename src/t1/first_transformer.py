@@ -501,7 +501,7 @@ def get_file_keys():
     while True:
         items = res["Contents"]
         for i in items:
-            x = i["Key"].replace(".txt", "") + "-rounds.gz.parquet"
+            x = i["Key"].replace(".txt", "") + "-rounds.csv"
             y = i["Key"].replace(".txt", "") + "-fight.csv"
             if x in keys2 and y in keys2:
                 print(

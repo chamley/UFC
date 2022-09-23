@@ -155,6 +155,7 @@ def createManifests(STATE=STATE):
         Body=json.dumps(round_manifest),
     )
     print(round_manifest)
+    print(fight_manifest)
     print(f"manifests built: {round_manifest_file_name} AND {fight_manifest_file_name}")
     return fight_manifest_file_name, round_manifest_file_name
 
