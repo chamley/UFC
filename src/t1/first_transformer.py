@@ -425,6 +425,7 @@ def fix_data(d, k):
     # pd.DataFrame(rounds).to_parquet(f"{k}-rounds.parquet.gzip", compression="gzip")
     # pd.DataFrame(fight, index=[0]).to_csv(f"{k}-fight.csv")
 
+    # target table format reference:
     # fightkey, fighterkey, round_key, fight_keynat, [.. stats]
     # fightkeynat,  red fighter key, winner_key, details, final round, final round duration, method, referee, round_format, weight class, fight date, is title fight  wmma, wc
 
