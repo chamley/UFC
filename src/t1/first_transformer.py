@@ -514,11 +514,11 @@ def get_file_keys():
         for i in items:
             x = i["Key"].replace(".txt", "") + "-rounds.csv"
             y = i["Key"].replace(".txt", "") + "-fight.csv"
-            if x in keys2 and y in keys2 and not DEV_MODE:
-                print(
-                    f"{i['Key'].replace('.txt', '')} already exists in SL2 ! Skipping."
-                )
-                continue
+            # if x in keys2 and y in keys2 and not DEV_MODE:
+            #     print(
+            #         f"{i['Key'].replace('.txt', '')} already exists in SL2 ! Skipping."
+            #     )
+            #     continue
             if DATE_SPECIFIED:
                 d = date.fromisoformat(i["Key"][6:16])
                 if not (START_DATE <= d and d <= END_DATE):
