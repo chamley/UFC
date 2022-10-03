@@ -114,7 +114,7 @@ def main(event, context):
             CSV_SPECIFIED = True
 
     if DEV_MODE:
-        prefix_string = "fight-2020-11-28anthonysmithdevinclark"  # "fight-2022-04-09alexandervolkanovskichansungjung"  #  "fight-2020-11-28ashleeevans-smithnormadumont"  #
+        prefix_string = "fight-2000-03-10davemenne"  # "fight-2022-04-09alexandervolkanovskichansungjung"  #  "fight-2020-11-28ashleeevans-smithnormadumont"  #
     else:
         prefix_string = ""
     ########################################################################################################
@@ -417,6 +417,11 @@ def fix_data(d, k):
         aws_access_key_id=ACCESS_KEY_ID,
         aws_secret_access_key=SECRET_ACCESS_KEY_ID,
     )
+
+    print(pd.DataFrame(rounds))
+    print(pd.DataFrame(fight, index=[0]))
+
+    sys.exit()
 
     wr.s3.to_csv(pd.DataFrame(rounds), path=f"s3://ufc-big-data-2/{k}-rounds.csv")
     wr.s3.to_csv(
