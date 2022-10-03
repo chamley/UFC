@@ -34,14 +34,12 @@ from collections import defaultdict
 import pandas as pd
 import awswrangler as wr
 from t1_helper import my_argument_parser
+from t1_exceptions import InvalidDates
 from datetime import date
-import botocore
 from configfile import STAGE_LAYER_ONE, STAGE_LAYER_TWO, REGION_NAME
 
 T = datetime.datetime.today()
 load_dotenv()
-
-# short on time, I dont know why im forced to do this.
 
 
 ACCESS_KEY_ID: str = os.getenv("access_key_id")
@@ -80,7 +78,7 @@ elif args.dates:
         END_DATE = date.fromisoformat(args.dates[1])
         DATE_SPECIFIED = True
         if END_DATE < START_DATE:
-            raise Exception
+            raise InvalidDates
         print(f"transforming fights from {START_DATE} to {END_DATE}")
     except:
         print("invalid dates")
@@ -116,7 +114,7 @@ def main(event, context):
             CSV_SPECIFIED = True
 
     if DEV_MODE:
-        prefix_string = "fight-2020-11-28anthonysmithdevinclark"  # "fight-2022-04-09alexandervolkanovskichansungjung"  #  "fight-2020-11-28ashleeevans-smithnormadumont"  #
+        prefix_string = "fight-2000-03-10davemenne"  # "fight-2022-04-09alexandervolkanovskichansungjung"  #  "fight-2020-11-28ashleeevans-smithnormadumont"  #
     else:
         prefix_string = ""
     ########################################################################################################
@@ -170,6 +168,9 @@ def sanity_check(key: str, file) -> None:
 def parse_fight(file):
     # 1. Returns nested dicts.
     # 2. Ugly script that turns a fight page into a giant dict with the relevant data
+
+    def clean(s):
+        return [x.strip() for x in s.split("of")]
 
     d = defaultdict(dict)
     d["red"], d["blue"], d["metadata"] = [
@@ -348,11 +349,11 @@ def parse_fight(file):
                 class_="b-fight-details__table-text"
             )
         ]
-
+    print("fight parsed.")
     return d
 
 
-# returns an array of round (dict) and a single fight (dict)
+# transform and push
 def fix_data(d, k):
     rounds = []
     fight = {}
@@ -410,18 +411,31 @@ def fix_data(d, k):
         d["metadata"]["weight class"].lower(), fight["wmma"]
     )
 
-    wr.s3.to_parquet(
-        pd.DataFrame(rounds),
-        path=f"s3://ufc-big-data-2/{k}-rounds.parquet.gzip",
-        compression="gzip",
-    )
-    wr.s3.to_csv(
-        pd.DataFrame(fight, index=[0]), path=f"s3://ufc-big-data-2/{k}-fight.csv"
+    # two different storage formats, for the memes.
+    boto3.setup_default_session(
+        region_name="us-east-1",
+        aws_access_key_id=ACCESS_KEY_ID,
+        aws_secret_access_key=SECRET_ACCESS_KEY_ID,
     )
 
+    # print(pd.DataFrame(rounds))
+    # print(pd.DataFrame(fight, index=[0]))
+
+    # sys.exit()
+
+    wr.s3.to_csv(
+        pd.DataFrame(rounds), path=f"s3://ufc-big-data-2/{k}-rounds.csv", index=False
+    )
+    wr.s3.to_csv(
+        pd.DataFrame(fight, index=[0]),
+        path=f"s3://ufc-big-data-2/{k}-fight.csv",
+        index=False,
+    )
+    print("fight successfully written!")
     # pd.DataFrame(rounds).to_parquet(f"{k}-rounds.parquet.gzip", compression="gzip")
     # pd.DataFrame(fight, index=[0]).to_csv(f"{k}-fight.csv")
 
+    # target table format reference:
     # fightkey, fighterkey, round_key, fight_keynat, [.. stats]
     # fightkeynat,  red fighter key, winner_key, details, final round, final round duration, method, referee, round_format, weight class, fight date, is title fight  wmma, wc
 
@@ -461,10 +475,6 @@ def format_weight_class(s, wmma):
             return "wcatchweight"
 
 
-def clean(s):
-    return [x.strip() for x in s.split("of")]
-
-
 # We fetch keys of items we want to transform, following the logic of our args.
 def get_file_keys():
     keys = []
@@ -502,13 +512,13 @@ def get_file_keys():
     while True:
         items = res["Contents"]
         for i in items:
-            x = i["Key"].replace(".txt", "") + "-rounds.parquet.gzip"
+            x = i["Key"].replace(".txt", "") + "-rounds.csv"
             y = i["Key"].replace(".txt", "") + "-fight.csv"
-            if x in keys2 and y in keys2:
-                print(
-                    f"{i['Key'].replace('.txt', '')} already exists in SL2 ! Skipping."
-                )
-                continue
+            # if x in keys2 and y in keys2 and not DEV_MODE:
+            #     print(
+            #         f"{i['Key'].replace('.txt', '')} already exists in SL2 ! Skipping."
+            #     )
+            #     continue
             if DATE_SPECIFIED:
                 d = date.fromisoformat(i["Key"][6:16])
                 if not (START_DATE <= d and d <= END_DATE):

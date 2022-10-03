@@ -1,32 +1,31 @@
-from fileinput import filename
 import json
 from airflow import DAG
 from datetime import datetime, timedelta, date
 from airflow.operators.python import PythonOperator
 import boto3
+import logging
 
 default_args = {
     "owner": "seb",
     "email_on_failure": "false",
     "retries": 1,
     "retry_delay": timedelta(minutes=1),
+    # "start_date": datetime(2022, 7, 20),
 }
-
-catchup = False
 
 
 def dummy_function():
-    file_name = str(datetime.today()) + "_dummy.csv"
-    with open(file_name, "w") as f:
-        pass
+    x = 1
 
 
-def trigger_extractor_lambda():
+def trigger_extractor_lambda(ds, **kwargs):
+    logging.info(ds)
+    logging.info(date.fromisoformat(ds))
     lambdaclient = boto3.client("lambda", "us-east-1")
     payload = {
         "dates": {
-            "start": f"{date.today()-timedelta(weeks=1)}",
-            "end": f"{date.today()}",
+            "start": f"{date.fromisoformat(ds)-timedelta(weeks=1)}",
+            "end": f"{date.fromisoformat(ds)}",
         }
     }
     lambdaclient.invoke(
@@ -36,12 +35,12 @@ def trigger_extractor_lambda():
     )
 
 
-def trigger_t1_lambda():
+def trigger_t1_lambda(ds, **kwargs):
     lambdaclient = boto3.client("lambda", "us-east-1")
     payload = {
         "dates": {
-            "start": f"{date.today()-timedelta(weeks=1)}",
-            "end": f"{date.today()}",
+            "start": f"{date.fromisoformat(ds)-timedelta(weeks=1)}",
+            "end": f"{date.fromisoformat(ds)}",
         }
     }
     lambdaclient.invoke(
@@ -53,18 +52,32 @@ def trigger_t1_lambda():
 
 with DAG(
     "ufc-main-dag",
-    start_date=datetime(2022, 7, 20),
-    schedule_interval="@weekly",
     default_args=default_args,
-    catchup=catchup,
+    schedule_interval="@weekly",
+    catchup=True,
+    start_date=datetime(2022, 7, 20),
 ) as dag:
-    dummy_task = PythonOperator(task_id="dummy_task", python_callable=dummy_function)
-
+    dummy_task = PythonOperator(
+        task_id="dummy_task",
+        python_callable=dummy_function,
+        dag=dag,
+        provide_context=True,
+    )
+    logging.info("ohai")
     # lambda pulls raw data into S3
     extractor_task = PythonOperator(
-        task_id="extractor_task", python_callable=trigger_extractor_lambda
+        task_id="extractor_task",
+        python_callable=trigger_extractor_lambda,
+        provide_context=True,
+        dag=dag,
     )
-    t1_task = PythonOperator(task_id="t1_task", python_callable=trigger_t1_lambda)
+
+    t1_task = PythonOperator(
+        task_id="t1_task",
+        python_callable=trigger_t1_lambda,
+        provide_context=True,
+        dag=dag,
+    )
 
     # run tests against structure of raw data
 
@@ -81,6 +94,5 @@ with DAG(
     # merge into normal data
 
     # refresh materialized views
-
 
 dummy_task >> extractor_task >> t1_task

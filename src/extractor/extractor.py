@@ -4,21 +4,23 @@ ohai
 
 # this script currently grabs the webpage of every single fight listed in ufcfights.com
 
-# desired functionality:
+# Functionality:
 # - dates: scrap all fights for given dates
 # - csv: grab a csv from s3 with a set of dates
 # - dev:
 
 
-# Desired policy
-# - no-overwrite. output in logs.
+# Policy
+#  no-overwrite. output in logs.
+
+# TODO:
+#   Refactor into a STATE object
+#
 
 import sys
 
 sys.path.append(".")
 from collections import defaultdict
-from distutils.command.clean import clean
-from email.policy import default
 import os
 from dotenv import load_dotenv
 from bs4 import BeautifulSoup
@@ -31,6 +33,7 @@ from e1_helper import my_argument_parser, get_dates
 from datetime import date
 import json
 from configfile import STAGE_LAYER_ONE, REGION_NAME
+from e1_exceptions import InvalidDates
 
 load_dotenv()
 access_key_id = os.getenv("access_key_id")
@@ -67,7 +70,7 @@ elif args.dates:
         START_DATE = date.fromisoformat(args.dates[0])
         END_DATE = date.fromisoformat(args.dates[1])
         if END_DATE < START_DATE:
-            raise Exception
+            raise InvalidDates
         print(f"extracting fights from {START_DATE} to {END_DATE}")
     except:
         print("invalid dates")
@@ -92,7 +95,7 @@ def main(event, context):
                 START_DATE = date.fromisoformat(event["dates"]["start"])
                 END_DATE = date.fromisoformat(event["dates"]["end"])
                 if END_DATE < START_DATE:
-                    raise Exception
+                    raise InvalidDates
                 print(f"transforming fights from {START_DATE} to {END_DATE}")
             except:
                 print("invalid dates")
