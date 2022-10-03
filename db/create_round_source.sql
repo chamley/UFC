@@ -11,7 +11,7 @@ create table round_source
     td_a numeric,
     sub_a numeric,
     rev numeric,
-    ctrl time,
+    ctrl text,
     ss_l_h numeric,
     ss_a_h numeric,
     ss_l_b numeric,
