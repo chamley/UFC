@@ -73,6 +73,7 @@ def callCopy(fight_manifest_file_name, round_manifest_file_name):
                 access_key_id '{ACCESS_KEY_ID}'
                 secret_access_key '{SECRET_ACCESS_KEY_ID}'
                 csv
+                emptyasnull
                 IGNOREHEADER 1
                 manifest
             """
@@ -84,6 +85,7 @@ def callCopy(fight_manifest_file_name, round_manifest_file_name):
                 access_key_id '{ACCESS_KEY_ID}'
                 secret_access_key '{SECRET_ACCESS_KEY_ID}'
                 csv
+                emptyasnull
                 IGNOREHEADER 1
                 manifest
             """
