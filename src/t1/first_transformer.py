@@ -418,14 +418,18 @@ def fix_data(d, k):
         aws_secret_access_key=SECRET_ACCESS_KEY_ID,
     )
 
-    print(pd.DataFrame(rounds))
-    print(pd.DataFrame(fight, index=[0]))
+    # print(pd.DataFrame(rounds))
+    # print(pd.DataFrame(fight, index=[0]))
 
-    sys.exit()
+    # sys.exit()
 
-    wr.s3.to_csv(pd.DataFrame(rounds), path=f"s3://ufc-big-data-2/{k}-rounds.csv")
     wr.s3.to_csv(
-        pd.DataFrame(fight, index=[0]), path=f"s3://ufc-big-data-2/{k}-fight.csv"
+        pd.DataFrame(rounds), path=f"s3://ufc-big-data-2/{k}-rounds.csv", index=False
+    )
+    wr.s3.to_csv(
+        pd.DataFrame(fight, index=[0]),
+        path=f"s3://ufc-big-data-2/{k}-fight.csv",
+        index=False,
     )
     print("fight successfully written!")
     # pd.DataFrame(rounds).to_parquet(f"{k}-rounds.parquet.gzip", compression="gzip")
