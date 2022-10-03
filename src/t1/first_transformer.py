@@ -417,6 +417,7 @@ def fix_data(d, k):
         aws_access_key_id=ACCESS_KEY_ID,
         aws_secret_access_key=SECRET_ACCESS_KEY_ID,
     )
+
     wr.s3.to_csv(pd.DataFrame(rounds), path=f"s3://ufc-big-data-2/{k}-rounds.csv")
     wr.s3.to_csv(
         pd.DataFrame(fight, index=[0]), path=f"s3://ufc-big-data-2/{k}-fight.csv"
