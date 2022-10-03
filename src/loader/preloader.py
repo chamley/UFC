@@ -76,6 +76,7 @@ def callCopy(fight_manifest_file_name, round_manifest_file_name):
                 emptyasnull
                 IGNOREHEADER 1
                 manifest
+                timeformat 'HH:MI:SS'
             """
 
     the_fights_query = f"""
@@ -88,6 +89,7 @@ def callCopy(fight_manifest_file_name, round_manifest_file_name):
                 emptyasnull
                 IGNOREHEADER 1
                 manifest
+                timeformat 'HH:MI:SS'
             """
     print(the_rounds_query)
     print(the_fights_query)
