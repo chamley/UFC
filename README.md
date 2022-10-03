@@ -1,6 +1,6 @@
 <h3>Code Status:</h3>
 
-[![Coverage Status](https://coveralls.io/repos/github/chamley/UFC/badge.svg?branch=main)](https://coveralls.io/github/chamley/UFC?branch=main)
+
 [![Build Status](https://app.travis-ci.com/chamley/UFC.svg?branch=main)](https://app.travis-ci.com/chamley/UFC)
 ![Github last-commit](https://img.shields.io/github/last-commit/chamley/UFC)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
@@ -27,10 +27,12 @@ Hi. This is my personal project where I hope to aggregate all available data in 
 
 Notes:
 
+![Example Dashboard 1](misc/d1.png)
+![Example Dashboard 2](misc/d2.png)
 
-
-Dashboards not deployed due to TableauServer not having a free tier
-
+Notes:
+- Dashboards not deployed due to TableauServer not having a free tier and my Redshift/MWAA costs lightly bankrupting me.
+- No cloudformation/terraform code to give you, built with ClickOps like a noob.
 
 
 
