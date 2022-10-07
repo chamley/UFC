@@ -25,8 +25,7 @@ Hi. This is my personal project where I hope to aggregate all available data in 
 🧰 Workflow Tools: Black (linter), VSCode, Datagrip
 
 
-Notes:
-
+![data architecture](misc/architecture.jpeg)
 ![Example Dashboard 1](misc/d1.png)
 ![Example Dashboard 2](misc/d2.png)
 
