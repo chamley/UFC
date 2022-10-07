@@ -34,7 +34,7 @@ from collections import defaultdict
 import pandas as pd
 import awswrangler as wr
 from t1_helper import my_argument_parser
-from t1_exceptions import InvalidDates
+from t1_exceptions import InvalidDates, InvalidHTMLTableDimensions
 from datetime import date
 from configfile import STAGE_LAYER_ONE, STAGE_LAYER_TWO, REGION_NAME
 
@@ -126,43 +126,50 @@ def main(event, context):
         object = S3R.Object(bucket_name=STAGE_LAYER_ONE, key=item["Key"]).get()
 
         file = object["Body"].read()
-        sanity_check(item["Key"], file)
         try:
+            sanity_check(item["Key"], file)
             fight_data = parse_fight(file)
 
             fix_data(fight_data, item["Key"][:-4])
-        except IndexError as e:
-            print(f"Index error on {item['Key']}, skipping for now.")
-            print(e)
+        except InvalidHTMLTableDimensions as e:
+            print(f"HTML not parsable on {item['Key']}, skipping for now.")
+
     print("Successfuly exiting first transformer")
 
 
 # checks whether our program will make correct assumptions about the structure of the page
 def sanity_check(key: str, file) -> None:
-    parser = BeautifulSoup(file, "html.parser")
+    try:
+        parser = BeautifulSoup(file, "html.parser")
 
-    num_rounds_according_to_page = (
-        len(
-            parser.find_all(
-                class_="b-fight-details__table-row b-fight-details__table-row_type_head"
+        num_rounds_according_to_page = (
+            len(
+                parser.find_all(
+                    class_="b-fight-details__table-row b-fight-details__table-row_type_head"
+                )
             )
+            / 2
         )
-        / 2
-    )
-    num_rounds_according_to_table = int(
-        parser.find_all("i", class_="b-fight-details__text-item")[0]
-        .find("i")
-        .next_sibling.strip()
-    )
+        num_rounds_according_to_table = int(
+            parser.find_all("i", class_="b-fight-details__text-item")[0]
+            .find("i")
+            .next_sibling.strip()
+        )
 
-    con1 = num_rounds_according_to_table == num_rounds_according_to_page
+        con1 = num_rounds_according_to_table == num_rounds_according_to_page
 
-    flag = con1
+        flag = con1
 
-    if not flag:
-        print(f"Tabile dim sanity check failed on {key}")
-    else:
-        print(f"Table dim Sanity check passed on {key} ")
+        if not flag:
+            print(f"Tabile dim sanity check failed on {key}")
+        else:
+            print(f"Table dim Sanity check passed on {key} ")
+    except IndexError as e:
+        print(f"Table dim Sanity check failed on {key} due to {e}")
+        raise InvalidHTMLTableDimensions
+    except AttributeError as e:
+        print(f"Table dim Sanity check failed on {key} due to {e}")
+        raise InvalidHTMLTableDimensions
 
 
 def parse_fight(file):
