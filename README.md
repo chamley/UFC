@@ -32,7 +32,7 @@ Notes:
 
 Notes:
 - Dashboards not deployed due to TableauServer not having a free tier and my Redshift/MWAA costs lightly bankrupting me.
-- No cloudformation/terraform code to give you, built with ClickOps like a noob.
+- No IaaC. Current terraform skills non-existant.
 
 
 
