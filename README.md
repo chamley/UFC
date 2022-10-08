@@ -29,9 +29,10 @@ Hi. This is my personal project where I hope to aggregate all available data in 
 ![Example Dashboard 1](misc/d1.png)
 ![Example Dashboard 2](misc/d2.png)
 
-Notes:
+ToDo:
 - Dashboards not deployed due to TableauServer not having a free tier and my Redshift/MWAA costs lightly bankrupting me.
-- No IaaC. Current terraform skills non-existant.
+- IaaC (Terraform)
+- CD
 
 
 
