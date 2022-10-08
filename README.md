@@ -10,15 +10,15 @@ Hi. This is my personal project where I hope to aggregate all available data in 
 
 <h3>Stack</h3>
 
-💻 Data Engineering Tools: Airflow,  Docker, DBT (tbd), 
+💻 Data Engineering Tools: Airflow,  Docker, DBT, 
 
 ☁️ Cloud: AWS (Lambda, S3, Redshift, ECR, MWAA)
 
-✅ CI/Testing: DBT-ge (tbd), Travis CI, Pytest, Coveralls (tbd)
+✅ CI/Testing: DBT tests, Travis CI, Pytest
 
 📊 Visualization: Tableau
 
-📚 Libraries: pandas, boto3, , awswrangler, beautifulsoup, psycop2g, moto3, pydantic (tbd)
+📚 Libraries: pandas, boto3, awswrangler, beautifulsoup, psycop2g
 
 🌈 Languages: Python/SQL (Redshift's version of Postgres)
 
