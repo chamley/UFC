@@ -7,7 +7,9 @@
 
 
 Hi. This is my personal project where I hope to aggregate all available data in the world about mma in the UFC league.
-Ingestion system: Orrchestrated Lambdas.
+
+Ingestion system: Orchestrated Lambdas.
+
 Data Architecture: Data Lakehouse. 
 
 <h3>Stack</h3>
