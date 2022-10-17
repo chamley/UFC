@@ -7,7 +7,8 @@
 
 
 Hi. This is my personal project where I hope to aggregate all available data in the world about mma in the UFC league.
-The principle ingestion systems are orchestrated Lambdas. The chosen architecture is a data lakehouse. 
+Ingestion system: Orrchestrated Lambdas.
+Data Architecture: Data Lakehouse. 
 
 <h3>Stack</h3>
 
