@@ -12,7 +12,7 @@ Hi. This is my personal project where I hope to aggregate all available data in 
 
 <b>Scalibility:</b> Lambdas allow for scale up as well as scale down.
 
-<b>Data Architecture:</b> Data Lakehouse. 
+<b>Data Architecture:</b> Two-Tier architecture leveraging a data lake and a data warehouse. 
 
 <h3>Stack</h3>
 
