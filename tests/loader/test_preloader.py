@@ -2,7 +2,6 @@ import sys
 from collections import defaultdict
 from datetime import date
 
-sys.path.append(".")
 
 import pytest
 from configfile import STAGE_LAYER_TWO, REGION_NAME

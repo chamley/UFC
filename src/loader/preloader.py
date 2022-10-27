@@ -13,7 +13,6 @@ load_dotenv()
 ACCESS_KEY_ID = os.getenv("access_key_id")
 SECRET_ACCESS_KEY_ID = os.getenv("secret_access_key_id")
 
-sys.path.append(".")
 
 from dbhelper_loader import DBHelper
 from datetime import date
