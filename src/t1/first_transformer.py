@@ -42,7 +42,7 @@ T = datetime.datetime.today()
 load_dotenv()
 
 
-ACCESS_KEY_ID: str = os.getenv("access_key_id")
+ACCESS_KEY_ID = os.getenv("access_key_id")
 SECRET_ACCESS_KEY_ID = os.getenv("secret_access_key_id")
 DATE: datetime.date = datetime.date.today()
 S3C = boto3.client(
