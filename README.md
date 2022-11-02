@@ -14,6 +14,8 @@ Hi. This is my personal project where I hope to aggregate all available data in 
 
 <b>Data Architecture:</b> Two-Tier architecture leveraging a data lake and a data warehouse. 
 
+<b>Orchestration:</b> Airflow with certain handoffs to dbt cloud.
+
 <h3>Stack</h3>
 
 💻 Data Engineering Tools: Airflow,  Docker, DBT, 
