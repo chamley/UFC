@@ -1,6 +1,120 @@
+version: 2
+
 sources:
   - name: fight_source
     database: dev
     schema: public
     tables:
       - name: fight_source
+        description: Raw fight metadata
+        columns:
+          - name: kd 
+            description: knockdowns
+            tests:
+              - not_null
+          - name: ss_l
+            description: significant strikes landed
+            tests:
+              - not_null
+          - name: ss_a
+            description: significant strikes attempted
+            tests:
+              - not_null
+          - name: ts_a 
+            description: total strikes attempted
+            tests:
+              - not_null
+          - name: ts_l
+            description: total strikes landed
+            tests:
+              - not_null
+          - name: td_l
+            description: take downs landed
+            tests:
+              - not_null
+          - name: td_a
+            description: takedowns attempted
+            tests:
+              - not_null
+          - name: sub_a
+            description: submissions attempted
+            tests:
+              - not_null
+          - name: rev
+            description: reversals
+            tests:
+              - not_null
+          - name: ctrl
+            description: successfully controlled opponent for this amount of time
+            tests:
+              - not_null
+          - name: ss_l_h 
+            description: significant strikes landed on the head
+            tests:
+              - not_null
+          - name: ss_a_h 
+            description: significant strikes attempted on the head
+            tests:
+              - not_null
+          - name: ss_l_b 
+            description: significant strikes landed on the body
+            tests:
+              - not_null
+          - name: ss_a_b 
+            description: significant strikes attempted on the body
+            tests:
+              - not_null
+          - name: ss_l_l 
+            description: significant strikes landed on the leg
+            tests:
+              - not_null
+          - name: ss_a_l 
+            description: significant strikes attempted on the leg
+            tests:
+              - not_null
+          - name: ss_l_dist 
+            description: significant strikes landed from a distance
+            tests:
+              - not_null
+          - name: ss_a_dist 
+            description: significant strikes attempted from a distance
+            tests:
+              - not_null
+          - name: ss_l_cl 
+            description: significant strikes landed from the clinch
+            tests:
+              - not_null
+          - name: ss_a_cl 
+            description: significant strikes attempted from the clinch
+            tests:
+              - not_null
+          - name: ss_l_gr 
+            description: significant strikes landed from the ground (ground strikes)
+            tests:
+              - not_null
+          - name: ss_a_gr 
+            description: significant strikes attempted from the ground (ground strikes)
+            tests:
+              - not_null
+          - name: fight_id
+            description: natural key provided by data source (ufcstats.com)
+          - name: fight_key_nat
+            description: natural key of the fight the round pertains to
+
+
+
+
+
+
+
+
+
+      # - name: round_source
+      #   description: Raw round data
+      #   columns:
+      #   - name:
+      #     description:
+      #     # tests:
+      #   - name:
+      #     description:
+      #     # tests:
