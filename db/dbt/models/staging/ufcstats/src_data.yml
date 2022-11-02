@@ -5,8 +5,9 @@ sources:
     database: dev
     schema: public
     tables:
-      - name: fight_source
-        description: Raw fight metadata
+      - name: round_source
+        description: Raw round data provided by ufcstats.com
+        loaded_at_field: loaded_at
         columns:
           - name: kd 
             description: knockdowns
@@ -96,16 +97,95 @@ sources:
             description: significant strikes attempted from the ground (ground strikes)
             tests:
               - not_null
-          - name: fight_id
+          - name: fighter_id
             description: natural key provided by data source (ufcstats.com)
           - name: fight_key_nat
             description: natural key of the fight the round pertains to
+            tests:
+              - not_null
+          - name: round_num
+            description: round number
+            tests:
+              - not_null
+              - accepted_values:
+                  values: [1,2,3,4,5]
+                  quote: false
+          - name: loaded_at
+            description: when row was loaded
+            tests:
+              - not_null
 
-
-
-
-
-
+      - name: fight_source
+        description: Raw fight metadata provided by ufcstats.com
+        loaded_at_field: loaded_at
+        columns:
+          - name: fight_key_nat
+            description: natural key for the fight
+            tests:
+              - not_null
+          - name: red_fighter_name
+            description: name of the red fighter
+            tests:
+              - not_null
+          - name: red_fighter_id
+            description: for the red fighter a natural id provided by ufcstats.com for a fighter
+          - name: blue_fighter_name
+            description: name of the blue fighter
+            tests:
+              - not_null
+          - name: blue_fighter_id
+            description: for the blue fighter a natural id provided by ufcstats.com for a fighter
+          - name: winner_fighter_name
+            description: name of the fighter who won
+            tests:
+              - not_null
+          - name: winner_fighter_id
+            description: for the red fighter for the winning fighter a natural id provided by ufcstats.com for a fighter
+          - name: details
+            description: how the fight was ended
+          - name: final_round
+            description: the final round of the fight
+            tests:
+              - not_null
+              - accepted_values:
+                  values: [1,2,3,4,5]
+                  quote: false
+          - name: final_round_duration
+            description: how long the final round lasted
+            tests:
+              - not_null
+          - name: method
+            description: why the fight was stopped
+            tests:
+              - not_null
+              # - accepted_values:
+                  # values: ['submission','decision - unanimous','decision - split','ko/tko']
+          - name: referee
+            description: name of referee for the fight
+          - name: round_format
+            description: the round format for the fight (early values may look strange (eg one rounded fights with a fifteen minute round))
+          - name: weight_class
+            description: weight class the fight took place at
+          - name: fight_date
+            description: the date the fight took place
+            tests: 
+              - not_null
+          - name: is_title_fight
+            description: was this a title fight
+            tests:
+              - accepted_values:
+                  values: [0,1]
+                  quote: false
+          - name: wmma
+            description: was this a womens mma fight
+            tests:
+              - accepted_values:
+                  values: [0,1]
+                  quote: false
+          - name: wc
+            description: ayy mamasita que paso
+          - name: loaded_at
+            description: loaded_at field
 
 
 
