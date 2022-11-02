@@ -1,0 +1,6 @@
+sources:
+  - name: fight_source
+    database: dev
+    schema: public
+    tables:
+      - name: fight_source
