@@ -418,12 +418,12 @@ def fix_data(d, k):
         d["metadata"]["weight class"].lower(), fight["wmma"]
     )
 
-    # two different storage formats, for the memes.
-    boto3.setup_default_session(
-        region_name="us-east-1",
-        aws_access_key_id=ACCESS_KEY_ID,
-        aws_secret_access_key=SECRET_ACCESS_KEY_ID,
-    )
+    if not PRODUCTION_MODE:
+        boto3.setup_default_session(
+            region_name="us-east-1",
+            aws_access_key_id=ACCESS_KEY_ID,
+            aws_secret_access_key=SECRET_ACCESS_KEY_ID,
+        )
 
     # print(pd.DataFrame(rounds))
     # print(pd.DataFrame(fight, index=[0]))
