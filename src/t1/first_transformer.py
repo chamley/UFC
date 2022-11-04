@@ -524,6 +524,9 @@ def get_file_keys():
         for i in items:
             x = i["Key"].replace(".txt", "") + "-rounds.csv"
             y = i["Key"].replace(".txt", "") + "-fight.csv"
+
+            # idempotency
+
             # if x in keys2 and y in keys2 and not DEV_MODE:
             #     print(
             #         f"{i['Key'].replace('.txt', '')} already exists in SL2 ! Skipping."
