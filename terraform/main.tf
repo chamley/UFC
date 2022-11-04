@@ -34,3 +34,7 @@ resource "aws_s3_bucket" "mwaa-bucket" {
 resource "aws_s3_bucket" "ufc-config-bucket" {
   bucket = var.ufc-config-files-bucket
 }
+
+resource "aws_iam_group" "developers" {
+  name = "dev"
+}
