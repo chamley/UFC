@@ -38,3 +38,17 @@ resource "aws_s3_bucket" "ufc-config-bucket" {
 resource "aws_iam_group" "developers" {
   name = "dev"
 }
+
+resource "aws_iam_role" "iam_role_ufcstats_extractor_lambda" {
+  name               = "ufc-extractor-lambda-role"
+  assume_role_policy = "{}"
+
+}
+resource "aws_lambda_function" "ufcstats_extractor_lambda" {
+  function_name = "ufc-extractor"
+  role          = aws_iam_role.iam_role_ufcstats_extractor_lambda
+}
+
+resource "aws_ecr_repository" "ufcstats_ecr_repo" {
+  name = "ufc-images"
+}
