@@ -30,3 +30,7 @@ resource "aws_s3_bucket" "stage-layer-two" {
 resource "aws_s3_bucket" "mwaa-bucket" {
   bucket = var.mwaa-dag-bucket
 }
+
+resource "aws_s3_bucket" "ufc-config-bucket" {
+  bucket = var.ufc-config-files-bucket
+}
