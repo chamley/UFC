@@ -16,3 +16,5 @@ src/t1/__pycache__/t1_helper.cpython-310.pyc
 src/t1/__pycache__
 src/date_table.csv
 terraform/terraform.tfvars
+terraform/.terraform.lock.hcl
+terraform/.terraform/
