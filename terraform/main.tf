@@ -17,5 +17,4 @@ resource "aws_redshift_cluster" "redshift-prod-cluster" {
   node_type          = "dc2.large"
   master_username    = var.master_username
   master_password    = var.master_password
-
 }
