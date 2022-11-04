@@ -18,3 +18,7 @@ resource "aws_redshift_cluster" "redshift-prod-cluster" {
   master_username    = var.master_username
   master_password    = var.master_password
 }
+
+resource "aws_s3_bucket" "stage-layer-one" {
+  bucket = "ufc-big-data"
+}
