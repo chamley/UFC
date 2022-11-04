@@ -26,3 +26,7 @@ resource "aws_s3_bucket" "stage-layer-one" {
 resource "aws_s3_bucket" "stage-layer-two" {
   bucket = var.stage-layer-two-bucket
 }
+
+resource "aws_s3_bucket" "mwaa-bucket" {
+  bucket = var.mwaa-dag-bucket
+}
