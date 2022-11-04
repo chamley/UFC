@@ -20,5 +20,9 @@ resource "aws_redshift_cluster" "redshift-prod-cluster" {
 }
 
 resource "aws_s3_bucket" "stage-layer-one" {
-  bucket = var.stage-later-one-bucket
+  bucket = var.stage-layer-one-bucket
+}
+
+resource "aws_s3_bucket" "stage-layer-two" {
+  bucket = var.stage-layer-two-bucket
 }
