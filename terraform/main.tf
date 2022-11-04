@@ -20,5 +20,5 @@ resource "aws_redshift_cluster" "redshift-prod-cluster" {
 }
 
 resource "aws_s3_bucket" "stage-layer-one" {
-  bucket = "ufc-big-data"
+  bucket = var.stage-later-one-bucket
 }
