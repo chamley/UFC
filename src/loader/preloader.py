@@ -24,7 +24,6 @@ from configfile import (
     REDSHIFT_S3_READ_IAM_ROLE,
 )
 
-
 S3C = boto3.client(
     "s3",
     region_name=REGION_NAME,

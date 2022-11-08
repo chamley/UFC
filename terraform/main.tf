@@ -1,3 +1,7 @@
+## Todo:
+## ECR + LAMBDA
+
+
 terraform {
   required_providers {
     aws = {
@@ -8,6 +12,7 @@ terraform {
   required_version = ">= 1.2.0"
 }
 
+# imported
 resource "aws_redshift_cluster" "redshift-prod-cluster" {
   cluster_identifier = "ufc-main"
   database_name      = "dev"
@@ -16,36 +21,27 @@ resource "aws_redshift_cluster" "redshift-prod-cluster" {
   master_password    = var.master_password
 }
 
+# imported
 resource "aws_s3_bucket" "stage-layer-one" {
   bucket = var.stage-layer-one-bucket
 }
 
+# imported
 resource "aws_s3_bucket" "stage-layer-two" {
   bucket = var.stage-layer-two-bucket
 }
 
+# imported
 resource "aws_s3_bucket" "mwaa-bucket" {
   bucket = var.mwaa-dag-bucket
 }
 
+# imported
 resource "aws_s3_bucket" "ufc-config-bucket" {
   bucket = var.ufc-config-files-bucket
 }
-
+# imported
 resource "aws_iam_group" "developers" {
   name = "dev"
 }
 
-# resource "aws_iam_role" "iam_role_ufcstats_extractor_lambda" {
-#   name               = "ufc-extractor-lambda-role"
-#   assume_role_policy = "{}"
-
-# }
-# resource "aws_lambda_function" "ufcstats_extractor_lambda" {
-#   function_name = "ufc-extractor"
-#   role          = aws_iam_role.iam_role_ufcstats_extractor_lambda
-# }
-
-# resource "aws_ecr_repository" "ufcstats_ecr_repo" {
-#   name = "ufc-images"
-# }
