@@ -25,7 +25,7 @@ load_dotenv()
 
 ACCESS_KEY_ID = os.getenv("access_key_id")
 SECRET_ACCESS_KEY_ID = os.getenv("secret_access_key_id")
-DATE = datetime.date.today()
+DATE = date.today()
 S3C = boto3.client(
     "s3",
     region_name=REGION_NAME,
