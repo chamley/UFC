@@ -1,27 +1,29 @@
 import argparse
 
 
-x = {"dates": {"start": "2020-01-01", "end": "2021-01-01"}}
+# arg parsers take arguments passed to a function via the command line and manages them so they
+# can be leveraged effectively in the program
 
 
-def my_argument_parser():
+def my_arg_parser():
+    # we specify a definition for our program
     parser = argparse.ArgumentParser(
-        description="Perform a transformation step from stage layer 1 to stage layer 2"
-    )
-    arg_group = parser.add_mutually_exclusive_group()
-    arg_group.add_argument(
-        "-dates",
-        nargs=2,
-        help="This is the main way of using this program. Lets you specify a date range to cover. Takes 2 arguments (start and end) formatted like so: YYYY-MM-DD. ",
+        description="ingest a set of dates and apply transformation to all files in SL1, into SL2"
     )
 
-    arg_group.add_argument(
-        "-csv",
-        help="provide the name of the csv file with fight dates to apply t1. Folder is s3://ufc-meta/t1-dates",
-    )
-    arg_group.add_argument(
-        "-dev",
-        help="activates DEV_MODE flag you can put around the program to debug",
-        action="store_true",
-    )
-    return parser
+    # Deprecated
+
+    # # Our program can be specified in a number of ways, each mutually exclusive
+    # arg_choices = parser.add_mutually_exclusive_group()
+
+    # arg_choices.add_argument(
+    #     "-dates",
+    #     nargs=2,
+    #     help="specify two dates x,y were x<=y formatted as YYYY-MM-DD",
+    # )
+
+    # arg_choices.add_argument(
+    #     "-dev",
+    #     help="activates a DEV_MODE flag which wraps the program and makes it easy",
+    # )
+    # return parser

@@ -5,7 +5,7 @@ Desired behavior:
     - dev: activate DEV_MODE and stuff
 
 GLOBAL RULES:
-    - never overwrite files, skip and output an error in logs
+    - never overwrite files (idempotency)
 
 """
 
@@ -494,6 +494,7 @@ def get_file_keys():
     res2 = S3C.list_objects_v2(Bucket=STAGE_LAYER_TWO, Prefix=prefix_string)
     keys2 = []
     while True:
+        print(res2)
         items2 = res2["Contents"]
         for i in items2:
             keys2.append(i["Key"])
