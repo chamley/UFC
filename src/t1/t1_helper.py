@@ -5,7 +5,7 @@ import argparse
 # can be leveraged effectively in the program
 
 
-def my_arg_parser():
+def my_argument_parser():
     # we specify a definition for our program
     parser = argparse.ArgumentParser(
         description="ingest a set of dates and apply transformation to all files in SL1, into SL2"
