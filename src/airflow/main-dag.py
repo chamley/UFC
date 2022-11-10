@@ -56,7 +56,7 @@ with DAG(
     default_args=default_args,
     schedule_interval="@weekly",
     catchup=True,
-    start_date=datetime(2022, 7, 20),
+    start_date=datetime(1994, 1, 1),
 ) as dag:
     dummy_task = PythonOperator(
         task_id="dummy_task",

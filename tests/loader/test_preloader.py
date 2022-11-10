@@ -1,4 +1,9 @@
 import sys
+
+sys.path.append(".")
+sys.path.append("src/loader/")
+
+
 from collections import defaultdict
 from datetime import date
 
@@ -6,6 +11,7 @@ from datetime import date
 import pytest
 from configfile import STAGE_LAYER_TWO, REGION_NAME
 from src.loader.preloader import prepstate
+
 
 # Default state (what we start off with at the top of the script/load from config)
 def return_default_state():
