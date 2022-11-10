@@ -14,7 +14,8 @@ default_args = {
 }
 
 
-def dummy_function():
+def dummy_function(ds, **kwargs):
+    print(ds)
     x = 1
 
 

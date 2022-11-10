@@ -130,6 +130,7 @@ def main(event, context):
             sanity_check(item["Key"], file)
             fight_data = parse_fight(file)
 
+            # parse_fight was written in a hurry and is pretty ugly, this sort of patches it all up
             fix_data(fight_data, item["Key"][:-4])
         except InvalidHTMLTableDimensions as e:
             print(f"HTML not parsable on {item['Key']}, skipping for now.")
@@ -449,6 +450,7 @@ def fix_data(d, k):
     return 1
 
 
+# transform weight class columns
 def format_weight_class(s, wmma):
     if not wmma:
         if "lightweight" in s:
