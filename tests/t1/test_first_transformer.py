@@ -17,7 +17,8 @@ from configfile import STAGE_LAYER_ONE, STAGE_LAYER_TWO, REGION_NAME
 from src.t1.ufcstats_t1 import prepstate, get_keys
 from src.t1.t1_exceptions import InvalidDates
 from awswrangler.exceptions import EmptyDataFrame
-
+import pandas as pd
+import awswrangler as wr
 
 # Default state (what we start off with at the top of the script/load from config)
 
@@ -264,7 +265,7 @@ class TestPushData(object):
             push_data(rounds, fight, k)
 
     @pytest.mark.parametrize(
-        "rounds, fight, k",
+        "rounds, fight, key",
         [
             (
                 [
@@ -356,3 +357,16 @@ class TestPushData(object):
         key = key + rand_test_id
 
         push_data(rounds, fight, key)
+
+        expected_fight = pd.DataFrame(fight, index=[0])
+        expected_rounds = pd.DataFrame(rounds)
+
+        actual_fight = wr.s3.read_csv(path=f"s3://{STAGE_LAYER_TWO}/{key}-fight.csv")
+        actual_rounds = wr.s3.read_csv(path=f"s3://{STAGE_LAYER_TWO}/{key}-rounds.csv")
+
+        print(expected_rounds.size)
+        print(actual_rounds.size)
+
+        assert pd.testing.assert_frame_equal(
+            actual_rounds, expected_rounds
+        ) and pd.testing.assert_frame_equal(actual_fight, expected_fight)
