@@ -239,3 +239,9 @@ class TestParseFight(object):
 
         r, f, k = parse_fight(file, key)
         assert (r == rounds) and (f == fight) and (k == key)
+
+
+class TestPushData(object):
+    @pytest.mark.parametrize("ohai", [("ohai")])
+    def test_notsure(self, ohai):
+        assert True

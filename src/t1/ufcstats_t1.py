@@ -95,21 +95,24 @@ def push_data(rounds, fight, k, STATE=STATE) -> None:
 
     ## Idempotency Check HERE
 
-    print("program not finished, no write")
-    sys.exit()
+    test_obj = S3C
+
+    # sys.exit()
 
     wr.s3.to_csv(
-        pd.DataFrame(rounds), path=f"s3://ufc-big-data-2/{k}-rounds.csv", index=False
+        pd.DataFrame(rounds),
+        path=f"s3://{STATE['STAGE_LAYER_TWO']}/{k}-rounds.csv",
+        index=False,
     )
 
     ## Idempotency Check HERE
 
     wr.s3.to_csv(
         pd.DataFrame(fight, index=[0]),
-        path=f"s3://ufc-big-data-2/{k}-fight.csv",
+        path=f"s3://{STATE['STAGE_LAYER_TWO']}/{k}-fight.csv",
         index=False,
     )
-    print("fight successfully written!")
+    log.info("fight successfully written!")
 
 
 # transform fix
