@@ -68,7 +68,7 @@ def callCopy(fight_manifest_file_name, round_manifest_file_name):
     the_rounds_query = f"""
                 
                 
-                copy round_source(kd, ss_l, ss_a, ts_l, ts_a, td_l, td_a, sub_a, rev, ctrl, ss_l_h, ss_a_h, ss_l_b, ss_a_b, ss_l_l, ss_a_l, ss_l_dist, ss_a_dist, ss_l_cl, ss_a_cl, ss_l_gr, ss_a_gr, fighter_id, fight_key_nat, round_num)
+                copy round_source(kd, ss_l, ss_a, ts_l, ts_a, td_l, td_a, sub_a, rev, ctrl, ss_l_h, ss_a_h, ss_l_b, ss_a_b, ss_l_l, ss_a_l, ss_l_dist, ss_a_dist, ss_l_cl, ss_a_cl, ss_l_gr, ss_a_gr, fighter_name, fighter_id, fight_key_nat, round_num)
                 from 's3://{UFC_META_FILES_LOCATION}/{LOAD_MANIFEST_FOLDER}/{round_manifest_file_name}'
                 -- iam_role '{REDSHIFT_S3_READ_IAM_ROLE}';
                 access_key_id '{ACCESS_KEY_ID}'

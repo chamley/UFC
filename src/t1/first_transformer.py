@@ -42,7 +42,7 @@ T = datetime.datetime.today()
 load_dotenv()
 
 
-ACCESS_KEY_ID: str = os.getenv("access_key_id")
+ACCESS_KEY_ID = os.getenv("access_key_id")
 SECRET_ACCESS_KEY_ID = os.getenv("secret_access_key_id")
 DATE: datetime.date = datetime.date.today()
 S3C = boto3.client(
@@ -376,6 +376,9 @@ def fix_data(d, k):
         b = d["blue"][f"r{n}"]
         r = d["red"][f"r{n}"]
 
+        b["fighter_name"] = d["blue"]["name"].lower().strip()
+        r["fighter_name"] = d["red"]["name"].lower().strip()
+
         b["fighter_id"] = d["blue"]["id"]
         r["fighter_id"] = d["red"]["id"]
         b["fight_key_nat"] = k
@@ -419,12 +422,12 @@ def fix_data(d, k):
         d["metadata"]["weight class"].lower(), fight["wmma"]
     )
 
-    # two different storage formats, for the memes.
-    boto3.setup_default_session(
-        region_name="us-east-1",
-        aws_access_key_id=ACCESS_KEY_ID,
-        aws_secret_access_key=SECRET_ACCESS_KEY_ID,
-    )
+    if not PRODUCTION_MODE:
+        boto3.setup_default_session(
+            region_name="us-east-1",
+            aws_access_key_id=ACCESS_KEY_ID,
+            aws_secret_access_key=SECRET_ACCESS_KEY_ID,
+        )
 
     # print(pd.DataFrame(rounds))
     # print(pd.DataFrame(fight, index=[0]))
@@ -524,6 +527,9 @@ def get_file_keys():
         for i in items:
             x = i["Key"].replace(".txt", "") + "-rounds.csv"
             y = i["Key"].replace(".txt", "") + "-fight.csv"
+
+            # idempotency
+
             # if x in keys2 and y in keys2 and not DEV_MODE:
             #     print(
             #         f"{i['Key'].replace('.txt', '')} already exists in SL2 ! Skipping."
