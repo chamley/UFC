@@ -19,6 +19,7 @@ from src.t1.t1_exceptions import InvalidDates
 from awswrangler.exceptions import EmptyDataFrame
 import pandas as pd
 import awswrangler as wr
+import boto3
 
 # Default state (what we start off with at the top of the script/load from config)
 
@@ -364,9 +365,18 @@ class TestPushData(object):
         actual_fight = wr.s3.read_csv(path=f"s3://{STAGE_LAYER_TWO}/{key}-fight.csv")
         actual_rounds = wr.s3.read_csv(path=f"s3://{STAGE_LAYER_TWO}/{key}-rounds.csv")
 
-        print(expected_rounds.size)
-        print(actual_rounds.size)
+        pd.testing.assert_frame_equal(
+            actual_rounds.astype(str), expected_rounds.astype(str), check_dtype=False
+        )
+        pd.testing.assert_frame_equal(
+            actual_fight.astype(str), expected_fight.astype(str), check_dtype=False
+        )
+        assert True
 
-        assert pd.testing.assert_frame_equal(
-            actual_rounds, expected_rounds
-        ) and pd.testing.assert_frame_equal(actual_fight, expected_fight)
+        # # yes this is not how you're supposed to do stuff but i want to be a data engineer not a QA engineer, time presses
+        # wr.s3.delete_objects(
+        #     [
+        #         f"s3://{STAGE_LAYER_TWO}/{key}-fight.csv",
+        #         f"s3://{STAGE_LAYER_TWO}/{key}-rounds.csv",
+        #     ]
+        # )
