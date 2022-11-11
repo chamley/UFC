@@ -127,6 +127,9 @@ def fix_data(d, k):
         b = d["blue"][f"r{n}"]
         r = d["red"][f"r{n}"]
 
+        b["fighter_name"] = d["blue"]["name"].lower().strip()
+        r["fighter_name"] = d["red"]["name"].lower().strip()
+
         b["fighter_id"] = d["blue"]["id"]
         r["fighter_id"] = d["red"]["id"]
         b["fight_key_nat"] = k
@@ -393,7 +396,9 @@ def parse_fight(file, k):
     print("fight parsed.")
     rounds, fight, k = fix_data(d, k)
 
-    print(rounds, fight, k)
+    print(rounds)
+    print(fight)
+    print(k)
 
     return rounds, fight, k
 
