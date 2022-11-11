@@ -373,10 +373,10 @@ class TestPushData(object):
         )
         assert True
 
-        # # yes this is not how you're supposed to do stuff but i want to be a data engineer not a QA engineer, time presses
-        # wr.s3.delete_objects(
-        #     [
-        #         f"s3://{STAGE_LAYER_TWO}/{key}-fight.csv",
-        #         f"s3://{STAGE_LAYER_TWO}/{key}-rounds.csv",
-        #     ]
-        # )
+        # yes this is not how you're supposed to do stuff but i want to be a data engineer not a QA engineer, time presses
+        wr.s3.delete_objects(
+            [
+                f"s3://{STAGE_LAYER_TWO}/{key}-fight.csv",
+                f"s3://{STAGE_LAYER_TWO}/{key}-rounds.csv",
+            ]
+        )
