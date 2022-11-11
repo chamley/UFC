@@ -136,6 +136,30 @@ class TestSanityCheck(object):
         "file, expected",
         [(open("tests/t1/mock_data/test-andrade-valid.html"), True)],
     )
-    def validates_correctly(self, file, expected):
+    def test_validates_correctly(self, file, expected):
         actual = sanity_check("dummy_key", file)
         assert actual == expected
+
+
+from src.t1.ufcstats_t1 import parse_fight
+
+
+class TestParseFight(object):
+    @pytest.mark.parametrize(
+        "file, rounds, fight, key",
+        [
+            (
+                open("tests/t1/mock_data/test-andrade-valid.html"),
+                1,
+                1,
+                "fight-2022-04-23amandalemosjessicaandrade.txt",
+            )
+        ],
+    )
+
+    # 'fight-2022-04-23amandalemosjessicaandrade.txt'
+
+    def test_parses_correctly(self, file, rounds, fight, key):
+
+        actual = parse_fight(file, key)
+        assert False

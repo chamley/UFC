@@ -52,10 +52,10 @@ STATE = {
 
 # Nethod to Invoke
 def main(event={}, context=None) -> None:
-    # required here and nowhere else
+    # required here and nowhere else. State is a global constant.
     global STATE
     event = defaultdict(lambda: None, event)
-    STATE = prepstate(event, STATE)
+    STATE = prepstate(event)  # set given input to lambda
 
     # find all valid keys to transform
     keys = get_keys(STATE)
@@ -86,9 +86,24 @@ def main(event={}, context=None) -> None:
 
 
 def push_data(rounds, fight, k, STATE=STATE) -> None:
+
+    boto3.setup_default_session(
+        region_name="us-east-1",
+        aws_access_key_id=ACCESS_KEY_ID,
+        aws_secret_access_key=SECRET_ACCESS_KEY_ID,
+    )
+
+    ## Idempotency Check HERE
+
+    print("program not finished, no write")
+    sys.exit()
+
     wr.s3.to_csv(
         pd.DataFrame(rounds), path=f"s3://ufc-big-data-2/{k}-rounds.csv", index=False
     )
+
+    ## Idempotency Check HERE
+
     wr.s3.to_csv(
         pd.DataFrame(fight, index=[0]),
         path=f"s3://ufc-big-data-2/{k}-fight.csv",
@@ -377,7 +392,43 @@ def parse_fight(file, k):
 
     print("fight parsed.")
     rounds, fight, k = fix_data(d, k)
+
+    print(rounds, fight, k)
+
     return rounds, fight, k
+
+
+def format_weight_class(s, wmma):
+    if not wmma:
+        if "lightweight" in s:
+            return "lw"
+        elif "featherweight" in s:
+            return "few"
+        elif "bantamweight" in s:
+            return "bw"
+        elif "flyweight" in s:
+            return "flw"
+        elif "welterweight" in s:
+            return "ww"
+        elif "middleweight" in s:
+            return "mw"
+        elif "heavyweight" in s:
+            return "hw"
+        elif "light heavyweight" in s:
+            return "lhw"
+        else:
+            return "catchweight"
+    else:
+        if "strawweight" in s:
+            return "wsw"
+        elif "bantamweight" in s:
+            return "wbw"
+        elif "featherweight" in s:
+            return "wfew"
+        elif "flyweight" in s:
+            return "wflw"
+        else:
+            return "wcatchweight"
 
 
 def sanity_check(key: str, file) -> bool:
@@ -417,7 +468,6 @@ def sanity_check(key: str, file) -> bool:
 
 
 def get_keys(STATE=STATE) -> list:
-
     # get keys in SL1 that fall in specified date range
     valid_sl1_keys = []
     start = STATE["START_DATE"].year
