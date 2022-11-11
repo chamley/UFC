@@ -92,27 +92,30 @@ def push_data(rounds, fight, k, STATE=STATE) -> None:
         aws_access_key_id=ACCESS_KEY_ID,
         aws_secret_access_key=SECRET_ACCESS_KEY_ID,
     )
-
     ## Idempotency Check HERE
-
-    test_obj = S3C
-
-    # sys.exit()
-
-    wr.s3.to_csv(
-        pd.DataFrame(rounds),
-        path=f"s3://{STATE['STAGE_LAYER_TWO']}/{k}-rounds.csv",
-        index=False,
-    )
-
+    try:
+        test_obj = S3R.Object(
+            bucket_name=STATE["STAGE_LAYER_TWO"], key=f"{k}-rounds.csv"
+        ).get()
+    except S3C.exceptions.NoSuchKey:
+        logging.info(f"writing{k}-rounds.csv to {STATE['STAGE_LAYER_TWO']}")
+        wr.s3.to_csv(
+            pd.DataFrame(rounds),
+            path=f"s3://{STATE['STAGE_LAYER_TWO']}/{k}-rounds.csv",
+            index=False,
+        )
     ## Idempotency Check HERE
-
-    wr.s3.to_csv(
-        pd.DataFrame(fight, index=[0]),
-        path=f"s3://{STATE['STAGE_LAYER_TWO']}/{k}-fight.csv",
-        index=False,
-    )
-    log.info("fight successfully written!")
+    try:
+        test_obj = S3R.Object(
+            bucket_name=STATE["STAGE_LAYER_TWO"], key=f"{k}-fight.csv"
+        ).get()
+    except S3C.exceptions.NoSuchKey:
+        logging.info(f"writing{k}-fight.csv to {STATE['STAGE_LAYER_TWO']}")
+        wr.s3.to_csv(
+            pd.DataFrame(fight, index=[0]),
+            path=f"s3://{STATE['STAGE_LAYER_TWO']}/{k}-fight.csv",
+            index=False,
+        )
 
 
 # transform fix
