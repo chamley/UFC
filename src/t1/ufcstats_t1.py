@@ -50,7 +50,7 @@ STATE = {
 }
 
 
-# Nethod to Invoke
+# Method to Invoke
 def main(event={}, context=None) -> None:
     # required here and nowhere else. State is a global constant.
     global STATE
