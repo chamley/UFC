@@ -84,7 +84,7 @@ class TestPrepstate(object):
 from mock_data.mock_data_get_keys import mock_keys
 
 
-class TestGet_Keys(object):
+class TestGetKeys(object):
     @pytest.mark.parametrize(
         "STATE, expected",
         [
@@ -124,4 +124,18 @@ class TestGet_Keys(object):
     )
     def test_proper_keys_retrieved(self, STATE, expected):
         actual = get_keys(STATE)
+        assert actual == expected
+
+
+from src.t1.ufcstats_t1 import sanity_check
+from src.t1.t1_exceptions import InvalidHTMLTableDimensions
+
+
+class TestSanityCheck(object):
+    @pytest.mark.parametrize(
+        "file, expected",
+        [(open("tests/t1/mock_data/test-andrade-valid.html"), True)],
+    )
+    def validates_correctly(self, file, expected):
+        actual = sanity_check("dummy_key", file)
         assert actual == expected

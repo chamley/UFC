@@ -18,7 +18,7 @@ from t1_helper import my_argument_parser
 from t1_exceptions import InvalidDates, InvalidHTMLTableDimensions
 from datetime import date
 from configfile import STAGE_LAYER_ONE, STAGE_LAYER_TWO, REGION_NAME
-
+import logging
 
 load_dotenv()
 
@@ -50,7 +50,7 @@ STATE = {
 }
 
 
-# method to invoke
+# Nethod to Invoke
 def main(event={}, context=None) -> None:
     # required here and nowhere else
     global STATE
@@ -59,11 +59,53 @@ def main(event={}, context=None) -> None:
 
     # find all valid keys to transform
     keys = get_keys(STATE)
-
-    # we find idempotency on write as we may be missing a
+    logging.info(f"We found {len(keys)} elements to transform")
+    # We assure idempotency on write as we may be missing a
     # fight file or a rounds file but not its partner
 
-    print(keys)
+    for item in keys:
+        object = S3R.Object(bucket_name=STATE["STAGE_LAYER_ONE"], key=item["Key"]).get()
+        file = object["Body"].read()
+        try:
+            sanity_check(item["Key"], file)
+        except InvalidHTMLTableDimensions as e:
+            logging.error(f"HTML not parsable on {item['Key']}, skipping for now.")
+
+
+def sanity_check(key: str, file) -> bool:
+    try:
+        parser = BeautifulSoup(file, "html.parser")
+
+        num_rounds_according_to_page = (
+            len(
+                parser.find_all(
+                    class_="b-fight-details__table-row b-fight-details__table-row_type_head"
+                )
+            )
+            / 2
+        )
+        num_rounds_according_to_table = int(
+            parser.find_all("i", class_="b-fight-details__text-item")[0]
+            .find("i")
+            .next_sibling.strip()
+        )
+
+        con1 = num_rounds_according_to_table == num_rounds_according_to_page
+
+        flag = con1
+
+        if not flag:
+            logging.error(f"Table dim sanity check failed on {key}")
+            raise InvalidHTMLTableDimensions
+        else:
+            logging.info(f"Table dim Sanity check passed on {key} ")
+    except IndexError as e:
+        logging.error(f"Table dim Sanity check failed on {key} due to {e}")
+        raise InvalidHTMLTableDimensions
+    except AttributeError as e:
+        logging.error(f"Table dim Sanity check failed on {key} due to {e}")
+        raise InvalidHTMLTableDimensions
+    return True
 
 
 def get_keys(STATE) -> list:
@@ -85,7 +127,6 @@ def get_keys(STATE) -> list:
         if keys:
             for k in keys:
                 valid_sl1_keys.append(k["Key"])
-    print(valid_sl1_keys)
     return valid_sl1_keys
 
 
