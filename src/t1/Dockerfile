@@ -8,4 +8,4 @@ COPY t1_helper.py ${LAMBDA_TASK_ROOT}
 COPY t1_exceptions.py ${LAMBDA_TASK_ROOT}
 COPY configfile.py ${LAMBDA_TASK_ROOT}
 
-CMD ["first_transformer.main"]
+CMD ["ufcstats_t1.main"]
