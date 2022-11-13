@@ -11,7 +11,7 @@ from datetime import date
 import pytest
 from configfile import STAGE_LAYER_TWO, REGION_NAME
 from src.loader.preloader import prepstate
-
+import random
 
 # Default state (what we start off with at the top of the script/load from config)
 def return_default_state():
@@ -21,6 +21,7 @@ def return_default_state():
         "REGION_NAME": REGION_NAME,
         "START_DATE": None,
         "END_DATE": None,
+        "PREFIX": "",
     }
 
 
@@ -126,7 +127,7 @@ class TestInsideBounds(object):
         assert actual == expected
 
     @pytest.mark.parametrize(
-        "xtc, STATE",
+        "xt, STATE",
         [
             (
                 "2001-01-01",
@@ -157,6 +158,54 @@ class TestInsideBounds(object):
 
 
 # TEST CREATE MANIFESTS
+
+from src.loader.preloader import createManifests
+
+
+class TestCreateManifest(object):
+    @pytest.mark.parametrize(
+        "STATE",
+        [
+            (
+                {
+                    **return_default_state(),
+                }
+            ),
+        ],
+    )
+    def test_raises_error_on_invalid_dates(self, STATE):
+
+        with pytest.raises(AttributeError):
+            createManifests(STATE)
+
+    @pytest.mark.parametrize(
+        "STATE",
+        [
+            ({}),
+            ({"ohai": "quepasas"}),
+            ({"invalid key": date(2001, 1, 1)}),
+        ],
+    )
+    def test_raises_error_on_invalid_state(self, STATE):
+
+        with pytest.raises(KeyError):
+            createManifests(STATE)
+
+    @pytest.mark.parametrize(
+        "STATE",
+        [
+            (
+                {
+                    **return_default_state(),
+                }
+            ),
+        ],
+    )
+    def test_works_gud(self, STATE):
+        test_key = f"test-{str(random.random())[2:]}"
+        STATE["PREFIX"] = test_key
+
+        createManifests(STATE)
 
 
 # TEST CALL COPY
