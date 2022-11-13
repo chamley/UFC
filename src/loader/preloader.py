@@ -40,6 +40,7 @@ STATE = {
     "REGION_NAME": REGION_NAME,
     "START_DATE": None,  # becomes date object
     "END_DATE": None,  # becomes date object
+    "PREFIX": "",
 }
 
 
@@ -61,7 +62,8 @@ def main(event={}, context=None):
 
 # We want to pack as much data into a transaction block therefore pack all the dates together
 # For data sanity sake we want no fights without rounds or rounds without fights,
-# so put both COPY commands together in same transation block.
+# so put both COPY commands together in same transation block that way everything fails if any one
+# of them fails.
 def callCopy(fight_manifest_file_name, round_manifest_file_name):
     db = DBHelper()
 
@@ -142,8 +144,8 @@ def createManifests(STATE=STATE):
             {"url": f"s3://{STAGE_LAYER_TWO}/{x}", "mandatory": True}
         )
 
-    fight_manifest_file_name = f"fight-manifest-{datetime.now().isoformat(sep='-').replace(':','-').replace('.','-')}.json"
-    round_manifest_file_name = f"round-manifest-{datetime.now().isoformat(sep='-').replace(':','-').replace('.','-')}.json"
+    fight_manifest_file_name = f"{STATE['PREFIX']}fight-manifest-{datetime.now().isoformat(sep='-').replace(':','-').replace('.','-')}.json"
+    round_manifest_file_name = f"{STATE['PREFIX']}round-manifest-{datetime.now().isoformat(sep='-').replace(':','-').replace('.','-')}.json"
 
     # Push our manifest log file
     S3C.put_object(
@@ -158,6 +160,7 @@ def createManifests(STATE=STATE):
         Key=f"{LOAD_MANIFEST_FOLDER}/{round_manifest_file_name}",
         Body=json.dumps(round_manifest),
     )
+
     print(round_manifest)
     print(fight_manifest)
     print(f"manifests built: {round_manifest_file_name} AND {fight_manifest_file_name}")
