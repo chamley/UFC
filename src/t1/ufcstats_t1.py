@@ -76,9 +76,9 @@ def main(event={}, context=None) -> None:
             push_data(rounds, fight, k)
 
         except InvalidHTMLTableDimensions as e:
-            logging.error(f"HTML not parsable on {k['Key']}, skipping for now.")
+            logging.error(f"HTML not parsable on {k}, skipping for now.")
         except IndexError as e:
-            logging.error(f"HTML not parsable on {k['Key']}, skipping for now.")
+            logging.error(f"HTML not parsable on {k}, skipping for now.")
     logging.info("Successfully exiting first transformer")
 
 
