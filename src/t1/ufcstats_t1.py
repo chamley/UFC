@@ -63,25 +63,22 @@ def main(event={}, context=None) -> None:
     # We assure idempotency on write as we may be missing a
     # fight file or a rounds file but not its partner
 
-    for item in keys:
-        object = S3R.Object(bucket_name=STATE["STAGE_LAYER_ONE"], key=item["Key"]).get()
+    for k in keys:
+        print(k)
+        object = S3R.Object(bucket_name=STATE["STAGE_LAYER_ONE"], key=k).get()
         file = object["Body"].read()
         try:
-            sanity_check(item["Key"], file)
+            sanity_check(k, file)
         except:
-            logging.error(f"HTML not parsable on {item['Key']}, skipping for now.")
-
+            logging.error(f"HTML not parsable on {k}, skipping for now.")
         try:
-            # I apologize for this
-            # fight_data = parse_fight(file, item["Key"][:-4])
-            # fix_data(fight_data, item["Key"][:-4])
-
-            rounds, fight, k = parse_fight(file, item["Key"][:-4])
+            rounds, fight, k = parse_fight(file, k)
             push_data(rounds, fight, k)
 
         except InvalidHTMLTableDimensions as e:
-            print(f"HTML not parsable on {item['Key']}, skipping for now.")
-
+            logging.error(f"HTML not parsable on {k['Key']}, skipping for now.")
+        except IndexError as e:
+            logging.error(f"HTML not parsable on {k['Key']}, skipping for now.")
     logging.info("Successfully exiting first transformer")
 
 
@@ -399,12 +396,12 @@ def parse_fight(file, k):
             )
         ]
 
-    print("fight parsed.")
+    logging.info("fight parsed.")
     rounds, fight, k = fix_data(d, k)
 
-    print(rounds)
-    print(fight)
-    print(k)
+    # print(rounds)
+    # print(fight)
+    # print(k)
 
     return rounds, fight, k
 
