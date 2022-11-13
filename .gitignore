@@ -22,3 +22,4 @@ terraform/terraform.tfstate.backup
 terraform/terraform.tfstate
 terraform/terraform.tfstate*
 tests/extractor/mock_inputs/
+src/t1/response.json
