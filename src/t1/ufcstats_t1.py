@@ -58,7 +58,7 @@ def main(event={}, context=None) -> None:
     STATE = prepstate(event)  # set given input to lambda
 
     # find all valid keys to transform
-    keys = get_keys(STATE)
+    keys = get_keys()
     logging.info(f"We found {len(keys)} elements to transform")
     # We assure idempotency on write as we may be missing a
     # fight file or a rounds file but not its partner
