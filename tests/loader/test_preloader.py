@@ -79,73 +79,84 @@ class TestPrepstate(object):
         assert actual == expected
 
 
-# class TestPrepScript(object):
-#     # 3 tests here seen in code + 2 Value Errors from isoformsat errors
-#     @pytest.mark.parametrize(
-#         "STATE, event, args",
-#         [
-#             (return_default_state(), {}, ArgsObject(dates=["asdf", "111"])),
-#             (return_default_state(), {"dates": {"start": "asdf", "end": "aaa"}}, None),
-#             (
-#                 return_default_state(),
-#                 {"dates": {"start": "2022-01-01", "end": "2021-01-01"}},
-#                 None,
-#             ),
-#             (
-#                 return_default_state(),
-#                 {},
-#                 ArgsObject(dates=["2022-03-04", "2005-03-04"]),
-#             ),
-#             (return_default_state(), {}, ArgsObject()),
-#         ],
-#     )
-#     def test_throws_value_error_for_incorrect_inputs(self, STATE, event, args):
-#         with pytest.raises(ValueError):
-#             prep_script(STATE, event, args)
+from src.loader.preloader import inside_bounds
 
-# @pytest.mark.parametrize(
-#     "STATE, event, args, expected",
-#     [
-#         (
-#             return_default_state(),
-#             defaultdict(lambda: None, {"dev": "True"}),
-#             ArgsObject(),
-#             {**return_default_state(), "DEV_MODE": True, "PROD_MODE": True},
-#         ),
-#         (
-#             return_default_state(),
-#             defaultdict(
-#                 lambda: None,
-#                 {"dates": {"start": "2021-04-04", "end": "2021-05-05"}},
-#             ),
-#             ArgsObject(),
-#             {
-#                 **return_default_state(),
-#                 "PROD_MODE": True,
-#                 "DATE_SPECIFIED": True,
-#                 "START_DATE": date.fromisoformat("2021-04-04"),
-#                 "END_DATE": date.fromisoformat("2021-05-05"),
-#             },
-#         ),
-#         (
-#             return_default_state(),
-#             defaultdict(lambda: None, {}),
-#             ArgsObject(dates=["2015-04-04", "2016-06-05"]),
-#             {
-#                 **return_default_state(),
-#                 "DATE_SPECIFIED": True,
-#                 "START_DATE": date.fromisoformat("2015-04-04"),
-#                 "END_DATE": date.fromisoformat("2016-06-05"),
-#             },
-#         ),
-#         (
-#             return_default_state(),
-#             defaultdict(lambda: None, {}),
-#             ArgsObject(dev=True),
-#             {**return_default_state(), "DEV_MODE": True},
-#         ),
-#     ],
-# )
-# def test_correct_end_state_for_valid_inputs(self, STATE, event, args, expected):
-#     actual = prep_script(STATE, event, args)
-#     assert expected == actual
+
+class TestInsideBounds(object):
+    @pytest.mark.parametrize(
+        "xtc, STATE, expected",
+        [
+            (
+                "2001-01-01",
+                {
+                    "START_DATE": date.fromisoformat("1990-04-01"),
+                    "END_DATE": date.fromisoformat("2001-01-01"),
+                },
+                True,
+            ),
+            (
+                "1990-04-01",
+                {
+                    "START_DATE": date.fromisoformat("1990-04-01"),
+                    "END_DATE": date.fromisoformat("2001-01-01"),
+                },
+                True,
+            ),
+            (
+                "1989-04-01",
+                {
+                    "START_DATE": date.fromisoformat("1990-04-01"),
+                    "END_DATE": date.fromisoformat("2001-01-01"),
+                },
+                False,
+            ),
+            (
+                "2002-04-01",
+                {
+                    "START_DATE": date.fromisoformat("1990-04-01"),
+                    "END_DATE": date.fromisoformat("2001-01-01"),
+                },
+                False,
+            ),
+        ],
+    )
+    def test_it_works_lol(self, xtc, STATE, expected):
+
+        actual = inside_bounds(" " * 6 + xtc, STATE)
+        assert actual == expected
+
+    @pytest.mark.parametrize(
+        "xtc, STATE",
+        [
+            (
+                "2001-01-01",
+                {
+                    "START_DATE": date.fromisoformat("1990-04-01"),
+                    "END_DATE": date.fromisoformat("2001-01-01"),
+                },
+            ),
+            (
+                " " * 16,
+                {
+                    "START_DATE": date.fromisoformat("1990-04-01"),
+                    "END_DATE": date.fromisoformat("2001-01-01"),
+                },
+            ),
+            (
+                "QUE PASA",
+                {
+                    "START_DATE": date.fromisoformat("1990-04-01"),
+                    "END_DATE": date.fromisoformat("2001-01-01"),
+                },
+            ),
+        ],
+    )
+    def test_it_throws_sane_errors(self, xt, STATE):
+        with pytest.raises(ValueError):
+            inside_bounds(xt, STATE)
+
+
+# TEST CREATE MANIFESTS
+
+
+# TEST CALL COPY
