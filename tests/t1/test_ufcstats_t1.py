@@ -32,7 +32,7 @@ def return_default_state():
         "START_DATE": None,
         "END_DATE": None,
         "TODAY": date.today(),
-        "PREFIX_STRING": "",
+        "PREFIX": "",
     }
 
 
