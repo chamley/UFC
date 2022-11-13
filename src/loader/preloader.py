@@ -113,8 +113,6 @@ def createManifests(STATE=STATE):
         "entries": []
     }  # entry example {"url":"s3://mybucket/custdata.1", "mandatory":true},
 
-    # ARE WE DESIGNING OUR LAMBDA FUNCTIONS TO BE IDEMPOTENT ????? nope
-
     # build 2 lists (round/fights) of the keys of the objects to load to db
 
     # design: narrowing search space in lambda takes pressure off of datalake (stupid at this scale but whatever)
