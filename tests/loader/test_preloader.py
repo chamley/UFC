@@ -266,8 +266,17 @@ class TestCreateManifest(object):
             assert expected_fight_manifest == actual_fight_manifest
 
 
+from src.loader.preloader import callCopy
+
+
 class TestCallCopy(object):
     pass
+    # create a copy of the source table via select into command
 
+    # create two fake tables based on source table   (select into from {source table name})
 
-# TEST CALL COPY
+    # create two fake pieces of data, and a fake manifest pointing to those
+
+    # call callCopy and assert query new table to see if data looks the way it should
+
+    # tear down infrastructure that you set up for the test.
