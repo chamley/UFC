@@ -270,4 +270,8 @@ class TestCreateManifest(object):
             assert expected_fight_manifest == actual_fight_manifest
 
 
+class TestCallCopy(object):
+    pass
+
+
 # TEST CALL COPY
