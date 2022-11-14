@@ -36,7 +36,6 @@ S3C = boto3.client(
 # global args. configured at start then not modified.
 STATE = {
     "PROD_MODE": True,
-    "STAGE_LAYER_TWO": STAGE_LAYER_TWO,
     "REGION_NAME": REGION_NAME,
     "START_DATE": None,  # becomes date object
     "END_DATE": None,  # becomes date object
@@ -133,7 +132,9 @@ def createManifests(STATE=STATE):
     rounds = filter(
         lambda x: x[-10:] == "rounds.csv" and inside_bounds(x), keys
     )  # x[-3] == "zip"
-    fights = filter(lambda x: x[-9:] == "fight.csv" and inside_bounds(x), keys)
+    fights = filter(
+        lambda x: x[-9:] == "fight.csv" and inside_bounds(x, STATE), keys
+    )  # for testing purposes we need to add STATE here
 
     # build manifest
     for x in fights:
