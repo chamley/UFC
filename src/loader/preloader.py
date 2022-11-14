@@ -48,12 +48,6 @@ def main(event={}, context=None):
     global STATE  # should only be required here and nowhere else
     event = defaultdict(lambda: None, event)
 
-    #### test #######################################################
-    event = defaultdict(
-        lambda: None, {"dates": {"start": "1999-01-01", "end": "2000-12-31"}}
-    )
-    #### test #######################################################
-
     STATE = prepstate(event, STATE)
     logging.info(f"current state: {STATE}")
     fight_manifest_file_name, round_manifest_file_name = createManifests()
