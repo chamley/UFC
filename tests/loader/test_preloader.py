@@ -23,11 +23,15 @@ from dotenv import load_dotenv
 import os
 
 load_dotenv()
-my_session = boto3.session.Session()
 
 
 ACCESS_KEY_ID = os.getenv("access_key_id")
 SECRET_ACCESS_KEY_ID = os.getenv("secret_access_key_id")
+my_session = boto3.session.Session(
+    aws_access_key_id=ACCESS_KEY_ID,
+    aws_secret_access_key=SECRET_ACCESS_KEY_ID,
+    region_name=REGION_NAME,
+)
 
 # Default state (what we start off with at the top of the script/load from config)
 def return_default_state():
@@ -230,7 +234,7 @@ class TestCreateManifest(object):
         STATE["PREFIX"] = test_key
         createManifests(STATE)
 
-        ## fight manifest
+        ## get fight manifest and delete
         exact_key = s3c.list_objects_v2(
             Bucket=UFC_META_FILES_LOCATION,
             Prefix=f"{LOAD_MANIFEST_FOLDER}/{STATE['PREFIX']}fight-manifest-",
@@ -242,7 +246,9 @@ class TestCreateManifest(object):
                 .read()
             )
         )
-        # round manifest
+        s3r.Object(bucket_name=UFC_META_FILES_LOCATION, key=exact_key).delete()
+
+        # get round manifest and delete
         exact_key = s3c.list_objects_v2(
             Bucket=UFC_META_FILES_LOCATION,
             Prefix=f"{LOAD_MANIFEST_FOLDER}/{STATE['PREFIX']}round-manifest-",
@@ -254,13 +260,13 @@ class TestCreateManifest(object):
                 .read()
             )
         )
+        s3r.Object(bucket_name=UFC_META_FILES_LOCATION, key=exact_key).delete()
 
         with (open(expected_path) as f):
             expected_fight_manifest = json.loads(f.read())
 
             print(json.dumps(expected_fight_manifest, indent=2, sort_keys=True))
             print(json.dumps(actual_fight_manifest, indent=2, sort_keys=True))
-
             assert expected_fight_manifest == actual_fight_manifest
 
 
