@@ -9,9 +9,10 @@ from datetime import date
 
 
 import pytest
-from configfile import STAGE_LAYER_TWO, REGION_NAME
+from configfile import STAGE_LAYER_TWO, REGION_NAME, UFC_META_FILES_LOCATION
 from src.loader.preloader import prepstate
 import random
+import awswrangler as wr
 
 # Default state (what we start off with at the top of the script/load from config)
 def return_default_state():
