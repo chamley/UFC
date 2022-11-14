@@ -92,8 +92,6 @@ def callCopy(fight_manifest_file_name, round_manifest_file_name):
                 IGNOREHEADER 1
                 manifest
             """
-    print(the_rounds_query)
-    print(the_fights_query)
 
     conn = db.getConn()
     cur = db.getCursor()
