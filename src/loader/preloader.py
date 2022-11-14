@@ -23,6 +23,10 @@ from configfile import (
     LOAD_MANIFEST_FOLDER,
     UFC_META_FILES_LOCATION,
     REDSHIFT_S3_READ_IAM_ROLE,
+    UFCSTATS_ROUND_SOURCE_TABLE_NAME,
+    UFCSTATS_FIGHT_SOURCE_TABLE_NAME,
+    UFCSTATS_ROUND_SOURCE_SCHEMA,
+    UFCSTATS_FIGHT_SOURCE_SCHEMA,
 )
 
 S3C = boto3.client(
@@ -64,7 +68,7 @@ def callCopy(fight_manifest_file_name, round_manifest_file_name):
     the_rounds_query = f"""
                 
                 
-                copy round_source(kd, ss_l, ss_a, ts_l, ts_a, td_l, td_a, sub_a, rev, ctrl, ss_l_h, ss_a_h, ss_l_b, ss_a_b, ss_l_l, ss_a_l, ss_l_dist, ss_a_dist, ss_l_cl, ss_a_cl, ss_l_gr, ss_a_gr, fighter_name, fighter_id, fight_key_nat, round_num)
+                copy {UFCSTATS_ROUND_SOURCE_TABLE_NAME}({UFCSTATS_ROUND_SOURCE_SCHEMA})
                 from 's3://{UFC_META_FILES_LOCATION}/{LOAD_MANIFEST_FOLDER}/{round_manifest_file_name}'
                 -- iam_role '{REDSHIFT_S3_READ_IAM_ROLE}';
                 access_key_id '{ACCESS_KEY_ID}'
@@ -76,7 +80,7 @@ def callCopy(fight_manifest_file_name, round_manifest_file_name):
             """
 
     the_fights_query = f"""
-                copy fight_source(fight_key_nat, red_fighter_name, red_fighter_id, blue_fighter_name, blue_fighter_id, winner_fighter_name, winner_fighter_id, details, final_round, final_round_duration, method, referee, round_format, weight_class, fight_date, is_title_fight, wmma, wc)
+                copy {UFCSTATS_FIGHT_SOURCE_TABLE_NAME}({UFCSTATS_FIGHT_SOURCE_SCHEMA})
                 from 's3://{UFC_META_FILES_LOCATION}/{LOAD_MANIFEST_FOLDER}/{fight_manifest_file_name}'
                 -- iam_role '{REDSHIFT_S3_READ_IAM_ROLE}';
                 access_key_id '{ACCESS_KEY_ID}'
