@@ -17,7 +17,7 @@ import awswrangler as wr
 from t1_helper import my_argument_parser
 from t1_exceptions import InvalidDates, InvalidHTMLTableDimensions
 from datetime import date
-from configfile import STAGE_LAYER_ONE, STAGE_LAYER_TWO, REGION_NAME
+from configfile import config_settings
 import logging
 
 load_dotenv()
@@ -26,29 +26,27 @@ load_dotenv()
 ACCESS_KEY_ID = os.getenv("access_key_id")
 SECRET_ACCESS_KEY_ID = os.getenv("secret_access_key_id")
 DATE = date.today()
-S3C = boto3.client(
-    "s3",
-    region_name=REGION_NAME,
-    aws_access_key_id=ACCESS_KEY_ID,
-    aws_secret_access_key=SECRET_ACCESS_KEY_ID,
-)
-S3R = boto3.resource(
-    "s3",
-    region_name=REGION_NAME,
-    aws_access_key_id=ACCESS_KEY_ID,
-    aws_secret_access_key=SECRET_ACCESS_KEY_ID,
-)
 
 STATE = {
-    "STAGE_LAYER_ONE": STAGE_LAYER_ONE,
-    "STAGE_LAYER_TWO": STAGE_LAYER_TWO,
-    "REGION_NAME": REGION_NAME,
+    **config_settings,
     "START_DATE": None,
     "END_DATE": None,
     "TODAY": datetime.datetime.today(),
     "PREFIX": "",
 }
 
+S3C = boto3.client(
+    "s3",
+    region_name=STATE["REGION_NAME"],
+    aws_access_key_id=ACCESS_KEY_ID,
+    aws_secret_access_key=SECRET_ACCESS_KEY_ID,
+)
+S3R = boto3.resource(
+    "s3",
+    region_name=STATE["REGION_NAME"],
+    aws_access_key_id=ACCESS_KEY_ID,
+    aws_secret_access_key=SECRET_ACCESS_KEY_ID,
+)
 
 # Method to Invoke
 def main(event={}, context=None) -> None:
