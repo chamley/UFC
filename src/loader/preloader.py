@@ -131,7 +131,7 @@ def createManifests(STATE=STATE):
     keys = [x["Key"] for x in objects]
 
     rounds = filter(
-        lambda x: x[-10:] == "rounds.csv" and inside_bounds(x), keys
+        lambda x: x[-10:] == "rounds.csv" and inside_bounds(x, STATE), keys
     )  # x[-3] == "zip"
     fights = filter(
         lambda x: x[-9:] == "fight.csv" and inside_bounds(x, STATE), keys
@@ -165,15 +165,16 @@ def createManifests(STATE=STATE):
         Body=json.dumps(round_manifest),
     )
 
-    print(round_manifest)
-    print(fight_manifest)
-    print(f"manifests built: {round_manifest_file_name} AND {fight_manifest_file_name}")
+    # print(round_manifest)
+    # print(fight_manifest)
+    logging.info(
+        f"manifests built: {round_manifest_file_name} AND {fight_manifest_file_name}"
+    )
     return fight_manifest_file_name, round_manifest_file_name
 
 
 # check date inside bounds
 def inside_bounds(x, STATE=STATE):
-    print(STATE)
     return (
         STATE["START_DATE"] <= date.fromisoformat(x[6:16])
         and date.fromisoformat(x[6:16]) <= STATE["END_DATE"]
