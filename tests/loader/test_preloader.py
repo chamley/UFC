@@ -197,6 +197,8 @@ class TestCreateManifest(object):
             (
                 {
                     **return_default_state(),
+                    "START_DATE": date(1999, 1, 1),
+                    "END_DATE": date(2000, 12, 31),
                 }
             ),
         ],
