@@ -34,6 +34,8 @@ from datetime import date
 import json
 from configfile import STAGE_LAYER_ONE, REGION_NAME
 from e1_exceptions import InvalidDates
+import logging
+
 
 load_dotenv()
 access_key_id = os.getenv("access_key_id")
@@ -71,9 +73,9 @@ elif args.dates:
         END_DATE = date.fromisoformat(args.dates[1])
         if END_DATE < START_DATE:
             raise InvalidDates
-        print(f"extracting fights from {START_DATE} to {END_DATE}")
+        logging.info(f"extracting fights from {START_DATE} to {END_DATE}")
     except:
-        print("invalid dates")
+        logging.error("invalid dates")
         sys.exit()
 elif args.csv:
     clean_dates = get_dates(args.csv, S3R)
@@ -90,23 +92,23 @@ def main(event, context):
             DEV_MODE = True  # not implemented curr
         elif event["dates"]:
             DATE_SPECIFIED = True
-            print("date specified flag set")
+            logging.info("date specified flag set")
             try:
                 START_DATE = date.fromisoformat(event["dates"]["start"])
                 END_DATE = date.fromisoformat(event["dates"]["end"])
                 if END_DATE < START_DATE:
                     raise InvalidDates
-                print(f"transforming fights from {START_DATE} to {END_DATE}")
+                logging.info(f"transforming fights from {START_DATE} to {END_DATE}")
             except:
-                print("invalid dates")
+                logging.error("invalid dates")
                 sys.exit()
         elif event["csv"]:
             clean_dates = get_dates(event["csv"], S3R)
 
-    print("starting script ..\n#\n#\n#\n#\n#\n#\n#")
+    logging.info("starting script ..\n#\n#\n#\n#\n#\n#\n#")
     stage_layer_1()
-    print("ending script ......")
-    print("no return values")
+    logging.info("ending script ......")
+    logging.info("no return values")
 
 
 # we grab the latest raw data. We transform in another stage
@@ -119,13 +121,13 @@ def stage_layer_1():
 
         for x in card_urls_dic.keys():
             if x in clean_dates:
-                print(x)
+                logging.info(x)
                 clean_dic[x] = card_urls_dic[x]
 
         card_urls_dic = clean_dic
 
-    print("finished getting EVENT (not singleton fight) urls:")
-    print(json.dumps(card_urls_dic, sort_keys=False, indent=4))
+    logging.info("finished getting EVENT (not singleton fight) urls:")
+    logging.info(json.dumps(card_urls_dic, sort_keys=False, indent=4))
 
     res2 = S3C.list_objects_v2(Bucket=STAGE_LAYER_ONE)
     current_fight_pages = []
@@ -144,19 +146,19 @@ def stage_layer_1():
         # list of fight urls for that card
         time.sleep(1)  # being respectful of their servers
         fight_urls_list = get_fight_url_list(card_url)
-        print(f"fight urls for {card_url} \n: {fight_urls_list}")
+        logging.info(f"fight urls for {card_url} \n: {fight_urls_list}")
 
         for f in fight_urls_list:
-            print("creating fight_page. ..")
+            logging.info("creating fight_page. ..")
             fight_page, names = create_fight_page(f, date_)
-            print("fight page created.")
+            logging.info("fight page created.")
             time.sleep(1)  # being respectful of their servers
             # pushes card page to s3 with date added somewhere
 
             key = "fight-" + date_.replace("_", "-") + names.lower() + ".txt"
 
             if key in current_fight_pages:
-                print(
+                logging.info(
                     f"we already have {key} in SL1, no-overwrite policy at the moment"
                 )
             else:
@@ -229,12 +231,12 @@ def create_fight_page(fight_url, date):
 
 
 def push_fight_page(fight_page, object_name):
-    print("pushing: " + object_name + " to: " + STAGE_LAYER_ONE)
+    logging.info("pushing: " + object_name + " to: " + STAGE_LAYER_ONE)
 
     # we add tmp as it seems to be the only folder that we can write to in AWS Lambda
     with open(f"/tmp/{object_name}", "w") as f:
         f.write(fight_page)
-        print(
+        logging.info(
             "trying to write filename:{}, bucket:{} key:{}".format(
                 object_name, STAGE_LAYER_ONE, object_name
             )
@@ -243,7 +245,7 @@ def push_fight_page(fight_page, object_name):
         S3C.upload_file(
             Filename=f"/tmp/{object_name}", Bucket=STAGE_LAYER_ONE, Key=object_name
         )
-        print("fight uploaded successfully")
+        logging.info("fight uploaded successfully")
 
 
 if not PROD_MODE:
