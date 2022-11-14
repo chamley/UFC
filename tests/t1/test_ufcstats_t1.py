@@ -13,7 +13,7 @@ from datetime import date
 
 
 import pytest
-from configfile import STAGE_LAYER_ONE, STAGE_LAYER_TWO, REGION_NAME
+from configfile import config_settings
 from src.t1.ufcstats_t1 import prepstate, get_keys
 from src.t1.t1_exceptions import InvalidDates
 from awswrangler.exceptions import EmptyDataFrame
@@ -26,9 +26,7 @@ import boto3
 
 def return_default_state():
     return {
-        "STAGE_LAYER_ONE": STAGE_LAYER_ONE,
-        "STAGE_LAYER_TWO": STAGE_LAYER_TWO,
-        "REGION_NAME": REGION_NAME,
+        **config_settings,
         "START_DATE": None,
         "END_DATE": None,
         "TODAY": date.today(),
@@ -362,8 +360,12 @@ class TestPushData(object):
         expected_fight = pd.DataFrame(fight, index=[0])
         expected_rounds = pd.DataFrame(rounds)
 
-        actual_fight = wr.s3.read_csv(path=f"s3://{STAGE_LAYER_TWO}/{key}-fight.csv")
-        actual_rounds = wr.s3.read_csv(path=f"s3://{STAGE_LAYER_TWO}/{key}-rounds.csv")
+        actual_fight = wr.s3.read_csv(
+            path=f"s3://{return_default_state()['STAGE_LAYER_TWO']}/{key}-fight.csv"
+        )
+        actual_rounds = wr.s3.read_csv(
+            path=f"s3://{return_default_state()['STAGE_LAYER_TWO']}/{key}-rounds.csv"
+        )
 
         pd.testing.assert_frame_equal(
             actual_rounds.astype(str), expected_rounds.astype(str), check_dtype=False
@@ -376,7 +378,7 @@ class TestPushData(object):
         # yes this is not how you're supposed to do stuff but i want to be a data engineer not a QA engineer, time presses
         wr.s3.delete_objects(
             [
-                f"s3://{STAGE_LAYER_TWO}/{key}-fight.csv",
-                f"s3://{STAGE_LAYER_TWO}/{key}-rounds.csv",
+                f"s3://{return_default_state()['STAGE_LAYER_TWO']}/{key}-fight.csv",
+                f"s3://{return_default_state()['STAGE_LAYER_TWO']}/{key}-rounds.csv",
             ]
         )
