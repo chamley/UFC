@@ -9,12 +9,7 @@ from datetime import date
 
 import json
 import pytest
-from configfile import (
-    STAGE_LAYER_TWO,
-    REGION_NAME,
-    UFC_META_FILES_LOCATION,
-    LOAD_MANIFEST_FOLDER,
-)
+from configfile import config_settings
 
 import random
 import awswrangler as wr
@@ -27,22 +22,23 @@ load_dotenv()
 
 ACCESS_KEY_ID = os.getenv("access_key_id")
 SECRET_ACCESS_KEY_ID = os.getenv("secret_access_key_id")
-my_session = boto3.session.Session(
-    aws_access_key_id=ACCESS_KEY_ID,
-    aws_secret_access_key=SECRET_ACCESS_KEY_ID,
-    region_name=REGION_NAME,
-)
 
 # Default state (what we start off with at the top of the script/load from config)
 def return_default_state():
     return {
+        **config_settings,
         "PROD_MODE": False,
-        "STAGE_LAYER_TWO": STAGE_LAYER_TWO,
-        "REGION_NAME": REGION_NAME,
         "START_DATE": None,
         "END_DATE": None,
         "PREFIX": "",
     }
+
+
+my_session = boto3.session.Session(
+    aws_access_key_id=ACCESS_KEY_ID,
+    aws_secret_access_key=SECRET_ACCESS_KEY_ID,
+    region_name="us-east-1",
+)
 
 
 class ArgsObject(object):
@@ -236,31 +232,31 @@ class TestCreateManifest(object):
 
         ## get fight manifest and delete
         exact_key = s3c.list_objects_v2(
-            Bucket=UFC_META_FILES_LOCATION,
-            Prefix=f"{LOAD_MANIFEST_FOLDER}/{STATE['PREFIX']}fight-manifest-",
+            Bucket=STATE["UFC_META_FILES_LOCATION"],
+            Prefix=f"{STATE['LOAD_MANIFEST_FOLDER']}/{STATE['PREFIX']}fight-manifest-",
         )["Contents"][0]["Key"]
         actual_fight_manifest = json.loads(
             (
-                s3r.Object(bucket_name=UFC_META_FILES_LOCATION, key=exact_key)
+                s3r.Object(bucket_name=STATE["UFC_META_FILES_LOCATION"], key=exact_key)
                 .get()["Body"]
                 .read()
             )
         )
-        s3r.Object(bucket_name=UFC_META_FILES_LOCATION, key=exact_key).delete()
+        s3r.Object(bucket_name=STATE["UFC_META_FILES_LOCATION"], key=exact_key).delete()
 
         # get round manifest and delete
         exact_key = s3c.list_objects_v2(
-            Bucket=UFC_META_FILES_LOCATION,
-            Prefix=f"{LOAD_MANIFEST_FOLDER}/{STATE['PREFIX']}round-manifest-",
+            Bucket=STATE["UFC_META_FILES_LOCATION"],
+            Prefix=f"{STATE['LOAD_MANIFEST_FOLDER']}/{STATE['PREFIX']}round-manifest-",
         )["Contents"][0]["Key"]
         actual_round_manifest = json.loads(
             (
-                s3r.Object(bucket_name=UFC_META_FILES_LOCATION, key=exact_key)
+                s3r.Object(bucket_name=STATE["UFC_META_FILES_LOCATION"], key=exact_key)
                 .get()["Body"]
                 .read()
             )
         )
-        s3r.Object(bucket_name=UFC_META_FILES_LOCATION, key=exact_key).delete()
+        s3r.Object(bucket_name=STATE["UFC_META_FILES_LOCATION"], key=exact_key).delete()
 
         with (open(expected_path) as f):
             expected_fight_manifest = json.loads(f.read())
