@@ -517,6 +517,9 @@ def prepstate(event, STATE=STATE) -> dict:
     STATE["START_DATE"] = date.fromisoformat(event["dates"]["start"])
     STATE["END_DATE"] = date.fromisoformat(event["dates"]["end"])
 
+    if event["prefix"]:
+        STATE["PREFIX"] = event["prefix"]
+
     return STATE
 
 
