@@ -118,7 +118,9 @@ def createManifests(STATE=STATE):
     # build 2 lists (round/fights) of the keys of the objects to load to db
 
     # design: narrowing search space in lambda takes pressure off of datalake (stupid at this scale but whatever)
-    years = [x for x in range(STATE["START_DATE"].year, STATE["END_DATE"].year + 1)]
+    years = [
+        x for x in range(STATE["START_DATE"].year, STATE["END_DATE"].year + 1)
+    ]  # [2001, 2002, 2003, ..]
     objects = []
 
     for y in years:
