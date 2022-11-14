@@ -16,8 +16,11 @@ os.environ["AWS_SECRET_ACCESS_KEY"] = "test"
 ###
 
 sys.path.append("./src/extractor")
-from configfile import REGION_NAME, UFC_META_FILES_LOCATION, E1_CSV_OPT_DATE_FOLDER_PATH
 
+# from configfile import REGION_NAME, UFC_META_FILES_LOCATION, E1_CSV_OPT_DATE_FOLDER_PATH
+from configfile import config_settings
+
+STATE = {**config_settings}
 
 from src.extractor.e1_helper import get_dates
 from src.extractor.e1_helper import my_argument_parser
@@ -44,14 +47,14 @@ class TestGetDates(object):
         ],
     )
     def test_normal_usage(self, mock_s3_endpoint, mock_data, expected):
-        s3c = boto3.client("s3", REGION_NAME)
-        s3c.create_bucket(Bucket=UFC_META_FILES_LOCATION)
+        s3c = boto3.client("s3", STATE["REGION_NAME"])
+        s3c.create_bucket(Bucket=STATE["UFC_META_FILES_LOCATION"])
         s3c.put_object(
-            Bucket=UFC_META_FILES_LOCATION,
-            Key=f"{E1_CSV_OPT_DATE_FOLDER_PATH}/{mock_s3_endpoint}",
+            Bucket=STATE["UFC_META_FILES_LOCATION"],
+            Key=f"{STATE['E1_CSV_OPT_DATE_FOLDER_PATH']}/{mock_s3_endpoint}",
             Body=mock_data,
         )
-        actual = get_dates(mock_s3_endpoint, boto3.resource("s3", REGION_NAME))
+        actual = get_dates(mock_s3_endpoint, boto3.resource("s3", STATE["REGION_NAME"]))
 
         assert actual == expected, "fetches a csv from s3"
 
