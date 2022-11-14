@@ -17,39 +17,24 @@ SECRET_ACCESS_KEY_ID = os.getenv("secret_access_key_id")
 from dbhelper_loader import DBHelper
 
 from datetime import date
-from configfile import (
-    STAGE_LAYER_TWO,
-    REGION_NAME,
-    LOAD_MANIFEST_FOLDER,
-    UFC_META_FILES_LOCATION,
-    REDSHIFT_S3_READ_IAM_ROLE,
-    UFCSTATS_ROUND_SOURCE_TABLE_NAME,
-    UFCSTATS_FIGHT_SOURCE_TABLE_NAME,
-    UFCSTATS_ROUND_SOURCE_SCHEMA,
-    UFCSTATS_FIGHT_SOURCE_SCHEMA,
-)
-
-S3C = boto3.client(
-    "s3",
-    region_name=REGION_NAME,
-    aws_access_key_id=ACCESS_KEY_ID,
-    aws_secret_access_key=SECRET_ACCESS_KEY_ID,
-)
+from configfile import config_settings
 
 
 # global args. configured at start then not modified.
 STATE = {
+    **config_settings,
     "PROD_MODE": True,
-    "REGION_NAME": REGION_NAME,
     "START_DATE": None,  # becomes date object
     "END_DATE": None,  # becomes date object
     "PREFIX": "",
-    "UFCSTATS_ROUND_SOURCE_TABLE_NAME": UFCSTATS_ROUND_SOURCE_TABLE_NAME,
-    "UFCSTATS_FIGHT_SOURCE_TABLE_NAME": UFCSTATS_FIGHT_SOURCE_TABLE_NAME,
-    "UFCSTATS_ROUND_SOURCE_SCHEMA": UFCSTATS_ROUND_SOURCE_SCHEMA,
-    "UFCSTATS_FIGHT_SOURCE_SCHEMA": UFCSTATS_FIGHT_SOURCE_SCHEMA,
 }
 
+S3C = boto3.client(
+    "s3",
+    region_name=STATE["REGION_NAME"],
+    aws_access_key_id=ACCESS_KEY_ID,
+    aws_secret_access_key=SECRET_ACCESS_KEY_ID,
+)
 
 # run as lambda
 def main(event={}, context=None):
@@ -72,8 +57,8 @@ def callCopy(fight_manifest_file_name, round_manifest_file_name):
     the_rounds_query = f"""
                 
                 copy {STATE['UFCSTATS_ROUND_SOURCE_TABLE_NAME']}({STATE['UFCSTATS_ROUND_SOURCE_SCHEMA']})
-                from 's3://{UFC_META_FILES_LOCATION}/{LOAD_MANIFEST_FOLDER}/{round_manifest_file_name}'
-                -- iam_role '{REDSHIFT_S3_READ_IAM_ROLE}';
+                from 's3://{STATE['UFC_META_FILES_LOCATION']}/{STATE['LOAD_MANIFEST_FOLDER']}/{round_manifest_file_name}'
+                -- iam_role '{STATE['REDSHIFT_S3_READ_IAM_ROLE']}';
                 access_key_id '{ACCESS_KEY_ID}'
                 secret_access_key '{SECRET_ACCESS_KEY_ID}'
                 csv
@@ -84,8 +69,8 @@ def callCopy(fight_manifest_file_name, round_manifest_file_name):
 
     the_fights_query = f"""
                 copy {STATE['UFCSTATS_FIGHT_SOURCE_TABLE_NAME']}({STATE['UFCSTATS_FIGHT_SOURCE_SCHEMA']})
-                from 's3://{UFC_META_FILES_LOCATION}/{LOAD_MANIFEST_FOLDER}/{fight_manifest_file_name}'
-                -- iam_role '{REDSHIFT_S3_READ_IAM_ROLE}';
+                from 's3://{STATE['UFC_META_FILES_LOCATION']}/{STATE['LOAD_MANIFEST_FOLDER']}/{fight_manifest_file_name}'
+                -- iam_role '{STATE['REDSHIFT_S3_READ_IAM_ROLE']}';
                 access_key_id '{ACCESS_KEY_ID}'
                 secret_access_key '{SECRET_ACCESS_KEY_ID}'
                 csv
@@ -139,12 +124,12 @@ def createManifests(STATE=STATE):
     # build manifest
     for x in fights:
         fight_manifest["entries"].append(
-            {"url": f"s3://{STAGE_LAYER_TWO}/{x}", "mandatory": True}
+            {"url": f"s3://{STATE['STAGE_LAYER_TWO']}/{x}", "mandatory": True}
         )
 
     for x in rounds:
         round_manifest["entries"].append(
-            {"url": f"s3://{STAGE_LAYER_TWO}/{x}", "mandatory": True}
+            {"url": f"s3://{STATE['STAGE_LAYER_TWO']}/{x}", "mandatory": True}
         )
 
     fight_manifest_file_name = f"{STATE['PREFIX']}fight-manifest-{datetime.now().isoformat(sep='-').replace(':','-').replace('.','-')}.json"
@@ -153,14 +138,14 @@ def createManifests(STATE=STATE):
     # Push our manifest log file
     S3C.put_object(
         ACL="private",
-        Bucket=f"{UFC_META_FILES_LOCATION}",
-        Key=f"{LOAD_MANIFEST_FOLDER}/{fight_manifest_file_name}",
+        Bucket=f"{STATE['UFC_META_FILES_LOCATION']}",
+        Key=f"{STATE['LOAD_MANIFEST_FOLDER']}/{fight_manifest_file_name}",
         Body=json.dumps(fight_manifest),
     )
     S3C.put_object(
         ACL="private",
-        Bucket=f"{UFC_META_FILES_LOCATION}",
-        Key=f"{LOAD_MANIFEST_FOLDER}/{round_manifest_file_name}",
+        Bucket=f"{STATE['UFC_META_FILES_LOCATION']}",
+        Key=f"{STATE['LOAD_MANIFEST_FOLDER']}/{round_manifest_file_name}",
         Body=json.dumps(round_manifest),
     )
 
@@ -182,7 +167,9 @@ def inside_bounds(x, STATE=STATE):
 
 def get_files(prefix_string=""):
     keys = []
-    res: dict = S3C.list_objects_v2(Bucket=STAGE_LAYER_TWO, Prefix=prefix_string)
+    res: dict = S3C.list_objects_v2(
+        Bucket=STATE["STAGE_LAYER_TWO"], Prefix=prefix_string
+    )
     while True:
         items = res["Contents"]
         for i in items:
@@ -192,7 +179,7 @@ def get_files(prefix_string=""):
         t = res["NextContinuationToken"]
 
         res = S3C.list_objects_v2(
-            Bucket=STAGE_LAYER_TWO, Prefix=prefix_string, ContinuationToken=t
+            Bucket=STATE["STAGE_LAYER_TWO"], Prefix=prefix_string, ContinuationToken=t
         )
     return keys
 
