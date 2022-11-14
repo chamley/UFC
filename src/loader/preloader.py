@@ -44,6 +44,10 @@ STATE = {
     "START_DATE": None,  # becomes date object
     "END_DATE": None,  # becomes date object
     "PREFIX": "",
+    "UFCSTATS_ROUND_SOURCE_TABLE_NAME": UFCSTATS_ROUND_SOURCE_TABLE_NAME,
+    "UFCSTATS_FIGHT_SOURCE_TABLE_NAME": UFCSTATS_FIGHT_SOURCE_TABLE_NAME,
+    "UFCSTATS_ROUND_SOURCE_SCHEMA": UFCSTATS_ROUND_SOURCE_SCHEMA,
+    "UFCSTATS_FIGHT_SOURCE_SCHEMA": UFCSTATS_FIGHT_SOURCE_SCHEMA,
 }
 
 
@@ -67,8 +71,7 @@ def callCopy(fight_manifest_file_name, round_manifest_file_name):
 
     the_rounds_query = f"""
                 
-                
-                copy {UFCSTATS_ROUND_SOURCE_TABLE_NAME}({UFCSTATS_ROUND_SOURCE_SCHEMA})
+                copy {STATE['UFCSTATS_ROUND_SOURCE_TABLE_NAME']}({STATE['UFCSTATS_ROUND_SOURCE_SCHEMA']})
                 from 's3://{UFC_META_FILES_LOCATION}/{LOAD_MANIFEST_FOLDER}/{round_manifest_file_name}'
                 -- iam_role '{REDSHIFT_S3_READ_IAM_ROLE}';
                 access_key_id '{ACCESS_KEY_ID}'
@@ -80,7 +83,7 @@ def callCopy(fight_manifest_file_name, round_manifest_file_name):
             """
 
     the_fights_query = f"""
-                copy {UFCSTATS_FIGHT_SOURCE_TABLE_NAME}({UFCSTATS_FIGHT_SOURCE_SCHEMA})
+                copy {STATE['UFCSTATS_FIGHT_SOURCE_TABLE_NAME']}({STATE['UFCSTATS_FIGHT_SOURCE_SCHEMA']})
                 from 's3://{UFC_META_FILES_LOCATION}/{LOAD_MANIFEST_FOLDER}/{fight_manifest_file_name}'
                 -- iam_role '{REDSHIFT_S3_READ_IAM_ROLE}';
                 access_key_id '{ACCESS_KEY_ID}'
