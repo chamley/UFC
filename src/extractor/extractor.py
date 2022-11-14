@@ -32,7 +32,7 @@ from datetime import datetime
 from e1_helper import my_argument_parser, get_dates
 from datetime import date
 import json
-from configfile import STAGE_LAYER_ONE, REGION_NAME
+from configfile import config_settings
 from e1_exceptions import InvalidDates
 import logging
 
@@ -41,20 +41,23 @@ load_dotenv()
 access_key_id = os.getenv("access_key_id")
 secret_access_key_id = os.getenv("secret_access_key_id")
 
+STATE = {**config_settings}
+
 TODAY = datetime.today().date()  # make sure we don't parse the future event promo
 START_DATE = END_DATE = date.fromisoformat("1111-11-11")
 
 clean_dates = []
 
+
 S3C = boto3.client(
     "s3",
-    region_name=REGION_NAME,
+    region_name=STATE["REGION_NAME"],
     aws_access_key_id=access_key_id,
     aws_secret_access_key=secret_access_key_id,
 )
 S3R = boto3.resource(
     "s3",
-    region_name=REGION_NAME,
+    region_name=STATE["REGION_NAME"],
     aws_access_key_id=access_key_id,
     aws_secret_access_key=secret_access_key_id,
 )
@@ -129,7 +132,7 @@ def stage_layer_1():
     logging.info("finished getting EVENT (not singleton fight) urls:")
     logging.info(json.dumps(card_urls_dic, sort_keys=False, indent=4))
 
-    res2 = S3C.list_objects_v2(Bucket=STAGE_LAYER_ONE)
+    res2 = S3C.list_objects_v2(Bucket=STATE["STAGE_LAYER_ONE"])
     current_fight_pages = []
     while True:
         items2 = res2["Contents"]
@@ -139,7 +142,7 @@ def stage_layer_1():
             break
         t = res2["NextContinuationToken"]
 
-        res2 = S3C.list_objects_v2(Bucket=STAGE_LAYER_ONE, ContinuationToken=t)
+        res2 = S3C.list_objects_v2(Bucket=STATE["STAGE_LAYER_ONE"], ContinuationToken=t)
 
     # date is the key, url is the val
     for date_, card_url in card_urls_dic.items():
@@ -231,19 +234,21 @@ def create_fight_page(fight_url, date):
 
 
 def push_fight_page(fight_page, object_name):
-    logging.info("pushing: " + object_name + " to: " + STAGE_LAYER_ONE)
+    logging.info("pushing: " + object_name + " to: " + STATE["STAGE_LAYER_ONE"])
 
     # we add tmp as it seems to be the only folder that we can write to in AWS Lambda
     with open(f"/tmp/{object_name}", "w") as f:
         f.write(fight_page)
         logging.info(
             "trying to write filename:{}, bucket:{} key:{}".format(
-                object_name, STAGE_LAYER_ONE, object_name
+                object_name, STATE["STAGE_LAYER_ONE"], object_name
             )
         )
 
         S3C.upload_file(
-            Filename=f"/tmp/{object_name}", Bucket=STAGE_LAYER_ONE, Key=object_name
+            Filename=f"/tmp/{object_name}",
+            Bucket=STATE["STAGE_LAYER_ONE"],
+            Key=object_name,
         )
         logging.info("fight uploaded successfully")
 
