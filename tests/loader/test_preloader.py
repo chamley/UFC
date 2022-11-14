@@ -7,12 +7,27 @@ sys.path.append("src/loader/")
 from collections import defaultdict
 from datetime import date
 
-
+import json
 import pytest
-from configfile import STAGE_LAYER_TWO, REGION_NAME, UFC_META_FILES_LOCATION
-from src.loader.preloader import prepstate
+from configfile import (
+    STAGE_LAYER_TWO,
+    REGION_NAME,
+    UFC_META_FILES_LOCATION,
+    LOAD_MANIFEST_FOLDER,
+)
+
 import random
 import awswrangler as wr
+import boto3
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
+my_session = boto3.session.Session()
+
+
+ACCESS_KEY_ID = os.getenv("access_key_id")
+SECRET_ACCESS_KEY_ID = os.getenv("secret_access_key_id")
 
 # Default state (what we start off with at the top of the script/load from config)
 def return_default_state():
@@ -30,6 +45,9 @@ class ArgsObject(object):
     def __init__(self, dates=None, dev=None):
         self.dates = dates
         self.dev = dev
+
+
+from src.loader.preloader import prepstate
 
 
 class TestPrepstate(object):
@@ -193,22 +211,57 @@ class TestCreateManifest(object):
             createManifests(STATE)
 
     @pytest.mark.parametrize(
-        "STATE",
+        "STATE, expected_path",
         [
             (
                 {
                     **return_default_state(),
                     "START_DATE": date(1999, 1, 1),
                     "END_DATE": date(2000, 12, 31),
-                }
+                },
+                "tests/loader/mock_data/test-009709654492094155fight-manifest-2022-11-14-13-50-38-347682.json",
             ),
         ],
     )
-    def test_works_gud(self, STATE):
+    def test_works_gud(self, STATE, expected_path):
         test_key = f"test-{str(random.random())[2:]}"
+        s3c = my_session.client("s3")
+        s3r = my_session.resource("s3")
         STATE["PREFIX"] = test_key
-
         createManifests(STATE)
+
+        ## fight manifest
+        exact_key = s3c.list_objects_v2(
+            Bucket=UFC_META_FILES_LOCATION,
+            Prefix=f"{LOAD_MANIFEST_FOLDER}/{STATE['PREFIX']}fight-manifest-",
+        )["Contents"][0]["Key"]
+        actual_fight_manifest = json.loads(
+            (
+                s3r.Object(bucket_name=UFC_META_FILES_LOCATION, key=exact_key)
+                .get()["Body"]
+                .read()
+            )
+        )
+        # round manifest
+        exact_key = s3c.list_objects_v2(
+            Bucket=UFC_META_FILES_LOCATION,
+            Prefix=f"{LOAD_MANIFEST_FOLDER}/{STATE['PREFIX']}round-manifest-",
+        )["Contents"][0]["Key"]
+        actual_round_manifest = json.loads(
+            (
+                s3r.Object(bucket_name=UFC_META_FILES_LOCATION, key=exact_key)
+                .get()["Body"]
+                .read()
+            )
+        )
+
+        with (open(expected_path) as f):
+            expected_fight_manifest = json.loads(f.read())
+
+            print(json.dumps(expected_fight_manifest, indent=2, sort_keys=True))
+            print(json.dumps(actual_fight_manifest, indent=2, sort_keys=True))
+
+            assert expected_fight_manifest == actual_fight_manifest
 
 
 # TEST CALL COPY
