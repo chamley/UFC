@@ -267,11 +267,28 @@ class TestCreateManifest(object):
 
 
 from src.loader.preloader import callCopy
+from dbhelper import DBHelper
 
 
 class TestCallCopy(object):
-    pass
-    # create a copy of the source table via select into command
+    def test_integration(self):
+        STATE = return_default_state()
+        db = DBHelper()
+        conn = db.getConn()
+        cur = db.getCursor()
+        cur.execute(
+            f""" 
+            DROP TABLE IF EXISTS test_{STATE['UFCSTATS_FIGHT_SOURCE_TABLE_NAME']};
+            select * into test_{STATE['UFCSTATS_FIGHT_SOURCE_TABLE_NAME']} from {STATE['UFCSTATS_FIGHT_SOURCE_TABLE_NAME']} where false"""
+        )
+        cur.execute(
+            f"""
+            DROP TABLE IF EXISTS test_{STATE['UFCSTATS_ROUND_SOURCE_TABLE_NAME']};
+            select * into test_{STATE['UFCSTATS_ROUND_SOURCE_TABLE_NAME']} from {STATE['UFCSTATS_ROUND_SOURCE_TABLE_NAME']} where false"""
+        )
+        conn.commit()
+
+        assert False
 
     # create two fake tables based on source table   (select into from {source table name})
 
