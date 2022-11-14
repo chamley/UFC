@@ -7,3 +7,6 @@ E1_CSV_OPT_DATE_FOLDER_PATH = "e1-dates"
 REDSHIFT_S3_READ_IAM_ROLE = (
     "arn:aws:iam::aws:policy/AmazonRedshiftAllCommandsFullAccess"
 )
+
+UFCSTATS_ROUND_SOURCE_TABLE_NAME = "round_source"
+UFCSTATS_FIGHT_SOURCE_TABLE_NAME = "fight_source"
