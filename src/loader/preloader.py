@@ -4,7 +4,7 @@ from datetime import date, datetime
 import boto3
 import json
 import os
-
+import logging
 
 # LOCAL runs require this: #
 from dotenv import load_dotenv
@@ -55,6 +55,7 @@ def main(event={}, context=None):
     #### test #######################################################
 
     STATE = prepstate(event, STATE)
+    logging.info(f"current state: {STATE}")
     fight_manifest_file_name, round_manifest_file_name = createManifests()
     callCopy(fight_manifest_file_name, round_manifest_file_name)
 
@@ -172,6 +173,7 @@ def createManifests(STATE=STATE):
 
 # check date inside bounds
 def inside_bounds(x, STATE=STATE):
+    print(STATE)
     return (
         STATE["START_DATE"] <= date.fromisoformat(x[6:16])
         and date.fromisoformat(x[6:16]) <= STATE["END_DATE"]
