@@ -276,24 +276,31 @@ class TestCallCopy(object):
         db = DBHelper()
         conn = db.getConn()
         cur = db.getCursor()
+        # create two fake tables based on source table   (select into from {source table name})
         cur.execute(
             f""" 
-            DROP TABLE IF EXISTS test_{STATE['UFCSTATS_FIGHT_SOURCE_TABLE_NAME']};
             select * into test_{STATE['UFCSTATS_FIGHT_SOURCE_TABLE_NAME']} from {STATE['UFCSTATS_FIGHT_SOURCE_TABLE_NAME']} where false"""
         )
         cur.execute(
             f"""
-            DROP TABLE IF EXISTS test_{STATE['UFCSTATS_ROUND_SOURCE_TABLE_NAME']};
             select * into test_{STATE['UFCSTATS_ROUND_SOURCE_TABLE_NAME']} from {STATE['UFCSTATS_ROUND_SOURCE_TABLE_NAME']} where false"""
         )
         conn.commit()
+        # create two fake pieces of data, and a fake manifest pointing to those
 
+        # tear down infrastructure that you set up for the test.
+        cur.execute(
+            f"""
+            DROP TABLE test_{STATE['UFCSTATS_FIGHT_SOURCE_TABLE_NAME']};
+            """
+        )
+        cur.execute(
+            f"""
+            DROP TABLE test_{STATE['UFCSTATS_ROUND_SOURCE_TABLE_NAME']};
+            """
+        )
         assert False
-
-    # create two fake tables based on source table   (select into from {source table name})
 
     # create two fake pieces of data, and a fake manifest pointing to those
 
     # call callCopy and assert query new table to see if data looks the way it should
-
-    # tear down infrastructure that you set up for the test.
