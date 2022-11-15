@@ -20,6 +20,7 @@ from datetime import date
 from configfile import config_settings
 import logging
 
+logging.getLogger().setLevel(logging.INFO)
 load_dotenv()
 
 
@@ -54,15 +55,15 @@ def main(event={}, context=None) -> None:
     global STATE
     event = defaultdict(lambda: None, event)
     STATE = prepstate(event)  # set given input to lambda
-
     # find all valid keys to transform
     keys = get_keys()
+    logging.info(f"start date: {STATE['START_DATE']} and end date: {STATE['END_DATE']}")
     logging.info(f"We found {len(keys)} elements to transform")
     # We assure idempotency on write as we may be missing a
     # fight file or a rounds file but not its partner
 
     for k in keys:
-        print(k)
+        logging.info(f"processing {k}")
         object = S3R.Object(bucket_name=STATE["STAGE_LAYER_ONE"], key=k).get()
         file = object["Body"].read()
         try:
