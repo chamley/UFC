@@ -260,7 +260,7 @@ class TestPushData(object):
 
     @pytest.mark.parametrize("rounds, fight, k", [(None, None, None)])
     def test_empty_input(self, rounds, fight, k):
-        with pytest.raises(EmptyDataFrame):
+        with pytest.raises(TypeError):
             push_data(rounds, fight, k)
 
     @pytest.mark.parametrize(
@@ -353,18 +353,19 @@ class TestPushData(object):
         # create test case
         rand_test_id = str(random.random())[2:]
 
-        key = key + rand_test_id
+        key = rand_test_id + key
 
         push_data(rounds, fight, key)
 
         expected_fight = pd.DataFrame(fight, index=[0])
         expected_rounds = pd.DataFrame(rounds)
 
+        print(key)
         actual_fight = wr.s3.read_csv(
-            path=f"s3://{return_default_state()['STAGE_LAYER_TWO']}/{key}-fight.csv"
+            path=f"s3://{return_default_state()['STAGE_LAYER_TWO']}/{key[:-4]}-fight.csv"
         )
         actual_rounds = wr.s3.read_csv(
-            path=f"s3://{return_default_state()['STAGE_LAYER_TWO']}/{key}-rounds.csv"
+            path=f"s3://{return_default_state()['STAGE_LAYER_TWO']}/{key[:-4]}-rounds.csv"
         )
 
         pd.testing.assert_frame_equal(
@@ -378,7 +379,7 @@ class TestPushData(object):
         # yes this is not how you're supposed to do stuff but i want to be a data engineer not a QA engineer, time presses
         wr.s3.delete_objects(
             [
-                f"s3://{return_default_state()['STAGE_LAYER_TWO']}/{key}-fight.csv",
-                f"s3://{return_default_state()['STAGE_LAYER_TWO']}/{key}-rounds.csv",
+                f"s3://{return_default_state()['STAGE_LAYER_TWO']}/{key[:-4]}-fight.csv",
+                f"s3://{return_default_state()['STAGE_LAYER_TWO']}/{key[:-4]}-rounds.csv",
             ]
         )
