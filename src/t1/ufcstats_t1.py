@@ -90,29 +90,31 @@ def push_data(rounds, fight, k, STATE=STATE) -> None:
     ## Idempotency Check HERE
     try:
         test_obj = S3R.Object(
-            bucket_name=STATE["STAGE_LAYER_TWO"], key=f"{STATE['PREFIX']}{k}-rounds.csv"
+            bucket_name=STATE["STAGE_LAYER_TWO"],
+            key=f"{STATE['PREFIX']}{k[:-4]}-rounds.csv",
         ).get()
     except S3C.exceptions.NoSuchKey:
         logging.info(
-            f"writing{STATE['PREFIX']}{k}-rounds.csv to {STATE['STAGE_LAYER_TWO']}"
+            f"writing{STATE['PREFIX']}{k[:-4]}-rounds.csv to {STATE['STAGE_LAYER_TWO']}"
         )
         wr.s3.to_csv(
             pd.DataFrame(rounds),
-            path=f"s3://{STATE['STAGE_LAYER_TWO']}/{STATE['PREFIX']}{k}-rounds.csv",
+            path=f"s3://{STATE['STAGE_LAYER_TWO']}/{STATE['PREFIX']}{k[:-4]}-rounds.csv",
             index=False,
         )
     ## Idempotency Check HERE
     try:
         test_obj = S3R.Object(
-            bucket_name=STATE["STAGE_LAYER_TWO"], key=f"{STATE['PREFIX']}{k}-fight.csv"
+            bucket_name=STATE["STAGE_LAYER_TWO"],
+            key=f"{STATE['PREFIX']}{k[:-4]}-fight.csv",
         ).get()
     except S3C.exceptions.NoSuchKey:
         logging.info(
-            f"writing {STATE['PREFIX']}{k}-fight.csv to {STATE['STAGE_LAYER_TWO']}"
+            f"writing {STATE['PREFIX']}{k[:-4]}-fight.csv to {STATE['STAGE_LAYER_TWO']}"
         )
         wr.s3.to_csv(
             pd.DataFrame(fight, index=[0]),
-            path=f"s3://{STATE['STAGE_LAYER_TWO']}/{STATE['PREFIX']}{k}-fight.csv",
+            path=f"s3://{STATE['STAGE_LAYER_TWO']}/{STATE['PREFIX']}{k[:-4]}-fight.csv",
             index=False,
         )
 
