@@ -299,6 +299,8 @@ class TestCallCopy(object):
             DROP TABLE test_{STATE['UFCSTATS_ROUND_SOURCE_TABLE_NAME']};
             """
         )
+        conn.commit()
+        conn.close()
         assert False
 
     # create two fake pieces of data, and a fake manifest pointing to those
