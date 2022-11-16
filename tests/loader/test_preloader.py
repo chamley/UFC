@@ -223,7 +223,7 @@ class TestCreateManifest(object):
             ),
         ],
     )
-    def test_works_gud(self, STATE, expected_path):
+    def test_works_as_expected(self, STATE, expected_path):
         test_key = f"test-{str(random.random())[2:]}"
         s3c = my_session.client("s3")
         s3r = my_session.resource("s3")

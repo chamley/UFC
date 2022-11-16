@@ -167,9 +167,7 @@ def inside_bounds(x, STATE=STATE):
 
 def get_files(prefix_string=""):
     keys = []
-    res: dict = S3C.list_objects_v2(
-        Bucket=STATE["STAGE_LAYER_TWO"], Prefix=prefix_string
-    )
+    res = S3C.list_objects_v2(Bucket=STATE["STAGE_LAYER_TWO"], Prefix=prefix_string)
     while True:
         items = res["Contents"]
         for i in items:
