@@ -122,6 +122,14 @@ class TestGetKeys(object):
                 },
                 mock_keys["keys_2"],
             ),
+            (
+                {
+                    **return_default_state(),
+                    "START_DATE": date(1990, 1, 1),
+                    "END_DATE": date(1999, 8, 1),
+                },
+                mock_keys["keys_3"],
+            ),
         ],
     )
     def test_proper_keys_retrieved(self, STATE, expected):
