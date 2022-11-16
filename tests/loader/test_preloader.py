@@ -228,35 +228,38 @@ class TestCreateManifest(object):
         s3c = my_session.client("s3")
         s3r = my_session.resource("s3")
         STATE["PREFIX"] = test_key
-        createManifests(STATE)
+        fight_manifest_file_name, round_manifest_file_name = createManifests(STATE)
+        print("load_manifests/" + fight_manifest_file_name)
 
-        ## get fight manifest and delete
-        exact_key = s3c.list_objects_v2(
-            Bucket=STATE["UFC_META_FILES_LOCATION"],
-            Prefix=f"{STATE['LOAD_MANIFEST_FOLDER']}/{STATE['PREFIX']}fight-manifest-",
-        )["Contents"][0]["Key"]
         actual_fight_manifest = json.loads(
             (
-                s3r.Object(bucket_name=STATE["UFC_META_FILES_LOCATION"], key=exact_key)
+                s3r.Object(
+                    bucket_name=STATE["UFC_META_FILES_LOCATION"],
+                    key="load_manifests/" + fight_manifest_file_name,
+                )
                 .get()["Body"]
                 .read()
             )
         )
-        s3r.Object(bucket_name=STATE["UFC_META_FILES_LOCATION"], key=exact_key).delete()
+        s3r.Object(
+            bucket_name=STATE["UFC_META_FILES_LOCATION"],
+            key="load_manifests/" + fight_manifest_file_name,
+        ).delete()
 
-        # get round manifest and delete
-        exact_key = s3c.list_objects_v2(
-            Bucket=STATE["UFC_META_FILES_LOCATION"],
-            Prefix=f"{STATE['LOAD_MANIFEST_FOLDER']}/{STATE['PREFIX']}round-manifest-",
-        )["Contents"][0]["Key"]
         actual_round_manifest = json.loads(
             (
-                s3r.Object(bucket_name=STATE["UFC_META_FILES_LOCATION"], key=exact_key)
+                s3r.Object(
+                    bucket_name=STATE["UFC_META_FILES_LOCATION"],
+                    key="load_manifests/" + round_manifest_file_name,
+                )
                 .get()["Body"]
                 .read()
             )
         )
-        s3r.Object(bucket_name=STATE["UFC_META_FILES_LOCATION"], key=exact_key).delete()
+        s3r.Object(
+            bucket_name=STATE["UFC_META_FILES_LOCATION"],
+            key="load_manifests/" + round_manifest_file_name,
+        ).delete()
 
         with (open(expected_path) as f):
             expected_fight_manifest = json.loads(f.read())
