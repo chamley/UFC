@@ -264,8 +264,10 @@ class TestCreateManifest(object):
         with (open(expected_path) as f):
             expected_fight_manifest = json.loads(f.read())
 
-            print(json.dumps(expected_fight_manifest, indent=2, sort_keys=True))
-            print(json.dumps(actual_fight_manifest, indent=2, sort_keys=True))
+            # print(json.dumps(expected_fight_manifest, indent=2, sort_keys=True))
+            # print(json.dumps(actual_fight_manifest, indent=2, sort_keys=True))
+            # print(type(expected_fight_manifest), type(actual_round_manifest))
+
             assert expected_fight_manifest == actual_fight_manifest
 
 
@@ -304,7 +306,6 @@ class TestCallCopy(object):
         )
         conn.commit()
         conn.close()
-        assert False
 
     # create two fake pieces of data, and a fake manifest pointing to those
 

@@ -498,10 +498,8 @@ def get_keys(STATE=STATE) -> list:
         if keys:
             for k in keys:
                 d = date.fromisoformat(k["Key"][6:16])
-                print(d, STATE["START_DATE"], STATE["END_DATE"])
                 if STATE["START_DATE"] <= d and d <= STATE["END_DATE"]:
                     valid_sl1_keys.append(k["Key"])
-                    print("added")
 
     return valid_sl1_keys
 
