@@ -16,7 +16,7 @@ secrets_manager_client = boto3.client(
 )
 
 db_config = secrets_manager_client.get_secret_value(
-    SecretId=STATE["redshift_db_login_SecretId"], region_name=STATE["REGION_NAME"]
+    SecretId=STATE["redshift_db_login_SecretId"],
 )["SecretString"]
 
 # local or deployed
