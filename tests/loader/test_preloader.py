@@ -271,6 +271,33 @@ class TestCreateManifest(object):
             assert expected_fight_manifest == actual_fight_manifest
 
 
+from src.loader.preloader import get_files
+
+
+class TestGetFiles(object):
+    @pytest.mark.parametrize(
+        "STATE, prefix_string",
+        [
+            (
+                {
+                    **return_default_state(),
+                    "START_DATE": date(1800, 1, 1),
+                    "END_DATE": date(2015, 6, 1),
+                },
+                "fight-2010",
+            )
+        ],
+    )
+    def test_something(self, STATE, prefix_string):
+
+        keys = get_files(prefix_string=prefix_string, STATE=STATE)
+        # dates = [date.fromisoformat(x["Key"][6:16]) for x in keys]
+        # for e in sorted(list(set(dates))):
+        #     print(e)
+
+        assert True
+
+
 from src.loader.preloader import callCopy
 from dbhelper import DBHelper
 
