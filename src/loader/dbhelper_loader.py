@@ -2,18 +2,29 @@ import psycopg2
 from dotenv import load_dotenv
 import os
 from psycopg2.extras import execute_batch
-
+import boto3
+from configfile import config_settings
 
 load_dotenv()
 
-DB_HOST = (
-    os.getenv("db_host")
-    if os.getenv("db_host")
-    else "ufc-main.c54pcx5oxf8d.us-east-1.redshift.amazonaws.com"
+# get our creds from the secrets manager:
+
+STATE = {**config_settings}
+
+secrets_manager_client = boto3.client(
+    service_name="secretsmanager", region_name=STATE["REGION_NAME"]
 )
 
-DB_USERNAME = os.getenv("db_username")
-DB_PASSWORD = os.getenv("db_password")
+db_config = secrets_manager_client.get_secret_value(
+    SecretId=STATE["redshift_db_login_SecretId"], region_name=STATE["REGION_NAME"]
+)["SecretString"]
+
+# local or deployed
+DB_HOST = os.getenv("db_host") or db_config["host"]
+DB_USERNAME = os.getenv("db_username") or db_config["username"]
+DB_PASSWORD = os.getenv("db_password") or db_config["password"]
+PORT = os.getenv("ufc_port") or db_config["port"]
+
 
 ## DESIGN DECISION - PARALLELISM:
 ## For THREAD SAFTEY each query must create its own cursor.
@@ -28,11 +39,11 @@ DB_PASSWORD = os.getenv("db_password")
 class DBHelper:
     def __init__(self):
         self.conn = psycopg2.connect(
-            dbname="dev",
+            dbname=STATE["main_ufc_db_name"],
             user=DB_USERNAME,
             password=DB_PASSWORD,
             host=DB_HOST,
-            port="5439",
+            port=PORT,
         )
         self.cur = self.conn.cursor()
 
