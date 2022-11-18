@@ -6,6 +6,7 @@ import json
 import os
 import logging
 
+logging.getLogger().setLevel(logging.INFO)
 # LOCAL runs require this: #
 from dotenv import load_dotenv
 
@@ -79,6 +80,8 @@ def callCopy(fight_manifest_file_name, round_manifest_file_name):
                 manifest
             """
 
+    logging.info(f"executing this query for rounds: {the_rounds_query}")
+    logging.info(f"executing this query for fights: {the_fights_query}")
     conn = db.getConn()
     cur = db.getCursor()
     cur.execute(the_rounds_query)
@@ -90,6 +93,8 @@ def callCopy(fight_manifest_file_name, round_manifest_file_name):
 # Design Decisions:
 # I like the idea of pushing a manifest to S3 and keeping them as potential logs.
 # creates manifests and pushes them to s3 and returns us their location
+
+
 def createManifests(STATE=STATE):
     """given input to Lambda build a manifest dict and also push it as a timestamped log to s3 meta files"""
     round_manifest = {
@@ -121,7 +126,7 @@ def createManifests(STATE=STATE):
         lambda x: x[-9:] == "fight.csv" and inside_bounds(x, STATE), keys
     )  # for testing purposes we need to add STATE here
 
-    # build manifest
+    # build manifestite
     for x in fights:
         fight_manifest["entries"].append(
             {"url": f"s3://{STATE['STAGE_LAYER_TWO']}/{x}", "mandatory": True}
@@ -165,20 +170,23 @@ def inside_bounds(x, STATE=STATE):
     )
 
 
-def get_files(prefix_string=""):
+def get_files(prefix_string="", STATE=STATE):
     keys = []
     res = S3C.list_objects_v2(Bucket=STATE["STAGE_LAYER_TWO"], Prefix=prefix_string)
-    while True:
-        items = res["Contents"]
-        for i in items:
-            keys.append(i)
-        if not "NextContinuationToken" in res:
-            break
-        t = res["NextContinuationToken"]
+    if res.get("Contents"):
+        while True:
+            items = res["Contents"]
+            for i in items:
+                keys.append(i)
+            if not "NextContinuationToken" in res:
+                break
+            t = res["NextContinuationToken"]
 
-        res = S3C.list_objects_v2(
-            Bucket=STATE["STAGE_LAYER_TWO"], Prefix=prefix_string, ContinuationToken=t
-        )
+            res = S3C.list_objects_v2(
+                Bucket=STATE["STAGE_LAYER_TWO"],
+                Prefix=prefix_string,
+                ContinuationToken=t,
+            )
     return keys
 
 
