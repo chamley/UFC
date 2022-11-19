@@ -4,6 +4,7 @@ import os
 from psycopg2.extras import execute_batch
 import boto3
 from configfile import config_settings
+import json
 
 load_dotenv()
 
@@ -15,9 +16,11 @@ secrets_manager_client = boto3.client(
     service_name="secretsmanager", region_name=STATE["REGION_NAME"]
 )
 
-db_config = secrets_manager_client.get_secret_value(
-    SecretId=STATE["redshift_db_login_SecretId"],
-)["SecretString"]
+db_config = json.loads(
+    secrets_manager_client.get_secret_value(
+        SecretId=STATE["redshift_db_login_SecretId"],
+    )["SecretString"]
+)
 
 # local or deployed
 DB_HOST = os.getenv("db_host") or db_config["host"]

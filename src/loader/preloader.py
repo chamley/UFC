@@ -59,9 +59,9 @@ def callCopy(fight_manifest_file_name, round_manifest_file_name):
                 
                 copy {STATE['UFCSTATS_ROUND_SOURCE_TABLE_NAME']}({STATE['UFCSTATS_ROUND_SOURCE_SCHEMA']})
                 from 's3://{STATE['UFC_META_FILES_LOCATION']}/{STATE['LOAD_MANIFEST_FOLDER']}/{round_manifest_file_name}'
-                -- iam_role '{STATE['REDSHIFT_S3_READ_IAM_ROLE']}';
-                access_key_id '{ACCESS_KEY_ID}'
-                secret_access_key '{SECRET_ACCESS_KEY_ID}'
+                iam_role '{STATE['REDSHIFT_S3_READ_IAM_ROLE']}'
+                -- access_key_id '{ACCESS_KEY_ID}'
+                -- secret_access_key '{SECRET_ACCESS_KEY_ID}'
                 csv
                 emptyasnull
                 IGNOREHEADER 1
@@ -71,9 +71,9 @@ def callCopy(fight_manifest_file_name, round_manifest_file_name):
     the_fights_query = f"""
                 copy {STATE['UFCSTATS_FIGHT_SOURCE_TABLE_NAME']}({STATE['UFCSTATS_FIGHT_SOURCE_SCHEMA']})
                 from 's3://{STATE['UFC_META_FILES_LOCATION']}/{STATE['LOAD_MANIFEST_FOLDER']}/{fight_manifest_file_name}'
-                -- iam_role '{STATE['REDSHIFT_S3_READ_IAM_ROLE']}';
-                access_key_id '{ACCESS_KEY_ID}'
-                secret_access_key '{SECRET_ACCESS_KEY_ID}'
+                iam_role '{STATE['REDSHIFT_S3_READ_IAM_ROLE']}'
+                -- access_key_id '{ACCESS_KEY_ID}'
+                -- secret_access_key '{SECRET_ACCESS_KEY_ID}'
                 csv
                 emptyasnull
                 IGNOREHEADER 1

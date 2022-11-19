@@ -9,7 +9,7 @@ config_settings = {
     "E1_CSV_OPT_DATE_FOLDER_PATH": "e1-dates",
     # roles
     "REDSHIFT_S3_READ_IAM_ROLE": (
-        "arn:aws:iam::aws:policy/AmazonRedshiftAllCommandsFullAccess"
+        "arn:aws:iam::830838610144:role/service-role/AmazonRedshift-CommandsAccessRole-20220426T165428"
     ),
     # database table names
     "UFCSTATS_ROUND_SOURCE_TABLE_NAME": "round_source",
