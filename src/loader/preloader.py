@@ -56,7 +56,7 @@ def callCopy(fight_manifest_file_name, round_manifest_file_name):
     db = DBHelper()
 
     the_rounds_query = f"""
-                
+
                 copy {STATE['UFCSTATS_ROUND_SOURCE_TABLE_NAME']}({STATE['UFCSTATS_ROUND_SOURCE_SCHEMA']})
                 from 's3://{STATE['UFC_META_FILES_LOCATION']}/{STATE['LOAD_MANIFEST_FOLDER']}/{round_manifest_file_name}'
                 iam_role '{STATE['REDSHIFT_S3_READ_IAM_ROLE']}'
