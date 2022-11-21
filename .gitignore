@@ -30,3 +30,6 @@ tests/t1/mock_inputs/
 src/t1/response.json
 tests/loader/mock_data/test-009709654492094155fight-manifest-2022-11-14-13-50-38-347682.json
 tempscript.py
+src/data_examiner.py
+date_table.csv
+loader-alpha.py

@@ -55,7 +55,8 @@ def main(event={}, context=None):
 def callCopy(fight_manifest_file_name, round_manifest_file_name):
     db = DBHelper()
 
-    the_rounds_query = f"""
+    query = f"""
+                BEGIN;
 
                 copy {STATE['UFCSTATS_ROUND_SOURCE_TABLE_NAME']}({STATE['UFCSTATS_ROUND_SOURCE_SCHEMA']})
                 from 's3://{STATE['UFC_META_FILES_LOCATION']}/{STATE['LOAD_MANIFEST_FOLDER']}/{round_manifest_file_name}'
@@ -65,10 +66,8 @@ def callCopy(fight_manifest_file_name, round_manifest_file_name):
                 csv
                 emptyasnull
                 IGNOREHEADER 1
-                manifest
-            """
+                manifest;
 
-    the_fights_query = f"""
                 copy {STATE['UFCSTATS_FIGHT_SOURCE_TABLE_NAME']}({STATE['UFCSTATS_FIGHT_SOURCE_SCHEMA']})
                 from 's3://{STATE['UFC_META_FILES_LOCATION']}/{STATE['LOAD_MANIFEST_FOLDER']}/{fight_manifest_file_name}'
                 iam_role '{STATE['REDSHIFT_S3_READ_IAM_ROLE']}'
@@ -77,16 +76,16 @@ def callCopy(fight_manifest_file_name, round_manifest_file_name):
                 csv
                 emptyasnull
                 IGNOREHEADER 1
-                manifest
+                manifest;
+
+                COMMIT;
             """
 
-    logging.info(f"executing this query for rounds: {the_rounds_query}")
-    logging.info(f"executing this query for fights: {the_fights_query}")
+    logging.info(f"executing this query: {query}")
+
     conn = db.getConn()
     cur = db.getCursor()
-    cur.execute(the_rounds_query)
-    cur.execute(the_fights_query)
-    conn.commit()
+    cur.execute(query)
     db.closeDB()
 
 
