@@ -3,5 +3,5 @@
 
 {{ config(materialized="table") }}
 
-with data as (select * 
+select * 
 from {{ ref('round_stg') }})
