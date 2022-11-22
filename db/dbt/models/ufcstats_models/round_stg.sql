@@ -6,6 +6,6 @@
 
     Try changing "table" to "view" below
 */
-{{ config(materialized="table") }}
+{{ config(materialized="view") }}
 
  select * from {{ source('ufcstats_source', 'round_source') }}
