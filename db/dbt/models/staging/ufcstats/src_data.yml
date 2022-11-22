@@ -158,8 +158,8 @@ sources:
             description: why the fight was stopped
             tests:
               - not_null
-              # - accepted_values:
-                  # values: ['submission','decision - unanimous','decision - split','ko/tko']
+              - accepted_values:
+                  values: ["decision - unanimous","ko/tko","submission","decision - split","tko - doctor's stoppage","decision - majority","overturned","dq","could not continue","other"]
           - name: referee
             description: name of referee for the fight
           - name: round_format
