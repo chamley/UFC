@@ -14,7 +14,7 @@ tests/extractor/__pycache__/
 __pycache__/
 src/t1/__pycache__/t1_helper.cpython-310.pyc
 src/t1/__pycache__
-src/date_table.csv
+src/date_table.csvd
 terraform/terraform.tfvars
 terraform/.terraform.lock.hcl
 terraform/.terraform/

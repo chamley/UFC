@@ -214,5 +214,5 @@ def prepstate(event, STATE):
 
 
 # run as script
-if __name__ == "__main__":
-    main()
+# if __name__ == "__main__":
+#     main(event={"dates": {"start": "1992-01-01", "end": "2023-01-01"}}, context=None)
