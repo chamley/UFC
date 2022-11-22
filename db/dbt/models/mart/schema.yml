@@ -6,3 +6,5 @@ models:
       description: "ayyy mamasitaa que pasoooooo"
     - name: fight_dim
       description: "ayyy mamasitaa que pasoooooo"
+    - name: round_fact
+      description: "ayyy mamasitaa que pasoooooo"
