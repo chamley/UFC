@@ -7,4 +7,5 @@
     Try changing "table" to "view" below
 */
 {{ config(materialized="table") }}
- select * from public.round_source
+
+ select * from {{ source('ufcstats_source', 'round_source') }}

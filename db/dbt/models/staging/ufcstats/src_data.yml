@@ -1,7 +1,7 @@
 version: 2
 
 sources:
-  - name: ufcstats_source
+  - name: ufcstats_source # first arg to the source (..,..) statement
     database: dev
     schema: public
     tables:
@@ -158,7 +158,7 @@ sources:
             description: why the fight was stopped
             tests:
               - not_null
-              - accepted_values:
+             # - accepted_values:
                   # values: ["decision - unanimous","ko/tko","submission","decision - split","tko - doctor's stoppage","decision - majority","overturned","dq","could not continue","other"]
           - name: referee
             description: name of referee for the fight
