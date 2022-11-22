@@ -14,11 +14,13 @@ from src.extractor.extractor import (
     create_fight_page,
     push_fight_page,
 )
-from configfile import STAGE_LAYER_ONE, REGION_NAME
+from configfile import config_settings
 import pytest
 import boto3
 from moto import mock_s3
 from datetime import date
+
+STATE = {**config_settings}
 
 # need an object with a .text field to properly test function
 class fakeRequest(object):
@@ -79,12 +81,12 @@ class TestPushFightPage(object):
         ],
     )
     def test_pushes_fight_page_correctly(self, fight_page, object_name):
-        s3c = boto3.client("s3", REGION_NAME)
-        s3c.create_bucket(Bucket=STAGE_LAYER_ONE)
+        s3c = boto3.client("s3", STATE["REGION_NAME"])
+        s3c.create_bucket(Bucket=STATE["STAGE_LAYER_ONE"])
         push_fight_page(fight_page, object_name)
 
         actual = (
-            s3c.get_object(Bucket=STAGE_LAYER_ONE, Key=object_name)["Body"]
+            s3c.get_object(Bucket=STATE["STAGE_LAYER_ONE"], Key=object_name)["Body"]
             .read()
             .decode("utf-8")
         )

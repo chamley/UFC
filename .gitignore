@@ -14,4 +14,22 @@ tests/extractor/__pycache__/
 __pycache__/
 src/t1/__pycache__/t1_helper.cpython-310.pyc
 src/t1/__pycache__
-src/date_table.csv
+src/date_table.csvd
+terraform/terraform.tfvars
+terraform/.terraform.lock.hcl
+terraform/.terraform/
+terraform/terraform.tfstate.backup
+terraform/terraform.tfstate
+terraform/terraform.tfstate*
+
+
+# testing data
+
+tests/extractor/mock_inputs/
+tests/t1/mock_inputs/
+src/t1/response.json
+tests/loader/mock_data/test-009709654492094155fight-manifest-2022-11-14-13-50-38-347682.json
+tempscript.py
+src/data_examiner.py
+date_table.csv
+loader-alpha.py

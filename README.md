@@ -39,7 +39,7 @@ Hi. This is my personal project where I hope to aggregate all available data in 
 
 ToDo:
 - Dashboards not deployed due to TableauServer not having a free tier and my Redshift/MWAA costs lightly bankrupting me.
-- IaaC (Terraform)
+- finish terraform migration (Lambda, MWAA, + IAM and terraform cloud)
 - CD
 
 

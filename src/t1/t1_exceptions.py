@@ -6,5 +6,4 @@ class InvalidDates(Exception):
 
 class InvalidHTMLTableDimensions(Exception):
     """invalid dates passed to lambda"""
-
     pass

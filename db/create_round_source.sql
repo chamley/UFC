@@ -24,6 +24,7 @@ create table round_source
     ss_a_cl numeric,
     ss_l_gr numeric,
     ss_a_gr numeric,
+    fighter_name text,
     fighter_id text,
     fight_key_nat text,
     round_num NUMERIC,

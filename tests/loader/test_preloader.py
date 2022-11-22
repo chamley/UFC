@@ -1,27 +1,53 @@
 import sys
+
+sys.path.append(".")
+sys.path.append("src/loader/")
+
+
 from collections import defaultdict
 from datetime import date
 
-
+import json
 import pytest
-from configfile import STAGE_LAYER_TWO, REGION_NAME
-from src.loader.preloader import prepstate
+from configfile import config_settings
+
+import random
+import awswrangler as wr
+import boto3
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
+
+
+ACCESS_KEY_ID = os.getenv("access_key_id")
+SECRET_ACCESS_KEY_ID = os.getenv("secret_access_key_id")
 
 # Default state (what we start off with at the top of the script/load from config)
 def return_default_state():
     return {
+        **config_settings,
         "PROD_MODE": False,
-        "STAGE_LAYER_TWO": STAGE_LAYER_TWO,
-        "REGION_NAME": REGION_NAME,
         "START_DATE": None,
         "END_DATE": None,
+        "PREFIX": "",
     }
+
+
+my_session = boto3.session.Session(
+    aws_access_key_id=ACCESS_KEY_ID,
+    aws_secret_access_key=SECRET_ACCESS_KEY_ID,
+    region_name="us-east-1",
+)
 
 
 class ArgsObject(object):
     def __init__(self, dates=None, dev=None):
         self.dates = dates
         self.dev = dev
+
+
+from src.loader.preloader import prepstate
 
 
 class TestPrepstate(object):
@@ -73,73 +99,241 @@ class TestPrepstate(object):
         assert actual == expected
 
 
-# class TestPrepScript(object):
-#     # 3 tests here seen in code + 2 Value Errors from isoformsat errors
-#     @pytest.mark.parametrize(
-#         "STATE, event, args",
-#         [
-#             (return_default_state(), {}, ArgsObject(dates=["asdf", "111"])),
-#             (return_default_state(), {"dates": {"start": "asdf", "end": "aaa"}}, None),
-#             (
-#                 return_default_state(),
-#                 {"dates": {"start": "2022-01-01", "end": "2021-01-01"}},
-#                 None,
-#             ),
-#             (
-#                 return_default_state(),
-#                 {},
-#                 ArgsObject(dates=["2022-03-04", "2005-03-04"]),
-#             ),
-#             (return_default_state(), {}, ArgsObject()),
-#         ],
-#     )
-#     def test_throws_value_error_for_incorrect_inputs(self, STATE, event, args):
-#         with pytest.raises(ValueError):
-#             prep_script(STATE, event, args)
+from src.loader.preloader import inside_bounds
 
-# @pytest.mark.parametrize(
-#     "STATE, event, args, expected",
-#     [
-#         (
-#             return_default_state(),
-#             defaultdict(lambda: None, {"dev": "True"}),
-#             ArgsObject(),
-#             {**return_default_state(), "DEV_MODE": True, "PROD_MODE": True},
-#         ),
-#         (
-#             return_default_state(),
-#             defaultdict(
-#                 lambda: None,
-#                 {"dates": {"start": "2021-04-04", "end": "2021-05-05"}},
-#             ),
-#             ArgsObject(),
-#             {
-#                 **return_default_state(),
-#                 "PROD_MODE": True,
-#                 "DATE_SPECIFIED": True,
-#                 "START_DATE": date.fromisoformat("2021-04-04"),
-#                 "END_DATE": date.fromisoformat("2021-05-05"),
-#             },
-#         ),
-#         (
-#             return_default_state(),
-#             defaultdict(lambda: None, {}),
-#             ArgsObject(dates=["2015-04-04", "2016-06-05"]),
-#             {
-#                 **return_default_state(),
-#                 "DATE_SPECIFIED": True,
-#                 "START_DATE": date.fromisoformat("2015-04-04"),
-#                 "END_DATE": date.fromisoformat("2016-06-05"),
-#             },
-#         ),
-#         (
-#             return_default_state(),
-#             defaultdict(lambda: None, {}),
-#             ArgsObject(dev=True),
-#             {**return_default_state(), "DEV_MODE": True},
-#         ),
-#     ],
-# )
-# def test_correct_end_state_for_valid_inputs(self, STATE, event, args, expected):
-#     actual = prep_script(STATE, event, args)
-#     assert expected == actual
+
+class TestInsideBounds(object):
+    @pytest.mark.parametrize(
+        "xtc, STATE, expected",
+        [
+            (
+                "2001-01-01",
+                {
+                    "START_DATE": date.fromisoformat("1990-04-01"),
+                    "END_DATE": date.fromisoformat("2001-01-01"),
+                },
+                True,
+            ),
+            (
+                "1990-04-01",
+                {
+                    "START_DATE": date.fromisoformat("1990-04-01"),
+                    "END_DATE": date.fromisoformat("2001-01-01"),
+                },
+                True,
+            ),
+            (
+                "1989-04-01",
+                {
+                    "START_DATE": date.fromisoformat("1990-04-01"),
+                    "END_DATE": date.fromisoformat("2001-01-01"),
+                },
+                False,
+            ),
+            (
+                "2002-04-01",
+                {
+                    "START_DATE": date.fromisoformat("1990-04-01"),
+                    "END_DATE": date.fromisoformat("2001-01-01"),
+                },
+                False,
+            ),
+        ],
+    )
+    def test_it_works_lol(self, xtc, STATE, expected):
+
+        actual = inside_bounds(" " * 6 + xtc, STATE)
+        assert actual == expected
+
+    @pytest.mark.parametrize(
+        "xt, STATE",
+        [
+            (
+                "2001-01-01",
+                {
+                    "START_DATE": date.fromisoformat("1990-04-01"),
+                    "END_DATE": date.fromisoformat("2001-01-01"),
+                },
+            ),
+            (
+                " " * 16,
+                {
+                    "START_DATE": date.fromisoformat("1990-04-01"),
+                    "END_DATE": date.fromisoformat("2001-01-01"),
+                },
+            ),
+            (
+                "QUE PASA",
+                {
+                    "START_DATE": date.fromisoformat("1990-04-01"),
+                    "END_DATE": date.fromisoformat("2001-01-01"),
+                },
+            ),
+        ],
+    )
+    def test_it_throws_sane_errors(self, xt, STATE):
+        with pytest.raises(ValueError):
+            inside_bounds(xt, STATE)
+
+
+# TEST CREATE MANIFESTS
+
+from src.loader.preloader import createManifests
+
+
+class TestCreateManifest(object):
+    @pytest.mark.parametrize(
+        "STATE",
+        [
+            (
+                {
+                    **return_default_state(),
+                }
+            ),
+        ],
+    )
+    def test_raises_error_on_invalid_dates(self, STATE):
+
+        with pytest.raises(AttributeError):
+            createManifests(STATE)
+
+    @pytest.mark.parametrize(
+        "STATE",
+        [
+            ({}),
+            ({"ohai": "quepasas"}),
+            ({"invalid key": date(2001, 1, 1)}),
+        ],
+    )
+    def test_raises_error_on_invalid_state(self, STATE):
+
+        with pytest.raises(KeyError):
+            createManifests(STATE)
+
+    @pytest.mark.parametrize(
+        "STATE, expected_path",
+        [
+            (
+                {
+                    **return_default_state(),
+                    "START_DATE": date(1999, 1, 1),
+                    "END_DATE": date(2000, 12, 31),
+                },
+                "tests/loader/mock_data/test-009709654492094155fight-manifest-2022-11-14-13-50-38-347682.json",
+            ),
+        ],
+    )
+    def test_works_as_expected(self, STATE, expected_path):
+        test_key = f"test-{str(random.random())[2:]}"
+        s3c = my_session.client("s3")
+        s3r = my_session.resource("s3")
+        STATE["PREFIX"] = test_key
+        fight_manifest_file_name, round_manifest_file_name = createManifests(STATE)
+        print("load_manifests/" + fight_manifest_file_name)
+
+        actual_fight_manifest = json.loads(
+            (
+                s3r.Object(
+                    bucket_name=STATE["UFC_META_FILES_LOCATION"],
+                    key="load_manifests/" + fight_manifest_file_name,
+                )
+                .get()["Body"]
+                .read()
+            )
+        )
+        s3r.Object(
+            bucket_name=STATE["UFC_META_FILES_LOCATION"],
+            key="load_manifests/" + fight_manifest_file_name,
+        ).delete()
+
+        actual_round_manifest = json.loads(
+            (
+                s3r.Object(
+                    bucket_name=STATE["UFC_META_FILES_LOCATION"],
+                    key="load_manifests/" + round_manifest_file_name,
+                )
+                .get()["Body"]
+                .read()
+            )
+        )
+        s3r.Object(
+            bucket_name=STATE["UFC_META_FILES_LOCATION"],
+            key="load_manifests/" + round_manifest_file_name,
+        ).delete()
+
+        with (open(expected_path) as f):
+            expected_fight_manifest = json.loads(f.read())
+
+            # print(json.dumps(expected_fight_manifest, indent=2, sort_keys=True))
+            # print(json.dumps(actual_fight_manifest, indent=2, sort_keys=True))
+            # print(type(expected_fight_manifest), type(actual_round_manifest))
+
+            assert expected_fight_manifest == actual_fight_manifest
+
+
+from src.loader.preloader import get_files
+
+
+class TestGetFiles(object):
+    @pytest.mark.parametrize(
+        "STATE, prefix_string",
+        [
+            (
+                {
+                    **return_default_state(),
+                    "START_DATE": date(1800, 1, 1),
+                    "END_DATE": date(2015, 6, 1),
+                },
+                "fight-2010",
+            )
+        ],
+    )
+    def test_something(self, STATE, prefix_string):
+
+        keys = get_files(prefix_string=prefix_string, STATE=STATE)
+        # dates = [date.fromisoformat(x["Key"][6:16]) for x in keys]
+        # for e in sorted(list(set(dates))):
+        #     print(e)
+
+        assert True
+
+
+from src.loader.preloader import callCopy
+from dbhelper import DBHelper
+
+
+class TestCallCopy(object):
+    def test_integration(self):
+        STATE = return_default_state()
+        db = DBHelper()
+        conn = db.getConn()
+        cur = db.getCursor()
+        # create two fake tables based on source table   (select into from {source table name})
+        cur.execute(
+            f""" 
+            select * into test_{STATE['UFCSTATS_FIGHT_SOURCE_TABLE_NAME']} from {STATE['UFCSTATS_FIGHT_SOURCE_TABLE_NAME']} where false"""
+        )
+        cur.execute(
+            f"""
+            select * into test_{STATE['UFCSTATS_ROUND_SOURCE_TABLE_NAME']} from {STATE['UFCSTATS_ROUND_SOURCE_TABLE_NAME']} where false"""
+        )
+        conn.commit()
+        # create two fake pieces of data, and a fake manifest pointing to those
+
+        # tear down infrastructure that you set up for the test.
+        cur.execute(
+            f"""
+            DROP TABLE test_{STATE['UFCSTATS_FIGHT_SOURCE_TABLE_NAME']};
+            """
+        )
+        cur.execute(
+            f"""
+            DROP TABLE test_{STATE['UFCSTATS_ROUND_SOURCE_TABLE_NAME']};
+            """
+        )
+        conn.commit()
+        conn.close()
+
+    # create two fake pieces of data, and a fake manifest pointing to those
+
+    # call callCopy and assert query new table to see if data looks the way it should

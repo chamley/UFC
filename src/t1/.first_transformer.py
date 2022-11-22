@@ -5,7 +5,7 @@ Desired behavior:
     - dev: activate DEV_MODE and stuff
 
 GLOBAL RULES:
-    - never overwrite files, skip and output an error in logs
+    - never overwrite files (idempotency)
 
 """
 
@@ -42,7 +42,7 @@ T = datetime.datetime.today()
 load_dotenv()
 
 
-ACCESS_KEY_ID: str = os.getenv("access_key_id")
+ACCESS_KEY_ID = os.getenv("access_key_id")
 SECRET_ACCESS_KEY_ID = os.getenv("secret_access_key_id")
 DATE: datetime.date = datetime.date.today()
 S3C = boto3.client(
@@ -130,6 +130,7 @@ def main(event, context):
             sanity_check(item["Key"], file)
             fight_data = parse_fight(file)
 
+            # parse_fight was written in a hurry and is pretty ugly, this sort of patches it all up
             fix_data(fight_data, item["Key"][:-4])
         except InvalidHTMLTableDimensions as e:
             print(f"HTML not parsable on {item['Key']}, skipping for now.")
@@ -375,6 +376,9 @@ def fix_data(d, k):
         b = d["blue"][f"r{n}"]
         r = d["red"][f"r{n}"]
 
+        b["fighter_name"] = d["blue"]["name"].lower().strip()
+        r["fighter_name"] = d["red"]["name"].lower().strip()
+
         b["fighter_id"] = d["blue"]["id"]
         r["fighter_id"] = d["red"]["id"]
         b["fight_key_nat"] = k
@@ -418,12 +422,12 @@ def fix_data(d, k):
         d["metadata"]["weight class"].lower(), fight["wmma"]
     )
 
-    # two different storage formats, for the memes.
-    boto3.setup_default_session(
-        region_name="us-east-1",
-        aws_access_key_id=ACCESS_KEY_ID,
-        aws_secret_access_key=SECRET_ACCESS_KEY_ID,
-    )
+    if not PRODUCTION_MODE:
+        boto3.setup_default_session(
+            region_name="us-east-1",
+            aws_access_key_id=ACCESS_KEY_ID,
+            aws_secret_access_key=SECRET_ACCESS_KEY_ID,
+        )
 
     # print(pd.DataFrame(rounds))
     # print(pd.DataFrame(fight, index=[0]))
@@ -449,6 +453,7 @@ def fix_data(d, k):
     return 1
 
 
+# transform weight class columns
 def format_weight_class(s, wmma):
     if not wmma:
         if "lightweight" in s:
@@ -492,6 +497,7 @@ def get_file_keys():
     res2 = S3C.list_objects_v2(Bucket=STAGE_LAYER_TWO, Prefix=prefix_string)
     keys2 = []
     while True:
+        print(res2)
         items2 = res2["Contents"]
         for i in items2:
             keys2.append(i["Key"])
@@ -521,6 +527,9 @@ def get_file_keys():
         for i in items:
             x = i["Key"].replace(".txt", "") + "-rounds.csv"
             y = i["Key"].replace(".txt", "") + "-fight.csv"
+
+            # idempotency
+
             # if x in keys2 and y in keys2 and not DEV_MODE:
             #     print(
             #         f"{i['Key'].replace('.txt', '')} already exists in SL2 ! Skipping."
