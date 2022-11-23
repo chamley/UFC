@@ -6,6 +6,10 @@
 
     Try changing "table" to "view" below
 */
-{{ config(materialized="view") }}
+{{ config(materialized="incremental") }}
 
- select * from {{ source('ufcstats_source', 'round_source') }}
+ select * from{{ source('ufcstats_source', 'round_source') }}
+{% if is_incremental() %}
+    -- this filter will only be applied on an incremental run
+    where loaded_at > (select max(loaded_at) from {{ this }}) 
+{% endif %}
