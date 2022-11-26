@@ -38,9 +38,10 @@ Hi. This is my personal project where I hope to aggregate all available data in 
 ![Example Dashboard 2](misc/d2.png)
 
 ToDo:
-- Dashboards not deployed due to TableauServer not having a free tier and my Redshift/MWAA costs lightly bankrupting me.
+- ~~Dashboards not deployed due to TableauServer not having a free tier and my Redshift/MWAA costs lightly bankrupting me.~~
+  - Moved it to a self hosted Metabase on elastic beanstalk
 - finish terraform migration (Lambda, MWAA, + IAM and terraform cloud)
-- CD
+- Integrate CI/CD beyond local bash scripts (eg: move to github actions)
 
 
 
