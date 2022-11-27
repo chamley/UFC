@@ -123,6 +123,7 @@ sources:
             description: natural key for the fight
             tests:
               - not_null
+              - unique
           - name: red_fighter_name
             description: name of the red fighter
             tests:
