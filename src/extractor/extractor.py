@@ -147,7 +147,6 @@ def stage_layer_1():
     # date is the key, url is the val
     for date_, card_url in card_urls_dic.items():
         # list of fight urls for that card
-        time.sleep(1)  # being respectful of their servers
         fight_urls_list = get_fight_url_list(card_url)
         logging.info(f"fight urls for {card_url} \n: {fight_urls_list}")
 
@@ -155,7 +154,6 @@ def stage_layer_1():
             logging.info("creating fight_page. ..")
             fight_page, names = create_fight_page(f, date_)
             logging.info("fight page created.")
-            time.sleep(1)  # being respectful of their servers
             # pushes card page to s3 with date added somewhere
 
             key = "fight-" + date_.replace("_", "-") + names.lower() + ".txt"
